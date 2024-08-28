@@ -1,0 +1,27 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+project:
+  id: 28b04220-e0b8-438c-96a2-905bd75d67f9
+  # title:
+  # description:
+  # keywords: []
+  authors:
+    - name: LambdaXymox
+      roles: 
+        - Conceptualization
+        - Formal Analysis
+        - Software
+        - Resources
+        - Visualization
+        - Writing - original draft
+        - Writing - review & editing
+      github: lambdaxymox
+  github: https://github.com/lambdaxymox/lambdaxymox.github.io
+  toc:
+    - file: content/01-example.md
+    
+site:
+  template: book-theme
+  options:
+    favicon: favicon.ico
+  #   logo: site_logo.png
