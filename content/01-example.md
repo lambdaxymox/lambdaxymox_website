@@ -1,20 +1,72 @@
 # A General Derivation Of Perspective And Orthographic Projection Matrices
 
-
 ## Projection Matrix Specification
-
-
 
 The projection transformations are parametrized by two set of parameters: the viewing frustum bounds
 {math}`l`, {math}`r`, {math}`b`, {math}`t`, {math}`n`, {math}`f` where {math}`l > 0`, {math}`r > 0`, 
 {math}`b > 0`, {math}`t > 0`, and {math}`f > n > 0`; the canonical view volume parametrized by
 {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
+where {math}`\alpha_{max} > \alpha_{min}`, {math}`\beta_{max} > \beta_{min}`, and {math}`\gamma_{max} > \gamma_{min}`.
 
+To understand what the projection matrices do, we must understand the spaces that we map between 
+at each step in the pipeline leading from the view space to the canonical view volume.
 
-Insert discource about relevant vector spaces here.
+The **view space** is the Euclidean space {math}`(\mathbb{E}^{3}, (O_{V}, B_{V}))` with 
+the following properties:
 
-The points {math}`L \in \mathbb{E^{3}}`, {math}`R \in \mathbb{E^{3}}` {math}`B \in \mathbb{E^{3}}`, 
-{math}`T \in \mathbb{E^{3}}`, {math}`N \in \mathbb{E^{3}}`, and {math}`F \in \mathbb{E^{3}}` correspond to 
+* The underlying vector space is {math}`\mathbb{R}^{3}`.
+* The **origin** of the orthonormal frame is the point {math}`O_{V} \in \mathbb{E}^{3}`.
+* The **basis** of the orthonormal frame is 
+  {math}`B_{V} = (\mathbf{\hat{u_{h}}}, \mathbf{\hat{u_{v}}}, \mathbf{\hat{u_{d}}})` where
+  the basis vector {math}`\mathbf{\hat{u_{h}}}` points to the right, the basis vector {math}`\mathbf{\hat{u_{v}}}`
+  points up, and the basis vector {math}`\mathbf{\hat{u_{d}}}` points into the view volume.
+* The orthonormal frame {math}`(O_{V}, B_{V})` has a left-handed orientation.
+
+The **projected space** is the Euclidean space 
+{math}`(\mathbb{E}^{3}, (O_{proj}, B_{proj}))` with the following properties:
+
+* The underlying vector space is {math}`\mathbb{R}^{3}`.
+* The **origin** of the orthonormal frame is the point {math}`O_{proj} = O_{V} \in \mathbb{E}^{3}`.
+* The **basis** of the orthonormal frame is
+  {math}`B_{proj} = (\mathbf{\hat{u_{h}}}, \mathbf{\hat{u_{v}}}, \mathbf{\hat{u_{d}}})` where
+  the basis vector {math}`\mathbf{\hat{u_{h}}}` points to the right, the basis vector {math}`\mathbf{\hat{u_{v}}}`
+  points up, and the basis vector {math}`\mathbf{\hat{u_{d}}}` points into the view volume.
+* The orthonormal frame {math}`(O_{proj}, B_{proj})` has a left-handed orientation.
+* The viewing volume is parametrized by {math}`[-l, r] \times [-b, t] \times [n, f]`.
+
+The **clip space** is the Euclidean space {math}`(\mathbb{E}^{3}, (O_{clip}, B_{clip}))` with
+the following properties:
+
+* The underlying vector space is {math}`\mathbb{R}^{3}`.
+* The **origin** of the orthonormal frame is the point {math}`O_{clip} = O_{V} \in \mathbb{E}^{3}`.
+* The **basis** of the orthonormal frame is
+  {math}`B_{clip} = (\mathbf{\hat{u_{h}}}, \mathbf{\hat{u_{v}}}, \mathbf{\hat{u_{d}}})` where
+  the basis vector {math}`\mathbf{\hat{u_{h}}}` points to the right, the basis vector {math}`\mathbf{\hat{u_{v}}}`
+  points up, and the basis vector {math}`\mathbf{\hat{u_{d}}}` points into the view volume.
+* The orthonormal frame {math}`(O_{clip}, B_{clip})` has a left-handed orientation.
+
+The **canonical view volume** is a subset of the Euclidean space {math}`(\mathbb{E}^{3}, (O_{cvv}, B_{cvv}))` 
+with the following properties:
+
+* The underlying vector space is {math}`\mathbb{R}^{3}`.
+* The **origin** of the orthonormal frame is the point {math}`O_{cvv} = O_{V} \in \mathbb{E}^{3}`.
+* The **basis** of the orthonormal frame is
+  {math}`B_{cvv} = (\mathbf{\hat{u_{h}}}, \mathbf{\hat{u_{v}}}, \mathbf{\hat{u_{d}}})` where
+  The basis vector {math}`\mathbf{\hat{u_{h}}}` points to the right, the basis vector {math}`\mathbf{\hat{u_{v}}}`
+  points up, and the basis vector {math}`\mathbf{\hat{u_{d}}}` points into the view volume.
+* The orthonormal frame {math}`(O_{cvv}, B_{cvv})` has a left-handed orientation.
+* The canonical viewing volume is parametrized by 
+  {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
+
+In particular, each geometric space above has the same coordinate system and orientation, but 
+slightly different properties in terms of the shape of the viewing volume. It is not strictly required
+that each space have the same orthonormal frame, but using the same coordinate system in each step
+makes it easier to see what is going on in the graphics pipeline, and since we are going to derive each
+transformation between the spaces above, one can always transform any one of them with a combination of
+orthogonal transformations and changes of orientation to get the desired ones.
+
+The points {math}`L \in \mathbb{E}^{3}`, {math}`R \in \mathbb{E}^{3}` {math}`B \in \mathbb{E}^{3}`, 
+{math}`T \in \mathbb{E}^{3}`, {math}`N \in \mathbb{E}^{3}`, and {math}`F \in \mathbb{E}^{3}` correspond to 
 points along the edge of the viewport on the near plane of the viewing frustum. The point {math}`L` is 
 the point where the near plane, left hand plane, and depth-horizontal-plane intersect each other. The point
 {math}`R` is the point where the near plane, right plane, ans depth-horizontal plane intersect each other.
@@ -47,11 +99,25 @@ In the coordinate system of the local view space frame with origin {math}`O_{V}`
 
 ## The Canonical Perspective Projection Matrix
 
-
+The orthonormal frame {math}`\left(O_{V}, \left( \mathbf{\hat{u_{h}}}, \mathbf{\hat{u_{v}}}, \mathbf{\hat{u_{d}}} \right) \right)` 
+on {math}`\mathbb{E}^{3}` induces a coordinate chart as follows. A point {math}`\tilde{P} \in \mathbb{E}^{3}` is written as
 
 ```{math}
-P = P_{h} \mathbf{\hat{u_{h}}} + P_{v} \mathbf{\hat{u_{v}}} + P_{d} \mathbf{\hat{u_{d}}} + O_{V}
+\tilde{P} = O_{V} + P_{h} \mathbf{\hat{u_{h}}} + P_{v} \mathbf{\hat{u_{v}}} + P_{d} \mathbf{\hat{u_{d}}}
 ```
+
+and the orthonormal frame {math}`\left(O_{V}, \left( \mathbf{\hat{u_{h}}}, \mathbf{\hat{u_{v}}}, \mathbf{\hat{u_{d}}} \right) \right)` 
+defines a coordinate chart {math}`\psi : \mathbb{E}^{3} \rightarrow \mathbb{R}^{3}` by 
+{math}`\psi( \tilde{P} ) = \tilde{P} - O_{V}`. In particular,
+
+```{math}
+P = \psi(\tilde{P}) \equiv \tilde{P} - O_{V} = P_{h} \mathbf{\hat{u_{h}}} + P_{v} \mathbf{\hat{u_{v}}} + P_{d} \mathbf{\hat{u_{d}}}
+```
+
+is the representation of {math}`\tilde{P}` in {math}`\mathbb{R}^{3}`. Also, the coordinate map {math}`\psi` maps the 
+origin {math}`O_{V}` of the view space frame in {math}`\mathbb{E}^{3}` to {math}`\mathbf{0}`: 
+{math}`\psi(O_{V}) = O_{V} - O_{V} = \mathbf{0}`. This shows that the view space frame origin in {math}`\mathbb{E}^{3}`
+indeed maps to the vector space origin {math}`\mathbf{0}` in {math}`\mathbb{R}^{3}`.
 
 Using similar triangles for the horizontal component, we have
 
@@ -70,7 +136,7 @@ P_{proj,h} = n P_{h} \left( \frac{1}{P_{d}} \right).
 Using similar triangles for the vertical component, we have
 
 ```{math}
-\frac{P_{v}}{P_{d}} = \frac{P_{proj} \cdot \mathbf{\hat{u_{v}}}}{n} = \frac{P_{proj,v}}{n}
+\frac{P_{v}}{P_{d}} = \frac{P \cdot \mathbf{\hat{u_{v}}}}{P \cdot \mathbf{\hat{u_{d}}}} = \frac{P_{proj} \cdot \mathbf{\hat{u_{v}}}}{n} = \frac{P_{proj,v}}{n}
 ```
 
 which yields
@@ -79,19 +145,22 @@ which yields
 P_{proj,v} = n P_{v} \left( \frac{1}{P_{d}} \right).
 ```
 
+Now we must map from projected coordinates to normalized device coordinates. We deduce the 
+transformation from projected space to clip space indirectly by calculating the canonical view 
+volume components first. This is necessary since the mapping from projected coordinates to clip 
+space depends on the parametrization of the canonical view volume chosen. The resulting transformation
+is an orthographic transformation that maps the projected view volume {math}`[-l, r] \times [-b, t] \times [n, f]`
+to the canonical view volume {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
+The map from projected space to clip space is a linear map, so the coordinates must transform affinely.
 
-We need a linear map {math}`\phi_{h}` such that
+We need an affine map {math}`\phi_{h} : \mathbb{R} \rightarrow \mathbb{R}` such that
 
 ```{math}
+:label: eq_phi_h_definition_orth
 P_{ndc,h} = \phi_{h}\left( P_{proj,h} \right) = A P_{proj,h} + B
 ```
 
-with constraints
-
-```{math}
-\phi_{h}\left( -l \right) &= \alpha_{min} \\
-\phi_{h}\left( r \right) &= \alpha_{max}  \\
-```
+with constraints {math}`\phi_{h}\left( -l \right) = \alpha_{min}` and {math}`\phi_{h}\left( r \right) = \alpha_{max}`.
 
 Using the constraints, we have
 
@@ -139,28 +208,25 @@ B = \frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)
 ```
 
 which is the constant for {math}`\phi_{h}`. Substituting the constants {ref}`constant1` and {ref}`constant2`
-back into the definition for {math}`\phi_{h}`
+back into the definition for {math}`\phi_{h}` in equation {ref}`eq_phi_h_definition_orth`
 
 ```{math}
 :label: eq_ndc_h
 P_{ndc, h} = \phi_{h} \left( P_{proj,h} \right) 
-           = \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) P_{proj,x} + \frac{\alpha_{min} r - \alpha_{min} \left( -l \right)}{r - \left( -l \right)}
+           = \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) P_{proj,h} 
+           + \frac{\alpha_{min} r - \alpha_{min} \left( -l \right)}{r - \left( -l \right)}
 ```
 
 which completes derivation of the formula for {math}`P_{ndc,h}`.
 
-We need a linear map {math}`\phi_{v}` such that
+We need an affine map {math}`\phi_{v} : \mathbb{R} \rightarrow \mathbb{R}` such that
 
 ```{math}
+:label: eq_phi_v_definition_per
 P_{ndc,v} = \phi_{v}\left( P_{proj,v} \right) = A P_{proj,v} + B
 ```
 
-with constraints
-
-```{math}
-\phi_{v}\left( -b \right) &= \beta_{min} \\
-\phi_{v}\left( t \right) &= \beta_{max}
-```
+with constraints {math}`\phi_{v}\left( -b \right) = \beta_{min}` and {math}`\phi_{v}\left( t \right) = \beta_{max}`.
 
 Using the constraints, we have
 
@@ -207,42 +273,43 @@ which gives us
 B = \frac{\beta_{min} t + \beta_{max} b}{t - \left( -b \right)}
 ```
 
-which is the constant for {math}`\phi_{y}`. Substituting the constants {ref}`constant3` and {ref}`constant4`
-back into the definition for {math}`\phi_{y}`
+which is the constant for {math}`\phi_{v}`. Substituting the constants {ref}`constant3` and {ref}`constant4`
+back into the definition for {math}`\phi_{v}` in equation {ref}`eq_phi_v_definition_per`
 
 ```{math}
-:label: eq_ndc_y
-P_{ndc, y} = \phi_{y} \left( P_{proj,y} \right) 
-           = \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) P_{proj,y} 
+:label: eq_ndc_v
+P_{ndc,v} = \phi_{v} \left( P_{proj,v} \right) 
+           = \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) P_{proj,v} 
            + \frac{\beta_{min} t - \beta_{min} \left( -b \right)}{t - \left( -b \right)}
 ```
 
-which completes the derivation of the formula for {math}`P_{ndc,y}`.
+which completes the derivation of the formula for {math}`P_{ndc,v}`.
 
 
-We need a linear map {math}`\phi_{z}` such that
-
-```{math}
-:label: eq1
-P_{ndc,z} = \left( A P_{z} + B P_{w} \right) \left( \frac{1}{P_{z}} \right)
-          = \left( A P_{z} + B \right) \left( \frac{1}{P_{z}} \right)
-          = \phi_{z} \left( P_{z} \right) \left( \frac{1}{P_{z}} \right) 
-```
-
-since {math}`P_{w} = 1` in view space. The last equality in {ref}`eq1` above yields
+We need an affine map {math}`\phi_{d} : \mathbb{R} \rightarrow \mathbb{R}` such that
 
 ```{math}
-\phi_{z} \left( P_{z} \right) = A P_{z} + B
+:label: eq_ndc_d1
+P_{ndc,d} = \left( A P_{d} + B P_{w} \right) \left( \frac{1}{P_{d}} \right)
+          = \left( A P_{d} + B \right) \left( \frac{1}{P_{d}} \right)
+          = \phi_{d} \left( P_{d} \right) \left( \frac{1}{P_{d}} \right) 
 ```
 
-The map {math}`\phi_{z}` must satisfy the constraints {math}`\phi_{z}\left( n \right) \cdot \frac{1}{n} = \gamma_{min}` 
-and {math}`\phi_{z}\left( f \right) \cdot \frac{1}{f} = \gamma_{max}` or equivalently
-{math}`\phi_{z}\left( n \right) = \gamma_{min} n` and {math}`\phi_{z}\left( f \right) = \gamma_{max} f`.
-Now we need to determine {math}`A` and {math}`B`. Using the constraints on {math}`\phi_z` we see that
+since {math}`P_{w} = 1` in view space. The last equality in {ref}`eq_ndc_d1` above yields
+
+```{math}
+:label: eq_phi_d_per
+\phi_{d} \left( P_{d} \right) = A P_{d} + B
+```
+
+The map {math}`\phi_{d}` must satisfy the constraints {math}`\phi_{d}\left( n \right) \cdot \frac{1}{n} = \gamma_{min}` 
+and {math}`\phi_{d}\left( f \right) \cdot \frac{1}{f} = \gamma_{max}` or equivalently
+{math}`\phi_{d}\left( n \right) = \gamma_{min} n` and {math}`\phi_{d}\left( f \right) = \gamma_{max} f`.
+Now we need to determine {math}`A` and {math}`B`. Using the constraints on {math}`\phi_{d}` we see that
 
 ```{math}
 :label: eq3
-\phi_{z}(f) - \phi_{z}(n) = \left( A f + B \right) - \left( A n + B \right) 
+\phi_{d}(f) - \phi_{d}(n) = \left( A f + B \right) - \left( A n + B \right) 
                           = A \left( f - n \right)
                           = \gamma_{max} f - \gamma_{min} n
 ```
@@ -254,11 +321,11 @@ and therefore
 A = \frac{\gamma_{max} f - \gamma_{min} n}{f - n}
 ```
 
-from the last equality in {ref}`eq3`. Using the expression for {math}`A` and the constraints on {math}`\phi_{z}` 
+from the last equality in {ref}`eq3`. Using the expression for {math}`A` and the constraints on {math}`\phi_{d}` 
 again, we have
 
 ```{math}
-\phi_{z}\left( f \right) = A f + B 
+\phi_{d}\left( f \right) = A f + B 
                          = \left(  \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) f + B 
                          = \gamma_{max} f.
 ```
@@ -279,113 +346,122 @@ so that
 B = - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }.
 ```
 
-Substituting results {ref}`constant5` and {ref}`constant6` back into {ref}`eq3`, we get the desired
-result for {math}`\phi_{z}`
+Substituting results {ref}`constant5` and {ref}`constant6` back into {ref}`eq_phi_d_per`, we get the desired
+result for {math}`\phi_{d}`
 
 ```{math}
-\phi_{z}\left( P_{proj,z} \right) = \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{proj,z} 
-                                  - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
+\phi_{d}\left( P_{proj,d} \right) = 
+    \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{proj,d} - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
 ```
 
-and the final result for {math}`P_{ndc,z}` from {ref}`eq1` becomes
+and the final result for {math}`P_{ndc,d}` from {ref}`eq_ndc_d` becomes
 
 ```{math}
-:label: eq_ndc_z
-P_{ndc,z} = \left[
-    \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{proj,z} 
+:label: eq_ndc_d
+P_{ndc,d} = 
+    \left[
+        \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{proj,d} 
         - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
-    \right] \left( \frac{1}{P_{z}} \right)
+    \right]
+    \left( \frac{1}{P_{d}} \right)
 ```
 
 After depth normalization, the {math}`w` component of a homogeneous vector is {math}`1`, thus
 
 ```{math}
 :label: eq_ndc_w
-P_{ndc,w} = 1 = P_{z} \left( \frac{1}{P_{z}} \right).
+P_{ndc,w} = 1 = P_{d} \left( \frac{1}{P_{d}} \right).
 ```
 
-Clip space
+This completes the derivation of the components for mapping a point {math}`\tilde{P}` from view space
+to normalized device coordinates. Using the results for mapping to normalized device coordinates,
+it is straightforward to infer the clip space components for the point {math}`\tilde{P}`.
 
 From {ref}`eq_ndc_h`
 ```{math}
-P_{ndc,x} \equiv \frac{P_{clip,x}}{P_{clip,w}} 
-    &= \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) P_{proj,x} 
+P_{ndc,h} \equiv \frac{P_{clip,h}}{P_{clip,w}} 
+    &= \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) P_{proj,h} 
     + \frac{\alpha_{min} r - \alpha_{min} \left( -l \right)}{r - \left( -l \right)} \\
-    &= \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) n P_{x} \left( \frac{1}{P_{z}} \right) 
+    &= \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) n P_{h} \left( \frac{1}{P_{d}} \right) 
     + \frac{\alpha_{min} r - \alpha_{min} \left( -l \right)}{r - \left( -l \right)} \\
-    &= \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) n P_{x} \left( \frac{1}{P_{z}} \right) 
-    + \left( \frac{ \alpha_{min} r - \alpha_{min} \left( -l \right) }{r - \left( -l \right)} \right) P_{z} \left( \frac{1}{P_{z}} \right) \\
-    &= \left( \frac{ \left( \alpha_{max} - \alpha_{min} \right) n }{r - \left( -l \right)} \right) P_{x} \left( \frac{1}{P_{z}} \right) 
-    + \left( \frac{ \alpha_{min} r - \alpha_{min} \left( -l \right) }{r - \left( -l \right)} \right) P_{z} \left( \frac{1}{P_{z}} \right) \\
-    &= \left[ \left( \frac{ \left( \alpha_{max} - \alpha_{min} \right) n }{r - \left( -l \right)} \right) P_{x} 
-    + \left( \frac{ \alpha_{min} r - \alpha_{min} \left( -l \right) }{r - \left( -l \right)} \right) P_{z} \right] \left( \frac{1}{P_{z}} \right) \\
+    &= \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) n P_{h} \left( \frac{1}{P_{d}} \right) 
+    + \left( \frac{ \alpha_{min} r - \alpha_{min} \left( -l \right) }{r - \left( -l \right)} \right) P_{d} \left( \frac{1}{P_{d}} \right) \\
+    &= \left( \frac{ \left( \alpha_{max} - \alpha_{min} \right) n }{r - \left( -l \right)} \right) P_{h} \left( \frac{1}{P_{d}} \right) 
+    + \left( \frac{ \alpha_{min} r - \alpha_{min} \left( -l \right) }{r - \left( -l \right)} \right) P_{d} \left( \frac{1}{P_{d}} \right) \\
+    &= \left[ \left( \frac{ \left( \alpha_{max} - \alpha_{min} \right) n }{r - \left( -l \right)} \right) P_{h} 
+    + \left( \frac{ \alpha_{min} r - \alpha_{min} \left( -l \right) }{r - \left( -l \right)} \right) P_{d} \right] \left( \frac{1}{P_{d}} \right) \\
 ```
 and therefore
 
 ```{math}
-P_{clip,x} = \left( \frac{ \left( \alpha_{max} - \alpha_{min} \right) n }{r - \left( -l \right)} \right) P_{x} 
-           + \left( \frac{ \alpha_{min} r - \alpha_{min} \left( -l \right) }{r - \left( -l \right)} \right) P_{z}
+P_{clip,h} = \left( \frac{ \left( \alpha_{max} - \alpha_{min} \right) n }{r - \left( -l \right)} \right) P_{h} 
+           + \left( \frac{ \alpha_{min} r - \alpha_{min} \left( -l \right) }{r - \left( -l \right)} \right) P_{d}
 ```
 
-is the desired clip space {math}`x`-component.
+is the desired clip space horizontal component.
 
-From {ref}`eq_ndc_y`
+From {ref}`eq_ndc_v`
 
 ```{math}
-P_{ndc,y} \equiv \frac{P_{clip,y}}{P_{clip,w}} 
-    &= \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) P_{proj,y} 
+P_{ndc,v} \equiv \frac{P_{clip,v}}{P_{clip,w}} 
+    &= \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) P_{proj,v} 
     + \frac{\beta_{min} t - \beta_{min} \left( -b \right)}{t - \left( -b \right)} \\
-    &= \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) n P_{y} \left( \frac{1}{P_{z}} \right) 
+    &= \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) n P_{v} \left( \frac{1}{P_{d}} \right) 
     + \frac{\beta_{min} t - \beta_{min} \left( -b \right)}{t - \left( -b \right)} \\
-    &= \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) n P_{y} \left( \frac{1}{P_{z}} \right) 
-    + \left( \frac{ \beta_{min} t - \beta_{min} \left( -b \right) }{t - \left( -b \right)} \right) P_{z} \left( \frac{1}{P_{z}} \right) \\
-    &= \left( \frac{ \left( \beta_{max} - \beta_{min} \right) n }{t - \left( -b \right)} \right) P_{y} \left( \frac{1}{P_{z}} \right) 
-    + \left( \frac{ \beta_{min} t - \beta_{min} \left( -b \right) }{t - \left( -b \right)} \right) P_{z} \left( \frac{1}{P_{z}} \right) \\
-    &= \left[ \left( \frac{ \left( \beta_{max} - \beta_{min} \right) n }{t - \left( -b \right)} \right) P_{y} 
-    + \left( \frac{ \beta_{min} t - \beta_{min} \left( -b \right) }{t - \left( -b \right)} \right) P_{z} \right] \left( \frac{1}{P_{z}} \right) \\
+    &= \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) n P_{v} \left( \frac{1}{P_{d}} \right) 
+    + \left( \frac{ \beta_{min} t - \beta_{min} \left( -b \right) }{t - \left( -b \right)} \right) P_{d} \left( \frac{1}{P_{d}} \right) \\
+    &= \left( \frac{ \left( \beta_{max} - \beta_{min} \right) n }{t - \left( -b \right)} \right) P_{v} \left( \frac{1}{P_{d}} \right) 
+    + \left( \frac{ \beta_{min} t - \beta_{min} \left( -b \right) }{t - \left( -b \right)} \right) P_{d} \left( \frac{1}{P_{d}} \right) \\
+    &= \left[ \left( \frac{ \left( \beta_{max} - \beta_{min} \right) n }{t - \left( -b \right)} \right) P_{v} 
+    + \left( \frac{ \beta_{min} t - \beta_{min} \left( -b \right) }{t - \left( -b \right)} \right) P_{d} \right] \left( \frac{1}{P_{d}} \right) \\
 ```
 
 and therefore
 
 ```{math}
-P_{clip,y} = \left( \frac{ \left( \beta_{max} - \beta_{min} \right) n }{t - \left( -b \right)} \right) P_{y} 
-           + \left( \frac{ \beta_{min} t - \beta_{min} \left( -b \right) }{t - \left( -b \right)} \right) P_{z}
+P_{clip,v} = \left( \frac{ \left( \beta_{max} - \beta_{min} \right) n }{t - \left( -b \right)} \right) P_{v} 
+           + \left( \frac{ \beta_{min} t - \beta_{min} \left( -b \right) }{t - \left( -b \right)} \right) P_{d}
 ```
-is the desired clip space {math}`y`-component.
+is the desired clip space vertical component.
 
-From {ref}`eq_ndc_z`
+From {ref}`eq_ndc_d`
 
 ```{math}
-P_{ndc,z} \equiv \frac{P_{clip,z}}{P_{clip,w}} 
+P_{ndc,d} \equiv \frac{P_{clip,d}}{P_{clip,w}} 
     &= \left[
-    \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{proj,z} 
-        - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
-    \right] \left( \frac{1}{P_{z}} \right) \\
+            \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{proj,d} 
+            - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
+        \right] 
+        \left( \frac{1}{P_{d}} \right)
+        \\
     &= \left[
-    \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{z} 
-        - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
-    \right] \left( \frac{1}{P_{z}} \right)
+            \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{d} 
+            - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
+        \right] 
+        \left( \frac{1}{P_{d}} \right)
+        \\
 ```
 
 and therefore
 
 ```{math}
-P_{clip,z} = \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{z} 
-        - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
+P_{clip,d} = 
+    \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{d} 
+    - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
 ```
 
-is the desired clip space {math}`z`-component.
+is the desired clip space depth component.
 
 From {ref}`eq_ndc_w`
 
 ```{math}
-P_{ndc,w} \equiv \frac{P_{clip,w}}{P_{clip,w}} = 1 = P_{z} \left( \frac{1}{P_{z}} \right)
+P_{ndc,w} \equiv \frac{P_{clip,w}}{P_{clip,w}} = 1 = P_{d} \left( \frac{1}{P_{d}} \right)
 ```
 
 and therefore
 
 ```{math}
-P_{clip,w} = P_{z}
+P_{clip,w} = P_{d}
 ```
 
 is the desired clip space {math}`w`-component.
@@ -394,46 +470,47 @@ Assembling the clip space components together into the resulting matrix equation
 
 ```{math}
 \begin{bmatrix} 
-    P_{clip,x} \\ 
-    P_{clip,y} \\ 
-    P_{clip,z} \\ 
-    P_{clip,w}
+    P_{clip,h} \\ 
+    P_{clip,v} \\ 
+    P_{clip,d} \\ 
+    P_{clip,w} \\
 \end{bmatrix}
 = 
 \begin{bmatrix}
     \frac{\left( \alpha_{max} - \alpha_{min} \right) n }{r - \left( -l \right)} 
     & 0 
     & \frac{\alpha_{min}r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)} 
-    & 0 \\
-    
+    & 0
+    \\
     0 
     & \frac{\left( \beta_{max} - \beta_{min} \right) n }{t - \left( -b \right)} 
     & \frac{\beta_{min}t - \beta_{max} \left( -b \right)}{t - \left( -b \right)} 
-    & 0 \\
-    
+    & 0
+    \\
     0 
     & 0 
     & \frac{\gamma_{max}f - \gamma_{min}n}{f - n} 
-    & -\frac{\left( \gamma_{max} - \gamma_{min} \right) f n }{f - n} \\
-
+    & -\frac{\left( \gamma_{max} - \gamma_{min} \right) f n }{f - n}
+    \\
     0 
     & 0 
     & 1 
     & 0
+    \\
 \end{bmatrix}
 \begin{bmatrix} 
-    P_{x} \\ 
-    P_{y} \\ 
-    P_{z} \\ 
-    P_{w} 
+    P_{h} \\ 
+    P_{v} \\ 
+    P_{d} \\ 
+    P_{w} \\
 \end{bmatrix}
 = 
 M^{C}_{per} 
 \begin{bmatrix} 
-    P_{x} \\ 
-    P_{y} \\ 
-    P_{z} \\ 
-    P_{w} 
+    P_{h} \\ 
+    P_{v} \\ 
+    P_{d} \\ 
+    P_{w} \\
 \end{bmatrix}
 .
 ```
@@ -448,18 +525,18 @@ M^{C}_{per} =
         \frac{\left( \alpha_{max} - \alpha_{min} \right) n }{r - \left( -l \right)} 
         & 0 
         & \frac{\alpha_{min}r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)} 
-        & 0 \\
-
+        & 0 
+        \\
         0 
         & \frac{\left( \beta_{max} - \beta_{min} \right) n }{t - \left( -b \right)} 
         & \frac{\beta_{min}t - \beta_{max} \left( -b \right)}{t - \left( -b \right)} 
-        & 0 \\
-
+        & 0
+        \\
         0 
         & 0 
         & \frac{\gamma_{max}f - \gamma_{min}n}{f - n} 
-        & -\frac{\left( \gamma_{max} - \gamma_{min} \right) f n }{f - n} \\
-        
+        & -\frac{\left( \gamma_{max} - \gamma_{min} \right) f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
@@ -469,23 +546,24 @@ M^{C}_{per} =
 
 ## The Canonical Orthographic Projection Matrix
 
-We need a linear map {math}`\phi_{x}` such that
+We need an affine map {math}`\phi_{h} : \mathbb{R} \rightarrow \mathbb{R}` such that
 
 ```{math}
-P_{ndc,x} = \phi_{x}\left( P_{x} \right) = A P_{x} + B
+:label: eq_phi_h_orth
+P_{ndc,h} = \phi_{h}\left( P_{h} \right) = A P_{h} + B
 ```
 
-with constraints {math}`\phi_{x}\left( -l \right) = \alpha_{min}` and {math}`\phi_{x}\left( r \right) = \alpha_{max}`.
+with constraints {math}`\phi_{h}\left( -l \right) = \alpha_{min}` and {math}`\phi_{h}\left( r \right) = \alpha_{max}`.
 
 Using the constraints, we have
 
 ```{math}
-:label: contraints_orth_x
+:label: contraints_orth_h
 \alpha_{max} &= A r + B \\
 \alpha_{min} &= A \left( -l \right) + B = -A l + B
 ```
 
-Subtracting {math}`\alpha_{max}` from {math}`\alpha_{min}` in {ref}`contraints_orth_x`
+Subtracting {math}`\alpha_{max}` from {math}`\alpha_{min}` in {ref}`contraints_orth_h`
 
 ```{math}
 \alpha_{max} - \alpha_{min} = \left( A r + B \right) - \left( -A l + B \right) = A \left(r - \left( -l \right) \right)
@@ -494,7 +572,7 @@ Subtracting {math}`\alpha_{max}` from {math}`\alpha_{min}` in {ref}`contraints_o
 and solving for {math}`A`
 
 ```{math}
-:label: constant_orth_x_a
+:label: constant_orth_h_a
 A = \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)}.
 ```
 
@@ -517,36 +595,37 @@ B &= \alpha_{max} - \left( \frac{\alpha_{max} - \alpha_{min}}{r + l} \right) r \
 which gives us
 
 ```{math}
-:label: constant_orth_x_b
+:label: constant_orth_h_b
 B = \frac{\alpha_{min} r - \alpha_{max} \left( -l \right) }{r - \left( -l \right)}.
 ```
 
-which is the constant for {math}`\phi_{x}`. Substituting the constants {ref}`constant_orth_x_a` and {ref}`constant_orth_x_b`
-back into the definition for {math}`\phi_{x}`
+which is the constant for {math}`\phi_{h}`. Substituting the constants {ref}`constant_orth_h_a` and {ref}`constant_orth_h_b`
+back into the definition for {math}`\phi_{h}` in equation {ref}`eq_phi_h_orth`
 
 ```{math}
-P_{ndc,x} = \phi_{x}\left( P_{x} \right) 
-          = \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) P_{x}
+P_{ndc,h} = \phi_{h}\left( P_{h} \right) 
+          = \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) P_{h}
           + \frac{\alpha_{min} r - \alpha_{max} \left( -l \right) }{r - \left( -l \right)}.
 ```
 
-We need a linear map {math}`\phi_{y}` such that
+We need an affine map {math}`\phi_{v} : \mathbb{R} \rightarrow \mathbb{R}` such that
 
 ```{math}
-P_{ndc,y} = \phi_{y}\left( P_{y} \right) = A P_{y} + B
+:label: eq_phi_v_orth
+P_{ndc,v} = \phi_{v}\left( P_{v} \right) = A P_{v} + B
 ```
 
-with constraints {math}`\phi_{y}\left( -b \right) = \beta_{min}` and {math}`\phi_{y}\left( r \right) = \beta_{max}`.
+with constraints {math}`\phi_{v}\left( -b \right) = \beta_{min}` and {math}`\phi_{v}\left( r \right) = \beta_{max}`.
 
 Using the constraints, we have 
 
 ```{math}
-:label: constraints_orth_y
+:label: constraints_orth_v
 \beta_{max} &= A t + B \\
-\beta_{min} &= A \left( -b \right) + B = -A b + B
+\beta_{min} &= A \left( -b \right) + B = -A b + B \\
 ```
 
-Subtracting {math}`\beta_{max}` from {math}`\beta_{min}` in {ref}`constraints_orth_y`
+Subtracting {math}`\beta_{max}` from {math}`\beta_{min}` in {ref}`constraints_orth_v`
 
 ```{math}
 \beta_{max} - \beta_{min} = \left( A t + B \right) - \left( A \left( -b \right) + B \right) = A \left( t - \left( -b \right) \right)
@@ -555,7 +634,7 @@ Subtracting {math}`\beta_{max}` from {math}`\beta_{min}` in {ref}`constraints_or
 and solving for {math}`A`
 
 ```{math}
-:label: constant_orth_y_a
+:label: constant_orth_v_a
 A = \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)}
 ```
 
@@ -578,33 +657,34 @@ B &= \beta_{max} - \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)
 which gives us
 
 ```{math}
-:label: constant_orth_y_b
+:label: constant_orth_v_b
 B = \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)}
 ```
 
-which is the constant for {math}`\phi_{y}`. Substituting the constants {ref}`constant_orth_y_a` and {ref}`constant_orth_y_b`
-back into the definition of {math}`\phi_{y}`
+which is the constant for {math}`\phi_{v}`. Substituting the constants {ref}`constant_orth_v_a` and {ref}`constant_orth_v_b`
+back into the definition of {math}`\phi_{v}` in equation {ref}`eq_phi_v_orth`
 
 ```{math}
-P_{ndc,y} = \phi_{y}\left( P_{y} \right)
-          = \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) P_{y}
+P_{ndc,v} = \phi_{v}\left( P_{v} \right)
+          = \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) P_{v}
           + \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)}
 ```
 
-We need a linear map {math}`\phi_{z}` such that
+We need an affine map {math}`\phi_{d} : \mathbb{R} \rightarrow \mathbb{R}` such that
 
 ```{math}
-P_{ndc,z} = \phi_{z}\left( P_{z} \right) = A P_{z} + B
+:label: eq_phi_d_orth
+P_{ndc,d} = \phi_{d}\left( P_{d} \right) = A P_{d} + B
 ```
 
-with constraints {math}`\phi_{z}\left( n \right) = \gamma_{min}` and {math}`\phi_{z}\left( f \right) = \gamma_{max}`.
+with constraints {math}`\phi_{d}\left( n \right) = \gamma_{min}` and {math}`\phi_{d}\left( f \right) = \gamma_{max}`.
 
 Using these constraints, we have
 
 ```{math}
 :label: constraints_orth_z
-\gamma_{max} = A f + B
-\gamma_{min} = A n + B
+\gamma_{max} = A f + B \\
+\gamma_{min} = A n + B \\
 ```
 
 Subtracting {math}`\gamma_{max}` from {math}`\gamma_{min}` in {ref}`constraints_orth_z`
@@ -642,12 +722,12 @@ which gives us
 B = \frac{\gamma_{min} f - \gamma_{max} n}{f - n}
 ```
 
-which is the constant for {math}`\phi_{z}`. Substituting the constants {ref}`constant_orth_z_a` and {ref}`constant_orth_z_b`
-back into the definition of {math}`\phi_{z}`
+which is the constant for {math}`\phi_{d}`. Substituting the constants {ref}`constant_orth_z_a` and {ref}`constant_orth_z_b`
+back into the definition of {math}`\phi_{d}` in equation {ref}`eq_phi_d_orth`
 
 ```{math}
-P_{ndc,z} = \phi_{z}\left( P_{z} \right)
-          = \left( \frac{\gamma_{max} - \gamma_{min}}{f - n} \right) P_{z} + \frac{\gamma_{min} f - \gamma_{max} n}{f - n}
+P_{ndc,d} = \phi_{d}\left( P_{d} \right)
+          = \left( \frac{\gamma_{max} - \gamma_{min}}{f - n} \right) P_{d} + \frac{\gamma_{min} f - \gamma_{max} n}{f - n}
 ```
 
 Since we do not apply depth normalization in orthographic projections, and the view space {math}`w`-component is {math}`1`
@@ -657,16 +737,16 @@ P_{ndc,w} = P_{w} = 1
 ```
 
 Finally, since we do not perform depth normalization with orthographic projections, the clip space 
-coordinates are identical to the canonical view volume ones. That is {math}`P_{clip,x} = P_{ndc,x}`, 
-{math}`P_{clip,y} = P_{ndc,y}`, {math}`P_{clip,z} = P_{ndc,z}`, and {math}`P_{clip,w} = P_{ndc,w}`. 
+coordinates are identical to the canonical view volume ones. That is {math}`P_{clip,h} = P_{ndc,h}`, 
+{math}`P_{clip,v} = P_{ndc,v}`, {math}`P_{clip,d} = P_{ndc,d}`, and {math}`P_{clip,w} = P_{ndc,w}`. 
 Assembling the clip space components into the resulting matrix equation, we have
 
 ```{math}
 \begin{bmatrix} 
-    P_{clip,x} \\ 
-    P_{clip,y} \\ 
-    P_{clip,z} \\ 
-    P_{clip,w} 
+    P_{clip,h} \\ 
+    P_{clip,v} \\ 
+    P_{clip,d} \\ 
+    P_{clip,w} \\
 \end{bmatrix}
 = 
 \begin{bmatrix}
@@ -676,18 +756,18 @@ Assembling the clip space components into the resulting matrix equation, we have
     0 & 0 & 0 & 1
 \end{bmatrix}
 \begin{bmatrix} 
-    P_{x} \\ 
-    P_{y} \\ 
-    P_{z} \\ 
-    P_{w} 
+    P_{h} \\ 
+    P_{v} \\ 
+    P_{d} \\ 
+    P_{w} \\
 \end{bmatrix}
 = 
 M^{C}_{orth}
 \begin{bmatrix} 
-    P_{x} \\ 
-    P_{y} \\ 
-    P_{z} \\ 
-    P_{w} 
+    P_{h} \\ 
+    P_{v} \\ 
+    P_{d} \\ 
+    P_{w} \\
 \end{bmatrix}
 .
 ```
@@ -720,6 +800,117 @@ M^{C}_{orth} =
     & 1
 \end{bmatrix}
 ```
+
+## The Canonical Perspective Matrix
+
+Now that we have the canonical perspective projection matrix and the canonical orthographic projection matrix,
+we can work out the canonical perspective matrix. The canonical perspective matrix maps from view space to projected
+space. Since the perspective projection transformation consists of a projection transformation multiplied by an orthographic
+transformation, we can get the perspective matrix by premultiplying {ref}`matrix_per_canonical` by {math}`(M^{C}_{orth})^{-1}`
+given by
+
+```{math}
+\left(M^{C}_{orth}\right)^{-1} =
+    \begin{bmatrix}
+        \frac{r + l}{\alpha_{max} - \alpha_{min}} 
+        &  0 
+        &  0 
+        & -\frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{\alpha_{max} - \alpha_{min}}
+        \\
+        0 
+        &  \frac{t + b}{\beta_{max} - \beta_{min}}
+        &  0 
+        & -\frac{\beta_{min} t - \beta_{max} \left( -b \right)}{\beta_{max} - \beta_{min}}
+        \\
+        0 
+        &  0 
+        &  \frac{f - n}{\gamma_{max} - \gamma_{min}} 
+        & -\frac{\gamma_{min} f - \gamma_{max} n}{\gamma_{max} - \gamma_{min}}
+        \\
+        0 
+        & 0 
+        & 0 
+        & 1
+        \\
+    \end{bmatrix}.
+```
+
+Premultiplying {math}`M^{C}_{per}` by {math}`(M^{C}_{orth})^{-1}` gives
+
+```{math}
+P^{C} &= \left(M^{C}_{orth}\right)^{-1} M^{C}_{per} \\ 
+    &= \begin{bmatrix}
+            \frac{r + l}{\alpha_{max} - \alpha_{min}} 
+            &  0 
+            &  0 
+            & -\frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{\alpha_{max} - \alpha_{min}}
+            \\
+            0 
+            &  \frac{t + b}{\beta_{max} - \beta_{min}}
+            &  0 
+            & -\frac{\beta_{min} t - \beta_{max} \left( -b \right)}{\beta_{max} - \beta_{min}}
+            \\
+            0 
+            &  0 
+            &  \frac{f - n}{\gamma_{max} - \gamma_{min}} 
+            & -\frac{\gamma_{min} f - \gamma_{max} n}{\gamma_{max} - \gamma_{min}}
+            \\
+            0 
+            & 0 
+            & 0 
+            & 1
+            \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            \frac{\left( \alpha_{max} - \alpha_{min} \right) n }{r - \left( -l \right)} 
+            & 0 
+            & \frac{\alpha_{min}r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)} 
+            & 0 
+            \\
+            0 
+            & \frac{\left( \beta_{max} - \beta_{min} \right) n }{t - \left( -b \right)} 
+            & \frac{\beta_{min}t - \beta_{max} \left( -b \right)}{t - \left( -b \right)} 
+            & 0
+            \\
+            0 
+            & 0 
+            & \frac{\gamma_{max}f - \gamma_{min}n}{f - n} 
+            & -\frac{\left( \gamma_{max} - \gamma_{min} \right) f n }{f - n}
+            \\
+            0 
+            & 0 
+            & 1 
+            & 0
+        \end{bmatrix}
+        \\
+    &=  \begin{bmatrix}
+            n & 0 & 0     &  0   \\
+            0 & n & 0     &  0   \\
+            0 & 0 & f + n & -f n \\
+            0 & 0 & 1     &  0   \\
+        \end{bmatrix}
+```
+
+which gives us the desired perspective matrix
+
+```{admonition} Perspective Matrix
+```{math}
+P^{C} = 
+    \begin{bmatrix}
+        n & 0 & 0     &  0   \\
+        0 & n & 0     &  0   \\
+        0 & 0 & f + n & -f n \\
+        0 & 0 & 1     &  0   \\
+    \end{bmatrix}
+```
+
+This shows that the perspective projection matrix {math}`M^{C}_{per}` is indeed the product of 
+a projection transformation and an orthographic transformation
+
+```{math}
+M^{C}_{per} = M^{C}_{orth} P^{C}.
+```
+
 
 ## The Canonical Symmetric Vertical Field Of View Perspective Matrix
 
@@ -786,22 +977,23 @@ M^{C}_{per,vfov} =
         \left( \frac{\alpha_{max} - \alpha_{min}}{2} \right) \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & \frac{\alpha_{min} + \alpha_{max}}{2} 
-        & 0 \\
-
+        & 0
+        \\
         0 
         & \left( \frac{\beta_{max} - \beta_{min}}{2} \right) \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & \frac{\beta_{min} + \beta_{max}}{2}
-        & 0 \\
-
+        & 0
+        \\
         0 
         & 0 
         & \frac{\gamma_{max}f - \gamma_{min}n}{f - n} 
-        & -\frac{\left( \gamma_{max} - \gamma_{min} \right) f n }{f - n} \\
-    
+        & -\frac{\left( \gamma_{max} - \gamma_{min} \right) f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
+        \\
     \end{bmatrix}
 ```
 
@@ -815,22 +1007,23 @@ M^{C}_{per, vfov} =
         \left( \frac{\alpha_{max} - \alpha_{min}}{2} \right) \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & \frac{\alpha_{min} + \alpha_{max}}{2} 
-        & 0 \\
-
+        & 0
+        \\
         0 
         & \left( \frac{\beta_{max} - \beta_{min}}{2} \right) \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & \frac{\beta_{min} + \beta_{max}}{2}
-        & 0 \\
-
+        & 0
+        \\
         0 
         & 0 
         & \frac{\gamma_{max}f - \gamma_{min}n}{f - n} 
-        & -\frac{\left( \gamma_{max} - \gamma_{min} \right) f n }{f - n} \\
-    
+        & -\frac{\left( \gamma_{max} - \gamma_{min} \right) f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
+        \\
     \end{bmatrix}
 ```
 
@@ -854,7 +1047,7 @@ M^{C, OpenGL}_{per} =
 \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                    \\
 0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                    \\
 0                                   & 0                                   &  \frac{f + n}{f - n}                                 & -\frac{2 f n }{f - n} \\
-0                                   & 0                                   &  1                                                   &  0
+0                                   & 0                                   &  1                                                   &  0                    \\
 \end{bmatrix}
 .
 ```
@@ -867,7 +1060,7 @@ M^{C, OpenGL}_{orth} =
 \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
 0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
 0                               & 0                               & \frac{2}{f - n} & -\frac{f + n}{f - n}                                 \\
-0                               & 0                               & 0               &  1
+0                               & 0                               & 0               &  1                                                   \\
 \end{bmatrix}
 .
 ```
@@ -880,22 +1073,23 @@ M^{C,OpenGL}_{per,vfov} =
         \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         &  0 
         & \frac{f + n}{f - n}
-        & -\frac{ 2 f n }{f - n} \\
-    
+        & -\frac{ 2 f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
+        \\
     \end{bmatrix}
 ```
 
