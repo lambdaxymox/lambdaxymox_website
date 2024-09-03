@@ -6,124 +6,228 @@ The projection transformations are parametrized by two set of parameters: the vi
 {math}`l`, {math}`r`, {math}`b`, {math}`t`, {math}`n`, {math}`f` where {math}`l > 0`, {math}`r > 0`, 
 {math}`b > 0`, {math}`t > 0`, and {math}`f > n > 0`; the canonical view volume parametrized by
 {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
-where {math}`\alpha_{max} > \alpha_{min}`, {math}`\beta_{max} > \beta_{min}`, and {math}`\gamma_{max} > \gamma_{min}`.
+where {math}`\alpha_{max} > \alpha_{min}`, {math}`\beta_{max} > \beta_{min}`, and 
+{math}`\gamma_{max} > \gamma_{min}`.
 
-To understand what the projection matrices do, we must understand the spaces that we map between 
-at each step in the pipeline leading from the view space to the canonical view volume.
-
-The **view space** is the Euclidean space {math}`(\mathbb{E}^{3}, (O_{V}, B_{V}))` with 
-the following properties:
-
-* The underlying vector space is {math}`\mathbb{R}^{3}`.
-* The **origin** of the orthonormal frame is the point {math}`O_{V} \in \mathbb{E}^{3}`.
-* The **basis** of the orthonormal frame is 
-  {math}`B_{V} = (\mathbf{\hat{u_{h}}}, \mathbf{\hat{u_{v}}}, \mathbf{\hat{u_{d}}})` where
-  the basis vector {math}`\mathbf{\hat{u_{h}}}` points to the right, the basis vector {math}`\mathbf{\hat{u_{v}}}`
-  points up, and the basis vector {math}`\mathbf{\hat{u_{d}}}` points into the view volume.
-* The orthonormal frame {math}`(O_{V}, B_{V})` has a left-handed orientation.
-
-The **projected space** is the Euclidean space 
-{math}`(\mathbb{E}^{3}, (O_{proj}, B_{proj}))` with the following properties:
-
-* The underlying vector space is {math}`\mathbb{R}^{3}`.
-* The **origin** of the orthonormal frame is the point {math}`O_{proj} = O_{V} \in \mathbb{E}^{3}`.
-* The **basis** of the orthonormal frame is
-  {math}`B_{proj} = (\mathbf{\hat{u_{h}}}, \mathbf{\hat{u_{v}}}, \mathbf{\hat{u_{d}}})` where
-  the basis vector {math}`\mathbf{\hat{u_{h}}}` points to the right, the basis vector {math}`\mathbf{\hat{u_{v}}}`
-  points up, and the basis vector {math}`\mathbf{\hat{u_{d}}}` points into the view volume.
-* The orthonormal frame {math}`(O_{proj}, B_{proj})` has a left-handed orientation.
-* The viewing volume is parametrized by {math}`[-l, r] \times [-b, t] \times [n, f]`.
-
-The **clip space** is the Euclidean space {math}`(\mathbb{E}^{3}, (O_{clip}, B_{clip}))` with
-the following properties:
-
-* The underlying vector space is {math}`\mathbb{R}^{3}`.
-* The **origin** of the orthonormal frame is the point {math}`O_{clip} = O_{V} \in \mathbb{E}^{3}`.
-* The **basis** of the orthonormal frame is
-  {math}`B_{clip} = (\mathbf{\hat{u_{h}}}, \mathbf{\hat{u_{v}}}, \mathbf{\hat{u_{d}}})` where
-  the basis vector {math}`\mathbf{\hat{u_{h}}}` points to the right, the basis vector {math}`\mathbf{\hat{u_{v}}}`
-  points up, and the basis vector {math}`\mathbf{\hat{u_{d}}}` points into the view volume.
-* The orthonormal frame {math}`(O_{clip}, B_{clip})` has a left-handed orientation.
-
-The **canonical view volume** is a subset of the Euclidean space {math}`(\mathbb{E}^{3}, (O_{cvv}, B_{cvv}))` 
-with the following properties:
-
-* The underlying vector space is {math}`\mathbb{R}^{3}`.
-* The **origin** of the orthonormal frame is the point {math}`O_{cvv} = O_{V} \in \mathbb{E}^{3}`.
-* The **basis** of the orthonormal frame is
-  {math}`B_{cvv} = (\mathbf{\hat{u_{h}}}, \mathbf{\hat{u_{v}}}, \mathbf{\hat{u_{d}}})` where
-  The basis vector {math}`\mathbf{\hat{u_{h}}}` points to the right, the basis vector {math}`\mathbf{\hat{u_{v}}}`
-  points up, and the basis vector {math}`\mathbf{\hat{u_{d}}}` points into the view volume.
-* The orthonormal frame {math}`(O_{cvv}, B_{cvv})` has a left-handed orientation.
-* The canonical viewing volume is parametrized by 
-  {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
-
-In particular, each geometric space above has the same coordinate system and orientation, but 
-slightly different properties in terms of the shape of the viewing volume. It is not strictly required
-that each space have the same orthonormal frame, but using the same coordinate system in each step
-makes it easier to see what is going on in the graphics pipeline, and since we are going to derive each
-transformation between the spaces above, one can always transform any one of them with a combination of
-orthogonal transformations and changes of orientation to get the desired ones.
-
-The points {math}`L \in \mathbb{E}^{3}`, {math}`R \in \mathbb{E}^{3}` {math}`B \in \mathbb{E}^{3}`, 
-{math}`T \in \mathbb{E}^{3}`, {math}`N \in \mathbb{E}^{3}`, and {math}`F \in \mathbb{E}^{3}` correspond to 
-points along the edge of the viewport on the near plane of the viewing frustum. The point {math}`L` is 
+The points {math}`\tilde{L} \in \mathbb{E}^{3}`, {math}`\tilde{R} \in \mathbb{E}^{3}` {math}`\tilde{B} \in \mathbb{E}^{3}`, 
+{math}`\tilde{T} \in \mathbb{E}^{3}`, {math}`\tilde{N} \in \mathbb{E}^{3}`, and {math}`\tilde{F} \in \mathbb{E}^{3}` 
+correspond to points along the edge of the viewport on the near plane of the viewing frustum. The point {math}`\tilde{L}` is 
 the point where the near plane, left hand plane, and depth-horizontal-plane intersect each other. The point
-{math}`R` is the point where the near plane, right plane, ans depth-horizontal plane intersect each other.
-The point {math}`B` is the point where the near plane, bottom plane, and horizontal-vertical plane intersect
-each other. The point {math}`T` is the point where the near plane, top plane, and horizontal-vertical plane 
-intersect each other. The point {math}`N` is the point along the depth axis inside the near plane. The 
-point {math}`F` is the point along the depth axis inside the far plane. More precisely, in the orthonormal
-frame {math}`(O_{V}, (\mathbf{\hat{u_{h}}}, \mathbf{\hat{u_{v}}}, \mathbf{\hat{u_{d}}}))`, the points are given
+{math}`\tilde{R}` is the point where the near plane, right plane, ans depth-horizontal plane intersect each other.
+The point {math}`\tilde{B}` is the point where the near plane, bottom plane, and horizontal-vertical plane intersect
+each other. The point {math}`\tilde{T}` is the point where the near plane, top plane, and horizontal-vertical plane 
+intersect each other. The point {math}`\tilde{N}` is the point along the depth axis inside the near plane. The 
+point {math}`\tilde{F}` is the point along the depth axis inside the far plane. More precisely, in the orthonormal
+frame {math}`(\tilde{O}_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))`, the points are given
 by
 
 ```{math}
-L &= O_{V} + n \mathbf{\hat{u_{d}}} + l \left( -\mathbf{\hat{u_{h}}} \right) = O_{V} + n \mathbf{\hat{u_{d}}} - l \mathbf{\hat{u_{h}}} \\
-R &= O_{V} + n \mathbf{\hat{u_{d}}} + r \mathbf{\hat{u_{h}}} \\
-B &= O_{V} + n \mathbf{\hat{u_{d}}} + b \left( -\mathbf{\hat{u_{v}}} \right) = O_{V} + n \mathbf{\hat{u_{d}}} - b \mathbf{\hat{u_{v}}} \\
-T &= O_{V} + n \mathbf{\hat{u_{d}}} + t \mathbf{\hat{u_{v}}} \\
-N &= O_{V} + n \mathbf{\hat{u_{d}}} \\
-F &= O_{V} + f \mathbf{\hat{u_{d}}} \\
+\tilde{L} &= \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} + l \left( -\mathbf{\hat{u}}_{h} \right) = \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} - l \mathbf{\hat{u}}_{h} \\
+\tilde{R} &= \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} + r \mathbf{\hat{u}}_{h} \\
+\tilde{B} &= \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} + b \left( -\mathbf{\hat{u}}_{v} \right) = \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} - b \mathbf{\hat{u}}_{v} \\
+\tilde{T} &= \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} + t \mathbf{\hat{u}}_{v} \\
+\tilde{N} &= \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} \\
+\tilde{F} &= \tilde{O}_{view} + f \mathbf{\hat{u}}_{d} \\
 ```
 
-In the coordinate system of the local view space frame with origin {math}`O_{V}`, the points are represented by
+In the coordinate system of the local view space frame with origin {math}`\tilde{O}_{view}`, the points are represented by
 
 ```{math}
-\mathbf{l} \equiv L - O_{V} &= n \mathbf{\hat{u_{d}}} + l \left( -\mathbf{\hat{u_{h}}} \right) = n \mathbf{\hat{u_{d}}} - l \mathbf{\hat{u_{h}}} \\
-\mathbf{r} \equiv R - O_{V} &= n \mathbf{\hat{u_{d}}} + r \mathbf{\hat{u_{h}}} \\
-\mathbf{b} \equiv B - O_{V} &= n \mathbf{\hat{u_{d}}} + b \left( -\mathbf{\hat{u_{v}}} \right) = n \mathbf{\hat{u_{d}}} - b \mathbf{\hat{u_{v}}} \\
-\mathbf{t} \equiv T - O_{V} &= n \mathbf{\hat{u_{d}}} + t \mathbf{\hat{u_{v}}} \\
-\mathbf{n} \equiv N - O_{V} &= n \mathbf{\hat{u_{d}}} \\
-\mathbf{f} \equiv F - O_{V} &= f \mathbf{\hat{u_{d}}} \\
+L \equiv \tilde{L} - \tilde{O}_{view} &= n \mathbf{\hat{u}}_{d} + l \left( -\mathbf{\hat{u}}_{h} \right) = n \mathbf{\hat{u}}_{d} - l \mathbf{\hat{u}}_{h} \\
+R \equiv \tilde{R} - \tilde{O}_{view} &= n \mathbf{\hat{u}}_{d} + r \mathbf{\hat{u}}_{h} \\
+B \equiv \tilde{B} - \tilde{O}_{view} &= n \mathbf{\hat{u}}_{d} + b \left( -\mathbf{\hat{u}}_{v} \right) = n \mathbf{\hat{u}}_{d} - b \mathbf{\hat{u}}_{v} \\
+T \equiv \tilde{T} - \tilde{O}_{view} &= n \mathbf{\hat{u}}_{d} + t \mathbf{\hat{u}}_{v} \\
+N \equiv \tilde{N} - \tilde{O}_{view} &= n \mathbf{\hat{u}}_{d} \\
+F \equiv \tilde{F} - \tilde{O}_{view} &= f \mathbf{\hat{u}}_{d} \\
 ```
 
-## The Canonical Perspective Projection Matrix
-
-The orthonormal frame {math}`\left(O_{V}, \left( \mathbf{\hat{u_{h}}}, \mathbf{\hat{u_{v}}}, \mathbf{\hat{u_{d}}} \right) \right)` 
+The orthonormal frame {math}`\left(\tilde{O}_{view}, \left( \mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d} \right) \right)` 
 on {math}`\mathbb{E}^{3}` induces a coordinate chart as follows. A point {math}`\tilde{P} \in \mathbb{E}^{3}` is written as
 
 ```{math}
-\tilde{P} = O_{V} + P_{h} \mathbf{\hat{u_{h}}} + P_{v} \mathbf{\hat{u_{v}}} + P_{d} \mathbf{\hat{u_{d}}}
+\tilde{P} = \tilde{O}_{view} + P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v} + P_{d} \mathbf{\hat{u}}_{d}
 ```
 
-and the orthonormal frame {math}`\left(O_{V}, \left( \mathbf{\hat{u_{h}}}, \mathbf{\hat{u_{v}}}, \mathbf{\hat{u_{d}}} \right) \right)` 
+and the orthonormal frame {math}`\left(\tilde{O}_{view}, \left( \mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d} \right) \right)` 
 defines a coordinate chart {math}`\psi : \mathbb{E}^{3} \rightarrow \mathbb{R}^{3}` by 
-{math}`\psi( \tilde{P} ) = \tilde{P} - O_{V}`. In particular,
+{math}`\psi( \tilde{P} ) = \tilde{P} - \tilde{O}_{view}`. In particular,
 
 ```{math}
-P = \psi(\tilde{P}) \equiv \tilde{P} - O_{V} = P_{h} \mathbf{\hat{u_{h}}} + P_{v} \mathbf{\hat{u_{v}}} + P_{d} \mathbf{\hat{u_{d}}}
+P = \psi(\tilde{P}) \equiv \tilde{P} - \tilde{O}_{view} = P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v} + P_{d} \mathbf{\hat{u}}_{d}
 ```
 
-is the representation of {math}`\tilde{P}` in {math}`\mathbb{R}^{3}`. Also, the coordinate map {math}`\psi` maps the 
-origin {math}`O_{V}` of the view space frame in {math}`\mathbb{E}^{3}` to {math}`\mathbf{0}`: 
-{math}`\psi(O_{V}) = O_{V} - O_{V} = \mathbf{0}`. This shows that the view space frame origin in {math}`\mathbb{E}^{3}`
-indeed maps to the vector space origin {math}`\mathbf{0}` in {math}`\mathbb{R}^{3}`.
+is the representation of {math}`\tilde{P}` in {math}`\mathbb{R}^{3}`. Also, the coordinate map 
+{math}`\psi` maps the origin {math}`\tilde{O}_{view}` of the view space frame in {math}`\mathbb{E}^{3}` 
+to {math}`\mathbf{0}`: {math}`O_{view}` = {math}`\psi(\tilde{O}_{view}) = \tilde{O}_{view} - \tilde{O}_{view} = \mathbf{0}`. 
+This shows that the view space frame origin in {math}`\mathbb{E}^{3}` indeed maps to the vector space origin 
+{math}`\mathbf{0}` in {math}`\mathbb{R}^{3}`.
+
+Define a map {math}`\rho : \mathbb{R}^{3} \rightarrow \mathbb{R}^{4} - \{\mathbf{0}\}` by
+```{math}
+\rho\left( P \right) = \begin{pmatrix} P \\ 1 \\ \end{pmatrix}
+```
+
+We define projective space {math}`\mathbb{RP}^{3}` as follows. We define {math}`\mathbf{w_{1}} \sim \mathbf{w_{2}}`
+if an only if there exists a nonzero real number {math}`k \in \mathbb{R} - \{0\}` such that 
+{math}`\mathbf{w_{1}} = k \mathbf{w_{2}}`. The relation {math}`\sim` is an equivalence relation. 
+We define the **real projective space** by {math}`\mathbb{RP}^{3} = ( \mathbb{R}^{4} - \{ \mathbf{0}\} )/\sim`. 
+The real projective space identifies lines through the origin in {math}`\mathbb{R}^{3}` with points in 
+{math}`\mathbb{RP}^{3}`. The definition of real projective space allows us to define a surjective map 
+{math}`\pi : \mathbb{R}^{4} - \{\mathbf{0}\} \rightarrow \mathbb{RP}^{3}` by 
+
+```{math}
+\pi\left( \begin{pmatrix} P \\ w \\ \end{pmatrix} \right) = \begin{bmatrix} \begin{pmatrix} P \\ w \\ \end{pmatrix} \end{bmatrix}
+```
+
+where {math}`[.]` on the right-hand side indicates the equivalence class of {math}`\begin{pmatrix} P^T, 1 \end{pmatrix}^T`.
+The function {math}`\pi` is well-defined. The maps {math}`\pi` and {math}`\rho` together allow us to map from view space to 
+projective view space with the camera orthonormal frame by
+
+```{math}
+\left(\pi \circ \rho\right)\left(P\right) 
+    = \pi\left( \rho\left( P \right) \right) 
+    = \pi\left( \begin{pmatrix} P \\ 1 \\ \end{pmatrix} \right)
+    = \begin{bmatrix} \begin{pmatrix} P \\ 1 \\ \end{pmatrix} \end{bmatrix}.
+```
+
+To understand what the projection matrices do, we must understand the coordinate systems that 
+we map between at each step in the pipeline leading from the view space to the canonical view 
+volume. The transformations stem from choosing a convenient coordinate system 
+in which to render computer graphics. The convenient coordinate system we choose is often called
+**normalized device coordinates**, defined in the following. The canonical coordinate system differs from platform 
+to platform. The other coordinates systems exist to articulate a clear path from projective view coordinates to
+normalized device coordinates. First we must define the viewing space. 
+
+The **view space** is the Euclidean space {math}`(\mathbb{E}^{3}, (\tilde{O}_{view}, B_{view}))` with 
+the following properties:
+
+* The underlying vector space is {math}`\mathbb{R}^{3}`.
+* The **origin** of the orthonormal frame is the point {math}`\tilde{O}_{view} \in \mathbb{E}^{3}`.
+* The **basis** of the orthonormal frame is 
+  {math}`B_{view} = (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d})` where
+  the basis vector {math}`\mathbf{\hat{u}}_{h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{v}`
+  points up, and the basis vector {math}`\mathbf{\hat{u}}_{d}` points into the view volume.
+
+The **projected view space** is the real projective space {math}`\mathbb{RP}^{3}` where each 
+point is a homogeneous vector in {math}`\mathbb{R}^{3}` in the coordinate frame {math}`(\tilde{O}_{view}, B_{view})`. 
+The **view coordinates** coordinate system is the coordinate system defined by the basis {math}`B_{view}`.
+
+## Coordinate Systems To Construct An Orthographic Projection
+
+In order to construct an orthographic projection transformation, we need to define a set 
+of coordinate systems and construct the transformations between them to get from projected view 
+space to normalized device coordinates. 
+
+The coordinate system **clip coordinates** defined by the orthonormal 
+frame {math}`(\tilde{O}_{clip}, B_{clip})` on {math}`\mathbb{RP}^{3}` with the following properties:
+
+* The **origin** of the orthonormal frame is the point {math}`\tilde{O}_{clip} \in \mathbb{E}^{3}`. In 
+  {math}`\mathbb{R}^{3}`, this is the vector {math}`O_{clip} = \tilde{O}_{clip} - \tilde{O}_{view}`. 
+  In {math}`\mathbb{RP}^{3}`, this is the homogeneous point {math}`[(O^{T}_{clip}, 1)^{T}]`.
+* The **basis** of the orthonormal frame is
+  {math}`B_{clip} = (\mathbf{\hat{u}}_{clip,h}, \mathbf{\hat{u}}_{clip,v}, \mathbf{\hat{u}}_{clip,d})` where
+  the basis vector {math}`\mathbf{\hat{u}}_{clip,h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{clip,v}`
+  points up, and the basis vector {math}`\mathbf{\hat{u}}_{clip,d}` points into the view volume.
+* The viewing volume is parametrized by {math}`[-l, r] \times [-b, t] \times [n, f]`.
+  We call this viewing volume the **orthographic viewing volume**.
+
+The coordinate system **normalized device coordinates** defined by the orthonormal
+frame {math}`(\tilde{O}_{ndc}, B_{ndc})` on {math}`\mathbb{RP}^{3}` with the following properties:
+
+* The **origin** of the orthonormal frame is the point {math}`\tilde{O}_{ndc} \in \mathbb{E}^{3}`. In
+  {math}`\mathbb{R}^{3}`, this is the vector {math}`O_{ndc} = \tilde{O}_{ndc} - \tilde{O}_{view}`.
+  In {math}`\mathbb{RP}^{3}`, this is the homogeneous point {math}`[(O^{T}_{ndc}, 1)^{T}]`.
+* The **basis** of the orthonormal frame is
+  {math}`B_{ndc} = (\mathbf{\hat{u}}_{ndc,h}, \mathbf{\hat{u}}_{ndc,v}, \mathbf{\hat{u}}_{ndc,d})` where
+  The basis vector {math}`\mathbf{\hat{u}}_{ndc,h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{ndc,v}`
+  points up, and the basis vector {math}`\mathbf{\hat{u}}_{ndc,d}` points into the view volume.
+* The viewing volume canonical viewing volume is parametrized by 
+  {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
+  We call the viewing volume in this coordinate system the **canonical view volume**.
+
+## Coordinate Systems To Construct A Perspective Projection
+
+For a perspective projection transformation, we want to map the **perspective viewing volume**
+specified by the parameters {math}`l`, {math}`r`, {math}`b`, {math}`t`, {math}`n`, and {math}`f` to our 
+choice of **canonical view volume** specified by our normalized device coordinates parameters 
+{math}`\alpha_{min}`, {math}`\alpha_{max}`, {math}`\beta_{min}`, {math}`\beta_{max}`, {math}`\gamma_{min}`, 
+and {math}`\gamma_{max}`.
+
+The coordinate system **projected coordinates** is defined by the orthonormal 
+frame {math}`(\tilde{O}_{proj}, B_{proj})` on {math}`\mathbb{RP}^{3}` with the following properties:
+
+* The **origin** of the orthonormal frame is the point {math}`\tilde{O}_{proj} \in \mathbb{E}^{3}`. In
+  {math}`\mathbb{R}^{3}`, this is the vector {math}`O_{proj} = \tilde{O}_{proj} - \tilde{O}_{view}`.
+  In {math}`\mathbb{RP}^{3}`, this is the homogeneous point {math}`[(O^{T}_{proj}, 1)]^{T}`.
+* The **basis** of the orthonormal frame is
+  {math}`B_{proj} = (\mathbf{\hat{u}}_{proj,h}, \mathbf{\hat{u}}_{proj,v}, \mathbf{\hat{u}}_{proj,d})` where
+  the basis vector {math}`\mathbf{\hat{u}}_{proj,h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{proj,v}`
+  points up, and the basis vector {math}`\mathbf{\hat{u}}_{proj,d}` points into the view volume.
+* Projected points are scaled by their depth coordinate.
+
+The coordinate system **clip coordinates** defined by the orthonormal 
+frame {math}`(O_{clip}, B_{clip})` on {math}`\mathbb{RP}^{3}` with the following properties:
+
+* The **origin** of the orthonormal frame is the point {math}`O_{clip} \in \mathbb{E}^{3}`. In 
+  {math}`\mathbb{R}^{3}`, this is the vector {math}`O_{clip} = \tilde{O}_{clip} - \tilde{O}_{view}`. 
+  In {math}`\mathbb{RP}^{3}`, this is the homogeneous point {math}`[(O^{T}_{clip}, 1)^{T}]`.
+* The **basis** of the orthonormal frame is
+  {math}`B_{clip} = (\mathbf{\hat{u}}_{clip,h}, \mathbf{\hat{u}}_{clip,v}, \mathbf{\hat{u}}_{clip,d})` where
+  the basis vector {math}`\mathbf{\hat{u}}_{clip,h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{clip,v}`
+  points up, and the basis vector {math}`\mathbf{\hat{u}}_{clip,d}` points into the view volume.
+* The view volume is parametrized by {math}`[-l, r] \times [-b, t] \times [n, f]`.
+  We call this view volume the **orthographic view volume**.
+
+The coordinate system **normalized device coordinates** defined by the orthonormal
+frame {math}`(O_{ndc}, B_{ndc})` on {math}`\mathbb{RP}^{3}` with the following properties:
+
+* The **origin** of the orthonormal frame is the point {math}`O_{ndc} \in \mathbb{E}^{3}`. In
+  {math}`\mathbb{R}^{3}`, this is the vector {math}`O_{ndc} = \tilde{O}_{ndc} - \tilde{O}_{view}`.
+  In {math}`\mathbb{RP}^{3}`, this is the homogeneous point {math}`[(O^{T}_{ndc}, 1)^{T}]`.
+* The **basis** of the orthonormal frame is
+  {math}`B_{ndc} = (\mathbf{\hat{u}}_{ndc,h}, \mathbf{\hat{u}}_{ndc,v}, \mathbf{\hat{u}}_{ndc,d})` where
+  The basis vector {math}`\mathbf{\hat{u}}_{ndc,h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{ndc,v}`
+  points up, and the basis vector {math}`\mathbf{\hat{u}}_{ndc,d}` points into the view volume.
+* The view volume is parametrized by 
+  {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
+  We call the view volume in this coordinate system the **canonical view volume**.
+
+
+## The Canonical Coordinate Systems
+
+We choose a canonical set of coordinate systems to construct the canonical projective transformations
+that will be used to derive the projective transformations in specific settings.
+
+The **canonical view coordinates** is the view space coordinate system with orthnormal frame 
+{math}`(\tilde{O}_{view}, B_{view})` such that the depth frame vector {math}`\mathbf{\hat{u}}_{d}` points into 
+the view volume. This gives the 
+canonincal view space a left-handed orientation. The **canonical projected coordinates** coordinate system 
+is the projected coordinate system with the same orthonormal frame as canonical view space coordinates. The
+**canonical clip coordinates** coordinate system is the clip coordinates with the same orthonormal frame as 
+the canonical view space coordinates. The **canonical normalized device coordinates** coordinate system is
+the normalized device coordinate system with the same orthonormal frame as in canonical view coordinates. 
+In particular, each coordinate system uses the same orthonormal frame, and has a left-handed orientation.
+
+It is not strictly required that each space have the same orthonormal frame, but using the same coordinate 
+system in each step makes it easier to see what is going on in the graphics pipeline, and since we are going 
+to derive each transformation between the spaces above, one can always transform any one of them with a
+combination of orthogonal transformations and changes of orientation to get the desired ones.
+
+## The Canonical Perspective Projection Matrix
+
+With these considerations, we now proceed to construct the canonical perspective projection matrix for 
+the frame {math}`(O_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))` and 
+the canonical view volume parametrized by 
+{math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
+Let {math}`P \in \mathbb{R}^{3}` be a point given by 
+{math}`P = P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v} + P_{d} \mathbf{\hat{u}}_{d}`. We will now 
+derive the perspective projected horizontal and vertical coordinates.
 
 Using similar triangles for the horizontal component, we have
 
 ```{math}
-\frac{P_{h}}{P_{d}} = \frac{P \cdot \mathbf{\hat{u_{h}}}}{P \cdot \mathbf{\hat{u_{d}}}} 
-                    = \frac{P_{proj} \cdot \mathbf{\hat{u_{h}}}}{n} 
+\frac{P_{h}}{P_{d}} = \frac{P \cdot \mathbf{\hat{u}}_{h}}{P \cdot \mathbf{\hat{u}}_{d}} 
+                    = \frac{P_{proj} \cdot \mathbf{\hat{u}}_{h}}{n} 
                     = \frac{P_{proj,h}}{n}
 ```
 
@@ -133,13 +237,13 @@ which yields
 P_{proj,h} = n P_{h} \left( \frac{1}{P_{d}} \right).
 ```
 
-Using similar triangles for the vertical component, we have
+Analagously for the vertical component, applying similar triangles gives us
 
 ```{math}
-\frac{P_{v}}{P_{d}} = \frac{P \cdot \mathbf{\hat{u_{v}}}}{P \cdot \mathbf{\hat{u_{d}}}} = \frac{P_{proj} \cdot \mathbf{\hat{u_{v}}}}{n} = \frac{P_{proj,v}}{n}
+\frac{P_{v}}{P_{d}} = \frac{P \cdot \mathbf{\hat{u}}_{v}}{P \cdot \mathbf{\hat{u}}_{d}} = \frac{P_{proj} \cdot \mathbf{\hat{u}}_{v}}{n} = \frac{P_{proj,v}}{n}
 ```
 
-which yields
+implying that
 
 ```{math}
 P_{proj,v} = n P_{v} \left( \frac{1}{P_{d}} \right).
@@ -149,7 +253,7 @@ Now we must map from projected coordinates to normalized device coordinates. We 
 transformation from projected space to clip space indirectly by calculating the canonical view 
 volume components first. This is necessary since the mapping from projected coordinates to clip 
 space depends on the parametrization of the canonical view volume chosen. The resulting transformation
-is an orthographic transformation that maps the projected view volume {math}`[-l, r] \times [-b, t] \times [n, f]`
+is an orthographic transformation that maps the orthographic view volume {math}`[-l, r] \times [-b, t] \times [n, f]`
 to the canonical view volume {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
 The map from projected space to clip space is a linear map, so the coordinates must transform affinely.
 
@@ -805,7 +909,7 @@ M^{C}_{orth} =
 
 Now that we have the canonical perspective projection matrix and the canonical orthographic projection matrix,
 we can work out the canonical perspective matrix. The canonical perspective matrix maps from view space to projected
-space. Since the perspective projection transformation consists of a projection transformation multiplied by an orthographic
+space. Since the perspective projection transformation consists of a projective transformation multiplied by an orthographic
 transformation, we can get the perspective matrix by premultiplying {ref}`matrix_per_canonical` by {math}`(M^{C}_{orth})^{-1}`
 given by
 
@@ -905,7 +1009,7 @@ P^{C} =
 ```
 
 This shows that the perspective projection matrix {math}`M^{C}_{per}` is indeed the product of 
-a projection transformation and an orthographic transformation
+a projective transformation and an orthographic transformation
 
 ```{math}
 M^{C}_{per} = M^{C}_{orth} P^{C}.
@@ -914,23 +1018,27 @@ M^{C}_{per} = M^{C}_{orth} P^{C}.
 
 ## The Canonical Symmetric Vertical Field Of View Perspective Matrix
 
-In the symmetric case, {math}`r = l` and {math}`t = b`. The aspect ratio {math}`aspect` is
-given by 
+In the symmetric case, {math}`r = l` and {math}`t = b`. The **width** of the viewport is 
+{math}`\text{width} = r - (-l) = r + l`. The **height** of the viewport is 
+{math}`\text{height} = t - (-b) = t + b`. The aspect ratio {math}`\text{aspect}` is given by 
+
 ```{math}
-aspect \equiv \frac{width}{height} 
+\text{aspect} \equiv \frac{\text{width}}{\text{height}}
     = \frac{r - \left( -l \right)}{t - \left( -b \right)}
     = \frac{r + l}{t + b}
     = \frac{r + r}{t + t}
     = \frac{2 r}{2 t}
     = \frac{r}{t}
 ```
-which implies {math}`r = aspect \cdot t`. Since the viewing frustum is symmetric, the tangent 
-of {math}`\theta_{vfov} / 2` is {math}`\tan\left( \theta_{vfov} / 2 \right) = t / n`. These 
-facts imply that
+
+which implies that {math}`r = \text{aspect} \cdot t`. Since the viewing frustum is symmetric, the tangent 
+of {math}`\theta_{vfov} / 2` is {math}`\tan\left( \theta_{vfov} / 2 \right) = t / n`. From these facts we 
+see that
+
 ```{math}
 :label: eq_symmetric_tangent_vfov
 t = b = n \tan\left( \frac{\theta_{vfov}}{2} \right) \\
-r = l = aspect \cdot t = aspect \cdot n \tan\left( \frac{\theta_{vfov}}{2} \right)
+r = l = \text{aspect} \cdot t = \text{aspect} \cdot n \tan\left( \frac{\theta_{vfov}}{2} \right)
 ```
 
 We now use {ref}`eq_symmetric_tangent_vfov` inside the general perspective projection 
@@ -944,8 +1052,8 @@ M^{C}_{per}\left[0, 0 \right] = \frac{\left( \alpha_{max} - \alpha_{min} \right)
     &= \frac{\left( \alpha_{max} - \alpha_{min} \right) n}{r + l} \\
     &= \frac{\left( \alpha_{max} - \alpha_{min} \right) n}{2 r} \\
     &= \left( \frac{\alpha_{max} - \alpha_{min}}{2} \right) \frac{n}{r} \\
-    &= \left( \frac{\alpha_{max} - \alpha_{min}}{2} \right) \frac{n}{aspect \cdot n \tan\left( \frac{\theta_{vfov}}{2} \right)} \\
-    &= \left( \frac{\alpha_{max} - \alpha_{min}}{2} \right) \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} \\
+    &= \left( \frac{\alpha_{max} - \alpha_{min}}{2} \right) \frac{n}{\text{aspect} \cdot n \tan\left( \frac{\theta_{vfov}}{2} \right)} \\
+    &= \left( \frac{\alpha_{max} - \alpha_{min}}{2} \right) \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} \\
 
 M^{C}_{per}\left[1, 1 \right] = \frac{\left( \beta_{max} - \beta_{min} \right) n}{t - \left( -b \right)}
     &= \frac{\left( \beta_{max} - \beta_{min} \right) n}{t + b} \\
@@ -974,7 +1082,7 @@ Substituting {ref}`matrix_per_vfov_canonical_elements` back into {ref}`matrix_pe
 ```{math}
 M^{C}_{per,vfov} = 
     \begin{bmatrix}
-        \left( \frac{\alpha_{max} - \alpha_{min}}{2} \right) \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \left( \frac{\alpha_{max} - \alpha_{min}}{2} \right) \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & \frac{\alpha_{min} + \alpha_{max}}{2} 
         & 0
@@ -1004,7 +1112,7 @@ projection matrix.
 ```{math}
 M^{C}_{per, vfov} = 
     \begin{bmatrix}
-        \left( \frac{\alpha_{max} - \alpha_{min}}{2} \right) \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \left( \frac{\alpha_{max} - \alpha_{min}}{2} \right) \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & \frac{\alpha_{min} + \alpha_{max}}{2} 
         & 0
@@ -1070,7 +1178,7 @@ The canonical symmetric vertical field of view perspective projection matrix for
 ```{math}
 M^{C,OpenGL}_{per,vfov} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 
@@ -1199,7 +1307,7 @@ M^{OpenGL}_{per,vfov,rh \rightarrow lh}
     &= I M^{C,OpenGL}_{per,vfov} \Omega_{rh \rightarrow lh} \\
     &= M^{C,OpenGL}_{per,vfov} \Omega_{rh \rightarrow lh} \\
     &=  \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1226,7 +1334,7 @@ M^{OpenGL}_{per,vfov,rh \rightarrow lh}
             0 & 0 &  0 & 1
         \end{bmatrix} \\
     &=  \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1253,7 +1361,7 @@ so
 ```{math}
 M^{OpenGL}_{per,vfov,rh \rightarrow lh} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1348,7 +1456,7 @@ M^{OpenGL}_{per,vfov,lh \rightarrow lh}
     &= I M^{C,OpenGL}_{per,vfov} I \\
     &= M^{C,OpenGL}_{per,vfov} \\
     &=  \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1375,7 +1483,7 @@ so
 ```{math}
 M^{OpenGL}_{per,vfov,lh \rightarrow lh} =
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1434,7 +1542,7 @@ The canonical symmetric vertical field of view perspective projection matrix for
 ```{math}
 M^{C,DirectX}_{per,vfov} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1561,7 +1669,7 @@ M^{DirectX}_{per,vfov,rh \rightarrow lh}
     &= I M^{C,DirectX}_{per,vfov} \Omega_{rh \rightarrow lh} \\
     &= M^{C,DirectX}_{per,vfov} \Omega_{rh \rightarrow lh} \\
     &=  \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1588,7 +1696,7 @@ M^{DirectX}_{per,vfov,rh \rightarrow lh}
             0 & 0 &  0 & 1
         \end{bmatrix} \\
     &=  \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1615,7 +1723,7 @@ so
 ```{math}
 M^{DirectX}_{per,vfov,rh \rightarrow lh} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1711,7 +1819,7 @@ M^{DirectX}_{per,vfov,lh \rightarrow lh}
     &= I M^{C,DirectX}_{per,vfov} I \\
     &= M^{C,DirectX}_{per,vfov} \\
     &=  \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1738,7 +1846,7 @@ so
 ```{math}
 M^{DirectX}_{per,vfov,lh \rightarrow lh} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1797,7 +1905,7 @@ The canonical symmetric vertical field of view perspective projection matrix for
 ```{math}
 M^{C,Metal}_{per,vfov} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1924,7 +2032,7 @@ M^{Metal}_{per,vfov,rh \rightarrow lh}
     &= I M^{C,Metal}_{per,vfov} \Omega_{rh \rightarrow lh} \\
     &= M^{C,Metal}_{per,vfov} \Omega_{rh \rightarrow lh} \\
     &=  \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1951,7 +2059,7 @@ M^{Metal}_{per,vfov,rh \rightarrow lh}
             0 & 0 &  0 & 1
         \end{bmatrix} \\
     &=  \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -1978,7 +2086,7 @@ so
 ```{math}
 M^{Metal}_{per,vfov,rh \rightarrow lh} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -2074,7 +2182,7 @@ M^{Metal}_{per,vfov,lh \rightarrow lh}
     &= I M^{C,Metal}_{per,vfov} I \\
     &= M^{C,Metal}_{per,vfov} \\
     &=  \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -2101,7 +2209,7 @@ so
 ```{math}
 M^{Metal}_{per,vfov,lh \rightarrow lh} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -2160,7 +2268,7 @@ The canonical symmetric vertical field of view perspective projection matrix for
 ```{math}
 M^{C, Vulkan}_{per,vfov} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -2537,7 +2645,7 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh}
             0 &  0 & 0 & 1
         \end{bmatrix}
         \begin{bmatrix}
-            \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
             & 0 \\
@@ -2571,7 +2679,7 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh}
             0 &  0 & 0 & 1
         \end{bmatrix}
         \begin{bmatrix}
-            \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
             & 0 \\
@@ -2593,7 +2701,7 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh}
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
-            \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
             & 0 \\
@@ -2620,7 +2728,7 @@ so
 ```{math}
 M^{Vulkan}_{per,vfov,rh \rightarrow rh} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -2980,7 +3088,7 @@ M^{Vulkan}_{per,vfov,lh \rightarrow rh}
             0 &  0 & 0 & 1
         \end{bmatrix}
         \begin{bmatrix}
-            \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
             & 0 \\
@@ -3014,7 +3122,7 @@ M^{Vulkan}_{per,vfov,lh \rightarrow rh}
             0 &  0 & 0 & 1
         \end{bmatrix}
         \begin{bmatrix}
-            \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
             & 0 \\
@@ -3036,7 +3144,7 @@ M^{Vulkan}_{per,vfov,lh \rightarrow rh}
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
-            \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
             & 0 \\
@@ -3063,7 +3171,7 @@ so
 ```{math}
 M^{Vulkan}_{per,vfov,rh \rightarrow rh} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -3122,7 +3230,7 @@ The canonical symmetric vertical field of view perspective projection matrix for
 ```{math}
 M^{C, Vulkan}_{per,vfov} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -3499,7 +3607,7 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh}
             0 &  0 & 0 & 1
         \end{bmatrix}
         \begin{bmatrix}
-            \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
             & 0 \\
@@ -3533,7 +3641,7 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh}
             0 &  0 & 0 & 1
         \end{bmatrix}
         \begin{bmatrix}
-            \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
             & 0 \\
@@ -3555,7 +3663,7 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh}
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
-            \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
             & 0 \\
@@ -3582,7 +3690,7 @@ so
 ```{math}
 M^{Vulkan}_{per,vfov,rh \rightarrow rh} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
@@ -3942,7 +4050,7 @@ M^{Vulkan}_{per,vfov,lh \rightarrow rh}
             0 &  0 & 0 & 1
         \end{bmatrix}
         \begin{bmatrix}
-            \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
             & 0 \\
@@ -3976,7 +4084,7 @@ M^{Vulkan}_{per,vfov,lh \rightarrow rh}
             0 &  0 & 0 & 1
         \end{bmatrix}
         \begin{bmatrix}
-            \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
             & 0 \\
@@ -3998,7 +4106,7 @@ M^{Vulkan}_{per,vfov,lh \rightarrow rh}
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
-            \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
             & 0 \\
@@ -4025,7 +4133,7 @@ so
 ```{math}
 M^{Vulkan}_{per,vfov,rh \rightarrow rh} = 
     \begin{bmatrix}
-        \frac{1}{aspect \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
         & 0 \\
