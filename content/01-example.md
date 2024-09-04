@@ -63,6 +63,7 @@ This shows that the view space frame origin in {math}`\mathbb{E}^{3}` indeed map
 {math}`\mathbf{0}` in {math}`\mathbb{R}^{3}`.
 
 Define a map {math}`\rho : \mathbb{R}^{3} \rightarrow \mathbb{R}^{4} - \{\mathbf{0}\}` by
+
 ```{math}
 \rho\left( P \right) = \begin{pmatrix} P \\ 1 \\ \end{pmatrix}
 ```
@@ -79,7 +80,7 @@ The real projective space identifies lines through the origin in {math}`\mathbb{
 \pi\left( \begin{pmatrix} P \\ w \\ \end{pmatrix} \right) = \begin{bmatrix} \begin{pmatrix} P \\ w \\ \end{pmatrix} \end{bmatrix}
 ```
 
-where {math}`[.]` on the right-hand side indicates the equivalence class of {math}`\begin{pmatrix} P^T, 1 \end{pmatrix}^T`.
+where {math}`[.]` on the right-hand side indicates the equivalence class of {math}`\begin{pmatrix} P^{T}, 1 \end{pmatrix}^{T}`.
 The function {math}`\pi` is well-defined. The maps {math}`\pi` and {math}`\rho` together allow us to map from view space to 
 projective view space with the camera orthonormal frame by
 
@@ -240,7 +241,10 @@ P_{proj,h} = n P_{h} \left( \frac{1}{P_{d}} \right).
 Analagously for the vertical component, applying similar triangles gives us
 
 ```{math}
-\frac{P_{v}}{P_{d}} = \frac{P \cdot \mathbf{\hat{u}}_{v}}{P \cdot \mathbf{\hat{u}}_{d}} = \frac{P_{proj} \cdot \mathbf{\hat{u}}_{v}}{n} = \frac{P_{proj,v}}{n}
+\frac{P_{v}}{P_{d}} 
+    = \frac{P \cdot \mathbf{\hat{u}}_{v}}{P \cdot \mathbf{\hat{u}}_{d}} 
+    = \frac{P_{proj} \cdot \mathbf{\hat{u}}_{v}}{n} 
+    = \frac{P_{proj,v}}{n}
 ```
 
 implying that
@@ -273,6 +277,7 @@ Using the constraints, we have
 \alpha_{max} &= A r + B \\
 \alpha_{min} &= A \left( -l \right) + B = -Al + B
 ```
+
 Subtracting {math}`\alpha_{max}` from {math}`\alpha_{min}` in {ref}`constraints1`
 
 ```{math}
@@ -301,7 +306,8 @@ B &= \alpha_{max} - \left( \frac{\alpha_{max} - \alpha_{min}}{r + l} \right) r \
   &= \frac{\alpha_{max} \left( r + l \right) + \left( \alpha_{max} - \alpha_{min} \right) r}{r + l} \\
   &= \frac{\alpha_{max} r + \alpha_{max} l - \alpha_{max} r - \alpha_{min} r}{r + l} \\
   &= \frac{\alpha_{max} l + \alpha_{min} r}{r + l} \\
-  &= \frac{\alpha_{min} r + \alpha_{max} l}{r - \left( -l \right)}
+  &= \frac{\alpha_{min} r + \alpha_{max} l}{r - \left( -l \right)} \\
+  &= \frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)} \\
 ```
 
 which gives us
@@ -367,14 +373,15 @@ B &= \beta_{max} - \left( \frac{\beta_{max} - \beta_{min}}{t + b} \right) t \\
   &= \frac{\beta_{max} \left( t + b \right) + \left( \beta_{max} - \beta_{min} \right) t}{t + b} \\
   &= \frac{\beta_{max} t + \beta_{max} b - \beta_{max} b - \beta_{min} t}{t + b} \\
   &= \frac{\beta_{max} b + \beta_{min} t}{t + b} \\
-  &= \frac{\beta_{min} t + \beta_{max} b}{t - \left( -b \right)}
+  &= \frac{\beta_{min} t + \beta_{max} b}{t - \left( -b \right)} \\
+  &= \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)} \\
 ```
 
 which gives us
 
 ```{math}
 :label: constant4
-B = \frac{\beta_{min} t + \beta_{max} b}{t - \left( -b \right)}
+B = \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)}
 ```
 
 which is the constant for {math}`\phi_{v}`. Substituting the constants {ref}`constant3` and {ref}`constant4`
@@ -470,16 +477,19 @@ P_{ndc,d} =
     \left( \frac{1}{P_{d}} \right)
 ```
 
-After depth normalization, the {math}`w` component of a homogeneous vector is {math}`1`, thus
+After depth normalization, the {math}`w` component of a homogeneous vector is {math}`1`. Moreover, we require 
+that the projected view coordinates to clip coordinates transformations carries the depth coordinate information
+to clip space. This leads the the {math}`w` component having the form
 
 ```{math}
 :label: eq_ndc_w
 P_{ndc,w} = 1 = P_{d} \left( \frac{1}{P_{d}} \right).
 ```
 
-This completes the derivation of the components for mapping a point {math}`\tilde{P}` from view space
-to normalized device coordinates. Using the results for mapping to normalized device coordinates,
-it is straightforward to infer the clip space components for the point {math}`\tilde{P}`.
+where depth normalization is visible in the equation. This completes the derivation of the components 
+for mapping a point {math}`\tilde{P}` from view space to normalized device coordinates. Using the results 
+for mapping to normalized device coordinates, it is straightforward to infer the clip space components 
+for the point {math}`\tilde{P}`.
 
 From {ref}`eq_ndc_h`
 ```{math}
@@ -645,10 +655,22 @@ M^{C}_{per} =
         & 0 
         & 1 
         & 0
+        \\
     \end{bmatrix}
 ```
 
 ## The Canonical Orthographic Projection Matrix
+
+We now construct the canonical orthographic projection matrix for the frame 
+{math}`(O_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))` and 
+the canonical view volume parametrized by 
+{math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
+Let {math}`P \in \mathbb{R}^{3}` be a point given by 
+{math}`P = P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v} + P_{d} \mathbf{\hat{u}}_{d}`.
+
+There is no intermediate projected coordinates for an orthographic projection matrix, because depth
+normalization does not apply to an orthographic projection. Thus we map directly to clip coordinates 
+from projected view coordinates.
 
 We need an affine map {math}`\phi_{h} : \mathbb{R} \rightarrow \mathbb{R}` such that
 
@@ -693,7 +715,8 @@ B &= \alpha_{max} - \left( \frac{\alpha_{max} - \alpha_{min}}{r + l} \right) r \
   &= \frac{\alpha_{max} \left( r + l \right) + \left( \alpha_{max} - \alpha_{min} \right) r}{r + l} \\
   &= \frac{\alpha_{max} r + \alpha_{max} l - \alpha_{max} r - \alpha_{min} r}{r + l} \\
   &= \frac{\alpha_{max} l + \alpha_{min} r}{r + l} \\
-  &= \frac{\alpha_{min} r + \alpha_{max} l}{r - \left( -l \right)}
+  &= \frac{\alpha_{min} r + \alpha_{max} l}{r - \left( -l \right)} \\
+  &= \frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)} \\
 ```
 
 which gives us
@@ -753,9 +776,11 @@ Solving for {math}`B`
 
 ```{math}
 B &= \beta_{max} - \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) t \\
-  &= \frac{ \beta_{max} \left( t + b \right) + \left( \beta_{max} b - \beta_{min} t \right) }{t - \left( -b \right)} \\
-  &= \frac{\beta_{max} t + \beta_{max} b - \beta_{max} t + \beta_{min} t}{t - \left( -b \right)} \\
-  &= \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)}
+  &= \frac{ \beta_{max} \left( t + b \right) + \left( \beta_{max} b - \beta_{min} t \right) }{t + b} \\
+  &= \frac{\beta_{max} t + \beta_{max} b - \beta_{max} t + \beta_{min} t}{t + b} \\
+  &= \frac{\beta_{min} t + \beta_{max} b}{t + b} \\
+  &= \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t + b} \\
+  &= \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)} \\
 ```
 
 which gives us
@@ -854,10 +879,26 @@ Assembling the clip space components into the resulting matrix equation, we have
 \end{bmatrix}
 = 
 \begin{bmatrix}
-    \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} & 0 & 0 & \frac{\alpha_{min}r - \alpha_{max} \left(-l \right) }{r - \left( -l \right)} \\
-    0 & \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} & 0 & \frac{\beta_{min}t - \beta_{max}\left( -b \right) }{t - \left(-b \right)} \\
-    0 & 0 & \frac{\gamma_{max} - \gamma_{min} }{f - n} & \frac{\gamma_{min}f - \gamma_{max}n}{f - n} \\
-    0 & 0 & 0 & 1
+    \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)}
+    & 0 
+    & 0 
+    & \frac{\alpha_{min}r - \alpha_{max} \left(-l \right) }{r - \left( -l \right)}
+    \\
+    0 
+    & \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} 
+    & 0 
+    & \frac{\beta_{min}t - \beta_{max}\left( -b \right) }{t - \left(-b \right)}
+    \\
+    0 
+    & 0 
+    & \frac{\gamma_{max} - \gamma_{min} }{f - n} 
+    & \frac{\gamma_{min}f - \gamma_{max}n}{f - n}
+    \\
+    0 
+    & 0 
+    & 0 
+    & 1
+    \\
 \end{bmatrix}
 \begin{bmatrix} 
     P_{h} \\ 
@@ -886,22 +927,23 @@ M^{C}_{orth} =
     \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} 
     & 0 
     & 0 
-    & \frac{\alpha_{min}r - \alpha_{max} \left(-l \right) }{r - \left( -l \right)} \\
-
+    & \frac{\alpha_{min}r - \alpha_{max} \left(-l \right) }{r - \left( -l \right)}
+    \\
     0 
     & \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} 
     & 0 
-    & \frac{\beta_{min}t - \beta_{max}\left( -b \right) }{t - \left(-b \right)} \\
-    
+    & \frac{\beta_{min}t - \beta_{max}\left( -b \right) }{t - \left(-b \right)}
+    \\
     0 
     & 0 
     & \frac{\gamma_{max} - \gamma_{min} }{f - n} 
-    & \frac{\gamma_{min}f - \gamma_{max}n}{f - n} \\
-    
+    & \frac{\gamma_{min}f - \gamma_{max}n}{f - n}
+    \\
     0 
     & 0 
     & 0 
     & 1
+    \\
 \end{bmatrix}
 ```
 
@@ -985,6 +1027,7 @@ P^{C} &= \left(M^{C}_{orth}\right)^{-1} M^{C}_{per} \\
             & 0 
             & 1 
             & 0
+            \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
@@ -1143,11 +1186,15 @@ M^{C}_{per, vfov} =
 We derive the perspective and orthographic transformation matrices in the standard left-handed
 orthonormal frame and the standard right-handed coordinate frame.
 
-### The Canonical Perspective Projection Matrix With OpenGL's Normalized Device Coordinates
+### The Canonical Projection Matrices
 
-The canonical view volume for for OpenGL in normalized device coordinates is parametrized by 
+The canonical projected view space coordinate system for OpenGL is the frame 
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}`, where {math}`\mathbf{\hat{z}}` points into the view volume. 
+The canonical view volume for OpenGL in normalized device coordinates is parametrized by 
 {math}`[-1, 1] \times [-1, 1] \times [-1, 1]`. The canonical perpsective projection matrix for 
-OpenGL is given by
+this parametrization is given by
 
 ```{math}
 M^{C, OpenGL}_{per} =
@@ -1156,8 +1203,7 @@ M^{C, OpenGL}_{per} =
 0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                    \\
 0                                   & 0                                   &  \frac{f + n}{f - n}                                 & -\frac{2 f n }{f - n} \\
 0                                   & 0                                   &  1                                                   &  0                    \\
-\end{bmatrix}
-.
+\end{bmatrix}.
 ```
 
 The canonical orthographic projection matrix for OpenGL is given by
@@ -1169,8 +1215,7 @@ M^{C, OpenGL}_{orth} =
 0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
 0                               & 0                               & \frac{2}{f - n} & -\frac{f + n}{f - n}                                 \\
 0                               & 0                               & 0               &  1                                                   \\
-\end{bmatrix}
-.
+\end{bmatrix}.
 ```
 
 The canonical symmetric vertical field of view perspective projection matrix for OpenGL is given by
@@ -1198,20 +1243,50 @@ M^{C,OpenGL}_{per,vfov} =
         & 1 
         & 0
         \\
-    \end{bmatrix}
+    \end{bmatrix}.
 ```
 
+This finishes the statement of the canonical matrices for OpenGL. We now derive the specific matrices for OpenGL.
+
 ### Right-Handed View Space
+
+The right-handed projected view space coordinate system for OpenGL is the frame 
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points out of the view volume towards 
+the viewer. This is a right-handed coordinate system. The clip coordinate system for OpenGL is the canonical left-handed one. 
+The orthogonal transformations are given by
 
 ```{math}
 Q^{OpenGL}_{lh} = Q^{OpenGL}_{rh} = I
 ```
-where {math}`I` is the identity matrix.
+where {math}`I` is the identity matrix. The change of orientation matrices are given by
 
-Recall that
+```{math}
+\Omega_{rh \rightarrow lh} = 
+    \begin{bmatrix}
+        1 & 0 &  0 & 0 \\
+        0 & 1 &  0 & 0 \\
+        0 & 0 & -1 & 0 \\
+        0 & 0 &  0 & 1 \\
+    \end{bmatrix}
+,
+\hspace{4 pt}
+\Omega_{lh \rightarrow lh} = 
+    \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 \\
+        0 & 0 & 1 & 0 \\
+        0 & 0 & 0 & 1 \\
+    \end{bmatrix}
+.
+```
 
-Perspective projection
-
+To compute the projections, we need to coordinate transform from the chosen view coordinates to
+the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
+to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
+coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
+calculate the perspective projection
 
 ```{math}
 M^{OpenGL}_{per,rh \rightarrow lh} 
@@ -1225,23 +1300,23 @@ M^{OpenGL}_{per,rh \rightarrow lh}
         \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  &  0                    \\
         0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)}  &  0                    \\
         0                                   & 0                                   &  \frac{f + n}{f - n}                                  & -\frac{2 f n }{f - n} \\
-        0                                   & 0                                   &  1                                                    &  0
+        0                                   & 0                                   &  1                                                    &  0                    \\
         \end{bmatrix}
         \begin{bmatrix}
             1 & 0 &  0 & 0 \\
             0 & 1 &  0 & 0 \\
             0 & 0 & -1 & 0 \\
-            0 & 0 &  0 & 1
+            0 & 0 &  0 & 1 \\
        \end{bmatrix} \\
     &= \begin{bmatrix}
         \frac{ 2 n }{r - \left( -l \right)} & 0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                    \\
         0                                   & \frac{ 2 n }{t - \left( -b \right)} &  \frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                    \\
         0                                   & 0                                   & -\frac{f + n}{f - n}                                 & -\frac{2 f n }{f - n} \\
-        0                                   & 0                                   & -1                                                   &  0
+        0                                   & 0                                   & -1                                                   &  0                    \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{OpenGL}_{per,rh \rightarrow lh} = 
@@ -1249,12 +1324,11 @@ M^{OpenGL}_{per,rh \rightarrow lh} =
     \frac{ 2 n }{r - \left( -l \right)} & 0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                    \\
     0                                   & \frac{ 2 n }{t - \left( -b \right)} &  \frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                    \\
     0                                   & 0                                   & -\frac{f + n}{f - n}                                 & -\frac{2 f n }{f - n} \\
-    0                                   & 0                                   & -1                                                   &  0
+    0                                   & 0                                   & -1                                                   &  0                    \\
     \end{bmatrix}.
 ```
 
-
-Calculation for orthographic
+Here is the calculation for the orthographic matrix
 
 ```{math}
 M^{OpenGL}_{orth,rh \rightarrow lh} 
@@ -1268,23 +1342,23 @@ M^{OpenGL}_{orth,rh \rightarrow lh}
         \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
         0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
         0                               & 0                               & \frac{2}{f - n} & -\frac{f + n}{f - n}                                 \\
-        0                               & 0                               & 0               &  1
+        0                               & 0                               & 0               &  1                                                   \\
         \end{bmatrix}
         \begin{bmatrix}
             1 & 0 &  0 & 0 \\
             0 & 1 &  0 & 0 \\
             0 & 0 & -1 & 0 \\
-            0 & 0 &  0 & 1
+            0 & 0 &  0 & 1 \\
        \end{bmatrix} \\
     &= \begin{bmatrix}
         \frac{2}{r - \left( -l \right)} & 0                                   &  0                & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
         0                                   & \frac{2}{t - \left( -b \right)} &  0                & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
         0                                   & 0                               & -\frac{2}{f - n}  & -\frac{f + n}{f - n}                                 \\
-        0                                   & 0                               & 0                 &  1
+        0                                   & 0                               & 0                 &  1                                                   \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{OpenGL}_{orth,rh \rightarrow lh} = 
@@ -1292,11 +1366,11 @@ M^{OpenGL}_{orth,rh \rightarrow lh} =
     \frac{2}{r - \left( -l \right)} & 0                                   &  0                & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
     0                                   & \frac{2}{t - \left( -b \right)} &  0                & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
     0                                   & 0                               & -\frac{2}{f - n}  & -\frac{f + n}{f - n}                                 \\
-    0                                   & 0                               & 0                 &  1
+    0                                   & 0                               & 0                 &  1                                                   \\
     \end{bmatrix}.
 ```
 
-Symmetric Vertical Field Of View Perspective Projection
+Finally, we calculate the matrix for the symmetric vertical field of view perspective projection
 
 ```{math}
 M^{OpenGL}_{per,vfov,rh \rightarrow lh} 
@@ -1310,53 +1384,55 @@ M^{OpenGL}_{per,vfov,rh \rightarrow lh}
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         &  0 
         & \frac{f + n}{f - n}
-        & -\frac{ 2 f n }{f - n} \\
-    
+        & -\frac{ 2 f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
+        \\
         \end{bmatrix}
         \begin{bmatrix}
             1 & 0 &  0 & 0 \\
             0 & 1 &  0 & 0 \\
             0 & 0 & -1 & 0 \\
-            0 & 0 &  0 & 1
+            0 & 0 &  0 & 1 \\
         \end{bmatrix} \\
     &=  \begin{bmatrix}
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         &  0 
         & -\frac{f + n}{f - n}
-        & -\frac{ 2 f n }{f - n} \\
-    
+        & -\frac{ 2 f n }{f - n}
+        \\
         0 
         &  0 
         & -1 
         &  0
+        \\
         \end{bmatrix}
 ```
 
-so 
+therefore
 
 ```{math}
 M^{OpenGL}_{per,vfov,rh \rightarrow lh} = 
@@ -1364,28 +1440,59 @@ M^{OpenGL}_{per,vfov,rh \rightarrow lh} =
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         &  0 
         & -\frac{f + n}{f - n}
-        & -\frac{ 2 f n }{f - n} \\
-    
+        & -\frac{ 2 f n }{f - n}
+        \\
         0 
         &  0 
         & -1 
         &  0
+        \\
     \end{bmatrix}
+.
 ```
+
+This completes the derivation of the matrices for the right-handed OpenGL projected view space coordinates.
 
 ### Left-Handed View Space
 
-Perspective Projection
+The left-handed projected view space coordinate system for OpenGL is the frame 
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points into the view volume away from 
+the viewer. This is a left-handed coordinate system. The clip coordinate system is the canonical left-handed one. 
+The orthogonal transformation is given by
+
+```{math}
+Q^{OpenGL}_{lh} = I
+```
+where {math}`I` is the identity matrix. The change of orientation matrix are given by
+
+```{math}
+\Omega_{lh \rightarrow lh} = 
+    \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 \\
+        0 & 0 & 1 & 0 \\
+        0 & 0 & 0 & 1 \\
+    \end{bmatrix}
+.
+```
+
+To compute the projections, we need to coordinate transform from the chosen view coordinates to
+the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
+to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
+coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
+calculate the perspective projection
 
 ```{math}
 M^{OpenGL}_{per,lh \rightarrow lh} 
@@ -1399,11 +1506,11 @@ M^{OpenGL}_{per,lh \rightarrow lh}
         \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  &  0                    \\
         0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)}  &  0                    \\
         0                                   & 0                                   &  \frac{f + n}{f - n}                                  & -\frac{2 f n }{f - n} \\
-        0                                   & 0                                   &  1                                                    &  0
+        0                                   & 0                                   &  1                                                    &  0                    \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{OpenGL}_{per,lh \rightarrow lh} =
@@ -1411,11 +1518,11 @@ M^{OpenGL}_{per,lh \rightarrow lh} =
         \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  &  0                    \\
         0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)}  &  0                    \\
         0                                   & 0                                   &  \frac{f + n}{f - n}                                  & -\frac{2 f n }{f - n} \\
-        0                                   & 0                                   &  1                                                    &  0
-    \end{bmatrix}
+        0                                   & 0                                   &  1                                                    &  0                    \\
+    \end{bmatrix}.
 ```
 
-Orthographic projection
+Here is the calculation for calculation for the orthographic matrix
 
 ```{math}
 M^{OpenGL}_{orth,lh \rightarrow lh} 
@@ -1429,11 +1536,11 @@ M^{OpenGL}_{orth,lh \rightarrow lh}
         \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
         0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
         0                               & 0                               & \frac{2}{f - n} & -\frac{f + n}{f - n}                                 \\
-        0                               & 0                               & 0               &  1
+        0                               & 0                               & 0               &  1                                                   \\
         \end{bmatrix}
 ```
 
-so 
+therefore
 
 ```{math}
 M^{OpenGL}_{orth,lh \rightarrow lh} = 
@@ -1441,11 +1548,11 @@ M^{OpenGL}_{orth,lh \rightarrow lh} =
         \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
         0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
         0                               & 0                               & \frac{2}{f - n} & -\frac{f + n}{f - n}                                 \\
-        0                               & 0                               & 0               &  1
-    \end{bmatrix}
+        0                               & 0                               & 0               &  1                                                   \\
+    \end{bmatrix}.
 ```
 
-Symmetric Vertical Field Of View Perspective Projection
+Finally, we calculate the matrix for the symmetric vertical field of view perspective projection
 
 ```{math}
 M^{OpenGL}_{per,vfov,lh \rightarrow lh} 
@@ -1459,26 +1566,27 @@ M^{OpenGL}_{per,vfov,lh \rightarrow lh}
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         &  0 
         & \frac{f + n}{f - n}
-        & -\frac{ 2 f n }{f - n} \\
-    
+        & -\frac{ 2 f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
+        \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{OpenGL}_{per,vfov,lh \rightarrow lh} =
@@ -1486,55 +1594,63 @@ M^{OpenGL}_{per,vfov,lh \rightarrow lh} =
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         &  0 
         & \frac{f + n}{f - n}
-        & -\frac{ 2 f n }{f - n} \\
-    
+        & -\frac{ 2 f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
-    \end{bmatrix}
+        \\
+    \end{bmatrix}.
 ```
+
+This completes the derivation of the matrices for the left-handed OpenGL projected view space coordinates.
 
 ## DirectX
 
-### Canonical Matrix
+We derive the perspective and orthographic transformation matrices in the standard left-handed
+orthonormal frame and the standard right-handed coordinate frame.
 
-The canonical view volume for for DirectX in normalized device coordinates is parametrized by 
-{math}`[-1, 1] \times [-1, 1] \times [0, 1]`. The canonical perpsective projection matrix for 
-DirectX is given by
+### The Canonical Matrices
+
+The canonical projected view space coordinate system for DirectX is the frame 
+{math}`(\mathbf{0}^{T}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` in {math}`\mathbb{RP}^{3}`,
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}`, where {math}`\mathbf{\hat{z}}` points into the view volume. 
+The canonical view volume in normalized device coordinates is parametrized by 
+{math}`[-1, 1] \times [-1, 1] \times [0, 1]`. The canonical perpsective projection matrix for this 
+parametrization is given by
 
 ```{math}
 M^{C, DirectX}_{per} =
-\begin{bmatrix}
-\frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
-0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
-0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-0                                   & 0                                   &  1                                                   &  0
-\end{bmatrix}
-.
+    \begin{bmatrix}
+        \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
+        0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
+        0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
+        0                                   & 0                                   &  1                                                   &  0                  \\
+        \end{bmatrix}.
 ```
 
 The canonical orthographic projection matrix for DirectX is given by
 
 ```{math}
 M^{C, DirectX}_{orth} = 
-\begin{bmatrix}
-\frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
-0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
-0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-0                               & 0                               & 0               &  1
-\end{bmatrix}
-.
+    \begin{bmatrix}
+        \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
+        0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
+        0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
+        0                               & 0                               & 0               &  1                                                   \\
+    \end{bmatrix}.
 ```
 
 The canonical symmetric vertical field of view perspective projection matrix for DirectX is given by
@@ -1545,35 +1661,65 @@ M^{C,DirectX}_{per,vfov} =
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         &  0 
         &  \frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
+        & -\frac{ f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
-    \end{bmatrix}
+        \\
+    \end{bmatrix}.
 ```
 
+This finishes the statement of the canonical matrices for DirectX. We now derive the specific matrices for DirectX.
+
 ### Right-Handed View Space
+
+The right-handed projected view space coordinate system for DirectX is the frame 
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points out of the view volume towards 
+the viewer. This is a right-handed coordinate system. The clip coordinate system for DirectX is the canonical left-handed one. The orthogonal transformations are given by
 
 ```{math}
 Q^{DirectX}_{lh} = Q^{DirectX}_{rh} = I
 ```
-where {math}`I` is the identity matrix.
+where {math}`I` is the identity matrix. The change of orientation matrices are given by
 
-Recall that
+```{math}
+\Omega_{rh \rightarrow lh} = 
+    \begin{bmatrix}
+        1 & 0 &  0 & 0 \\
+        0 & 1 &  0 & 0 \\
+        0 & 0 & -1 & 0 \\
+        0 & 0 &  0 & 1 \\
+    \end{bmatrix}
+,
+\hspace{4 pt}
+\Omega_{lh \rightarrow lh} = 
+    \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 \\
+        0 & 0 & 1 & 0 \\
+        0 & 0 & 0 & 1 \\
+    \end{bmatrix}.
+```
 
-Perspective projection
+To compute the projections, we need to coordinate transform from the chosen view coordinates to
+the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
+to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
+coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
+calculate the perspective projection
 
 ```{math}
 M^{DirectX}_{per,rh \rightarrow lh} 
@@ -1587,23 +1733,23 @@ M^{DirectX}_{per,rh \rightarrow lh}
         \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
         0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
         0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-        0                                   & 0                                   &  1                                                   &  0
+        0                                   & 0                                   &  1                                                   &  0                  \\
         \end{bmatrix}
         \begin{bmatrix}
             1 & 0 &  0 & 0 \\
             0 & 1 &  0 & 0 \\
             0 & 0 & -1 & 0 \\
-            0 & 0 &  0 & 1
+            0 & 0 &  0 & 1 \\
        \end{bmatrix} \\
     &= \begin{bmatrix}
         \frac{ 2 n }{r - \left( -l \right)} & 0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                   \\
         0                                   & \frac{ 2 n }{t - \left( -b \right)} &  \frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                   \\
         0                                   & 0                                   & -\frac{f}{f - n}                                     & -\frac{ f n }{f - n} \\
-        0                                   & 0                                   & -1                                                   &  0
+        0                                   & 0                                   & -1                                                   &  0                   \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{DirectX}_{per,rh \rightarrow lh} = 
@@ -1611,12 +1757,11 @@ M^{DirectX}_{per,rh \rightarrow lh} =
     \frac{ 2 n }{r - \left( -l \right)} & 0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                   \\
     0                                   & \frac{ 2 n }{t - \left( -b \right)} &  \frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                   \\
     0                                   & 0                                   & -\frac{f}{f - n}                                     & -\frac{ f n }{f - n} \\
-    0                                   & 0                                   & -1                                                   &  0
+    0                                   & 0                                   & -1                                                   &  0                   \\
     \end{bmatrix}.
 ```
 
-
-Calculation for orthographic
+Here is the calculation for the orthographic matrix
 
 ```{math}
 M^{DirectX}_{orth,rh \rightarrow lh} 
@@ -1630,23 +1775,23 @@ M^{DirectX}_{orth,rh \rightarrow lh}
         \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
         0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
         0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-        0                               & 0                               & 0               &  1
+        0                               & 0                               & 0               &  1                                                   \\
         \end{bmatrix}
         \begin{bmatrix}
             1 & 0 &  0 & 0 \\
             0 & 1 &  0 & 0 \\
             0 & 0 & -1 & 0 \\
-            0 & 0 &  0 & 1
+            0 & 0 &  0 & 1 \\
        \end{bmatrix} \\
     &= \begin{bmatrix}
         \frac{2}{r - \left( -l \right)} & 0                               &  0                & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
         0                               & \frac{2}{t - \left( -b \right)} &  0                & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
         0                               & 0                               & -\frac{1}{f - n}  & -\frac{n}{f - n}                                     \\
-        0                               & 0                               &  0                &  1
+        0                               & 0                               &  0                &  1                                                   \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{DirectX}_{orth,rh \rightarrow lh} = 
@@ -1654,11 +1799,11 @@ M^{DirectX}_{orth,rh \rightarrow lh} =
     \frac{2}{r - \left( -l \right)} & 0                               &  0                & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
     0                               & \frac{2}{t - \left( -b \right)} &  0                & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
     0                               & 0                               & -\frac{1}{f - n}  & -\frac{n}{f - n}                                     \\
-    0                               & 0                               &  0                &  1
+    0                               & 0                               &  0                &  1                                                   \\
     \end{bmatrix}.
 ```
 
-Symmetric Vertical Field Of View Perspective Projection
+Finally, we calculate the matrix for the symmetric vertical field of view perspective projection
 
 ```{math}
 M^{DirectX}_{per,vfov,rh \rightarrow lh} 
@@ -1672,53 +1817,55 @@ M^{DirectX}_{per,vfov,rh \rightarrow lh}
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         &  0 
         & \frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
+        & -\frac{ f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
+        \\
         \end{bmatrix}
         \begin{bmatrix}
             1 & 0 &  0 & 0 \\
             0 & 1 &  0 & 0 \\
             0 & 0 & -1 & 0 \\
-            0 & 0 &  0 & 1
+            0 & 0 &  0 & 1 \\
         \end{bmatrix} \\
     &=  \begin{bmatrix}
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         &  0 
         & -\frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
+        & -\frac{ f n }{f - n}
+        \\
         0 
         &  0 
         & -1 
         &  0
+        \\
         \end{bmatrix}
 ```
 
-so 
+therefore
 
 ```{math}
 M^{DirectX}_{per,vfov,rh \rightarrow lh} = 
@@ -1726,28 +1873,57 @@ M^{DirectX}_{per,vfov,rh \rightarrow lh} =
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         &  0 
         & -\frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
+        & -\frac{ f n }{f - n}
+        \\
         0 
         &  0 
         & -1 
         &  0
-    \end{bmatrix}
+        \\
+    \end{bmatrix}.
 ```
+
+This completes the derivation of the matrices for the right-handed DirectX projected view space coordinates.
 
 ### Left-Handed View Space
 
-Perspective projection
+The left-handed projected view space coordinate system for OpenGL is the frame 
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points into the view volume away from 
+the viewer. This is a right-handed coordinate system. The clip coordinate system is the canonical left-handed one. 
+The orthogonal transformation is given by
+
+```{math}
+Q^{DirectX}_{lh} = I
+```
+where {math}`I` is the identity matrix. The change of orientation matrix are given by
+
+```{math}
+\Omega_{lh \rightarrow lh} = 
+    \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 \\
+        0 & 0 & 1 & 0 \\
+        0 & 0 & 0 & 1 \\
+    \end{bmatrix}.
+```
+
+To compute the projections, we need to coordinate transform from the chosen view coordinates to
+the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
+to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
+coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
+calculate the perspective projection
 
 ```{math}
 M^{DirectX}_{per,lh \rightarrow lh} 
@@ -1761,11 +1937,11 @@ M^{DirectX}_{per,lh \rightarrow lh}
         \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
         0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
         0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-        0                                   & 0                                   &  1                                                   &  0
+        0                                   & 0                                   &  1                                                   &  0                  \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{DirectX}_{per,lh \rightarrow lh} = 
@@ -1773,12 +1949,11 @@ M^{DirectX}_{per,lh \rightarrow lh} =
         \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
         0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
         0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-        0                                   & 0                                   &  1                                                   &  0
+        0                                   & 0                                   &  1                                                   &  0                  \\
     \end{bmatrix}.
 ```
 
-
-Calculation for orthographic
+Here is the calculation for calculation for the orthographic matrix
 
 ```{math}
 M^{DirectX}_{orth,lh \rightarrow lh} 
@@ -1792,11 +1967,11 @@ M^{DirectX}_{orth,lh \rightarrow lh}
         \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
         0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
         0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-        0                               & 0                               & 0               &  1
+        0                               & 0                               & 0               &  1                                                   \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{DirectX}_{orth,lh \rightarrow lh} = 
@@ -1804,11 +1979,11 @@ M^{DirectX}_{orth,lh \rightarrow lh} =
         \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
         0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
         0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-        0                               & 0                               & 0               &  1
+        0                               & 0                               & 0               &  1                                                   \\
     \end{bmatrix}.
 ```
 
-Symmetric Vertical Field Of View Perspective Projection
+Finally, we calculate the matrix for the symmetric vertical field of view perspective projection
 
 ```{math}
 M^{DirectX}_{per,vfov,lh \rightarrow lh} 
@@ -1822,26 +1997,27 @@ M^{DirectX}_{per,vfov,lh \rightarrow lh}
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         &  0 
         & \frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
+        & -\frac{ f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
+        \\
         \end{bmatrix}
 ```
 
-so 
+therefore
 
 ```{math}
 M^{DirectX}_{per,vfov,lh \rightarrow lh} = 
@@ -1849,29 +2025,39 @@ M^{DirectX}_{per,vfov,lh \rightarrow lh} =
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         &  0 
         & \frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
+        & -\frac{ f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
+        \\
     \end{bmatrix}.
 ```
 
+This completes the derivation of the matrices for the left-handed DirectX projected view space coordinates.
+
 ## Metal
 
-### Canonical Matrix
+We derive the perspective and orthographic transformation matrices in the standard left-handed
+orthonormal frame and the standard right-handed coordinate frame.
 
+### The Canonical Matrices
+
+The canonical projected view space coordinate system for Metal is the frame 
+{math}`(\mathbf{0}^{T}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` in {math}`\mathbb{RP}^{3}`,
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}`, where {math}`\mathbf{\hat{z}}` points into the view volume. 
 The canonical view volume for for Metal in normalized device coordinates is parametrized by 
 {math}`[-1, 1] \times [-1, 1] \times [0, 1]`. The canonical perpsective projection matrix for 
 Metal is given by
@@ -1882,7 +2068,7 @@ M^{C, Metal}_{per} =
 \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
 0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
 0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-0                                   & 0                                   &  1                                                   &  0
+0                                   & 0                                   &  1                                                   &  0                  \\
 \end{bmatrix}
 .
 ```
@@ -1895,7 +2081,7 @@ M^{C, Metal}_{orth} =
 \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
 0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
 0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-0                               & 0                               & 0               &  1
+0                               & 0                               & 0               &  1                                                   \\
 \end{bmatrix}
 .
 ```
@@ -1908,35 +2094,65 @@ M^{C,Metal}_{per,vfov} =
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         &  0 
         &  \frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
+        & -\frac{ f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
-    \end{bmatrix}
+        \\
+    \end{bmatrix}.
 ```
 
+This finishes the statement of the canonical matrices for Metal. We now derive the specific matrices for Metal.
+
 ### Right-Handed View Space
+
+The right-handed projected view space coordinate system for Metal is the frame 
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points out of the view volume towards 
+the viewer. This is a right-handed coordinate system. The clip coordinate system for Metal is the canonical left-handed one. The orthogonal transformations are given by
 
 ```{math}
 Q^{Metal}_{lh} = Q^{Metal}_{rh} = I
 ```
-where {math}`I` is the identity matrix.
+where {math}`I` is the identity matrix. The change of orientation matrices are given by
 
-Recall that
+```{math}
+\Omega_{rh \rightarrow lh} = 
+    \begin{bmatrix}
+        1 & 0 &  0 & 0 \\
+        0 & 1 &  0 & 0 \\
+        0 & 0 & -1 & 0 \\
+        0 & 0 &  0 & 1 \\
+    \end{bmatrix}
+,
+\hspace{4 pt}
+\Omega_{lh \rightarrow lh} = 
+    \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 \\
+        0 & 0 & 1 & 0 \\
+        0 & 0 & 0 & 1 \\
+    \end{bmatrix}.
+```
 
-Perspective projection
+To compute the projections, we need to coordinate transform from the chosen view coordinates to
+the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
+to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
+coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
+calculate the perspective projection
 
 ```{math}
 M^{Metal}_{per,rh \rightarrow lh} 
@@ -1966,7 +2182,7 @@ M^{Metal}_{per,rh \rightarrow lh}
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{Metal}_{per,rh \rightarrow lh} = 
@@ -1978,8 +2194,7 @@ M^{Metal}_{per,rh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-
-Calculation for orthographic
+Here is the calculation for the orthographic matrix
 
 ```{math}
 M^{Metal}_{orth,rh \rightarrow lh} 
@@ -2009,7 +2224,7 @@ M^{Metal}_{orth,rh \rightarrow lh}
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{Metal}_{orth,rh \rightarrow lh} = 
@@ -2021,7 +2236,7 @@ M^{Metal}_{orth,rh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-Symmetric Vertical Field Of View Perspective Projection
+Finally, we calculate the matrix for the symmetric vertical field of view perspective projection
 
 ```{math}
 M^{Metal}_{per,vfov,rh \rightarrow lh} 
@@ -2035,53 +2250,55 @@ M^{Metal}_{per,vfov,rh \rightarrow lh}
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         &  0 
         & \frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
+        & -\frac{ f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
+        \\
         \end{bmatrix}
         \begin{bmatrix}
             1 & 0 &  0 & 0 \\
             0 & 1 &  0 & 0 \\
             0 & 0 & -1 & 0 \\
-            0 & 0 &  0 & 1
+            0 & 0 &  0 & 1 \\
         \end{bmatrix} \\
     &=  \begin{bmatrix}
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         &  0 
         & -\frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
+        & -\frac{ f n }{f - n}
+        \\
         0 
         &  0 
         & -1 
         &  0
+        \\
         \end{bmatrix}
 ```
 
-so 
+therefore
 
 ```{math}
 M^{Metal}_{per,vfov,rh \rightarrow lh} = 
@@ -2089,28 +2306,58 @@ M^{Metal}_{per,vfov,rh \rightarrow lh} =
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         &  0 
         & -\frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
+        & -\frac{ f n }{f - n}
+        \\
         0 
         &  0 
         & -1 
         &  0
-    \end{bmatrix}
+        \\
+    \end{bmatrix}.
 ```
+
+This completes the derivation of the matrices for the right-handed Metal projected view space coordinates.
 
 ### Left-Handed View Space
 
-Perspective projection
+The left-handed projected view space coordinate system for Metal is the frame 
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points into the view volume away from 
+the viewer. This is a right-handed coordinate system. The clip coordinate system is the canonical left-handed one. 
+The orthogonal transformation is given by
+
+```{math}
+Q^{Metal}_{lh} = I
+```
+where {math}`I` is the identity matrix. The change of orientation matrix are given by
+
+```{math}
+\Omega_{lh \rightarrow lh} = 
+    \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 \\
+        0 & 0 & 1 & 0 \\
+        0 & 0 & 0 & 1 \\
+    \end{bmatrix}.
+```
+
+To compute the projections, we need to coordinate transform from the chosen view coordinates to
+the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
+to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
+coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
+calculate the perspective projection
+
 
 ```{math}
 M^{Metal}_{per,lh \rightarrow lh} 
@@ -2128,7 +2375,7 @@ M^{Metal}_{per,lh \rightarrow lh}
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{Metal}_{per,lh \rightarrow lh} = 
@@ -2140,8 +2387,7 @@ M^{Metal}_{per,lh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-
-Calculation for orthographic
+Here is the calculation for calculation for the orthographic matrix
 
 ```{math}
 M^{Metal}_{orth,lh \rightarrow lh} 
@@ -2159,7 +2405,7 @@ M^{Metal}_{orth,lh \rightarrow lh}
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{Metal}_{orth,lh \rightarrow lh} = 
@@ -2171,7 +2417,7 @@ M^{Metal}_{orth,lh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-Symmetric Vertical Field Of View Perspective Projection
+Finally, we calculate the matrix for the symmetric vertical field of view perspective projection
 
 ```{math}
 M^{Metal}_{per,vfov,lh \rightarrow lh} 
@@ -2204,7 +2450,7 @@ M^{Metal}_{per,vfov,lh \rightarrow lh}
         \end{bmatrix}
 ```
 
-so 
+therefore
 
 ```{math}
 M^{Metal}_{per,vfov,lh \rightarrow lh} = 
@@ -2231,10 +2477,19 @@ M^{Metal}_{per,vfov,lh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
+This completes the derivation of the matrices for the left-handed Metal projected view space coordinates.
+
 ## Vulkan (Vulkan Coordinates)
 
-### Canonical Matrix
+We derive the perspective and orthographic transformation matrices in the standard left-handed
+orthonormal frame and the standard right-handed coordinate frame.
 
+### The Canonical Matrices
+
+The canonical projected view space coordinate system for Vulkan is the frame 
+{math}`(\mathbf{0}^{T}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` in {math}`\mathbb{RP}^{3}`,
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}`, where {math}`\mathbf{\hat{z}}` points into the view volume. 
 The canonical view volume for for Vulkan in normalized device coordinates is parametrized by 
 {math}`[-1, 1] \times [-1, 1] \times [0, 1]`. The canonical perspective projection matrix for 
 Vulkan is given by
@@ -2245,7 +2500,7 @@ M^{C, Vulkan}_{per} =
 \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
 0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
 0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-0                                   & 0                                   &  1                                                   &  0
+0                                   & 0                                   &  1                                                   &  0                  \\
 \end{bmatrix}
 .
 ```
@@ -2258,7 +2513,7 @@ M^{C, Vulkan}_{orth} =
 \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
 0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
 0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-0                               & 0                               & 0               &  1
+0                               & 0                               & 0               &  1                                                   \\
 \end{bmatrix}
 .
 ```
@@ -2271,26 +2526,37 @@ M^{C, Vulkan}_{per,vfov} =
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         &  0 
         &  \frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
+        & -\frac{ f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
+        \\
     \end{bmatrix}
 ```
 
+This finishes the statement of the canonical matrices for Vulkan. We now derive the specific matrices for Vulkan.
+
 ### Right-Handed View Space
+
+The right-handed projected view space coordinate system for Vulkan is the frame 
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, -\mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points into the view volume away from
+the viewer. Notice that the vertical axis points down in this frame. This is a right-handed coordinate system. 
+The clip coordinate system for Vulkan is the same as the right-handed projected projected view space coordinate
+system. A homogeneous rotation about the x-axis is defined as
 
 ```{math}
 R_{x}\left( \theta \right) = 
@@ -2298,27 +2564,70 @@ R_{x}\left( \theta \right) =
         1 & 0                         &  0                         & 0 \\
         0 & \cos\left( \theta \right) & -\sin\left( \theta \right) & 0 \\
         0 & \sin\left( \theta \right) &  \cos\left( \theta \right) & 0 \\
-        0 & 0                         &  0                         & 1
-    \end{bmatrix}
+        0 & 0                         &  0                         & 1 \\
+    \end{bmatrix}.
 ```
+
+The orthogonal transformations for the right-handed Vulkan view space coordinates are given by
 
 ```{math}
-Q^{Vulkan}_{rh} = R_{x}\left( \pi \right) 
-                = \begin{bmatrix}
-                      1 & 0                      &  0                   & 0 \\
-                      0 & \cos\left( \pi \right) & -\sin\left( \pi \right) & 0 \\
-                      0 & \sin\left( \pi \right) &  \cos\left( \pi \right) & 0 \\
-                      0 & 0                      &  0                   & 1
-                  \end{bmatrix}
-                = \begin{bmatrix}
-                      1 &  0 &  0 & 0 \\
-                      0 & -1 &  0 & 0 \\
-                      0 &  0 & -1 & 0 \\
-                      0 &  0 &  0 & 1
-                  \end{bmatrix}
+Q^{Vulkan}_{rh} 
+    = R_{x}\left( \pi \right) 
+    =  \begin{bmatrix}
+            1 & 0                      &  0                      & 0 \\
+            0 & \cos\left( \pi \right) & -\sin\left( \pi \right) & 0 \\
+            0 & \sin\left( \pi \right) &  \cos\left( \pi \right) & 0 \\
+            0 & 0                      &  0                      & 1 \\
+        \end{bmatrix}
+    =   \begin{bmatrix}
+            1 &  0 &  0 & 0 \\
+            0 & -1 &  0 & 0 \\
+            0 &  0 & -1 & 0 \\
+            0 &  0 &  0 & 1 \\
+        \end{bmatrix}
+    \\
+Q^{Vulkan}_{lh} 
+    = R_{x}\left( -\pi \right) 
+    =  \begin{bmatrix}
+            1 & 0                       &  0                       & 0 \\
+            0 & \cos\left( -\pi \right) & -\sin\left( -\pi \right) & 0 \\
+            0 & \sin\left( -\pi \right) &  \cos\left( -\pi \right) & 0 \\
+            0 & 0                       &  0                       & 1 \\
+        \end{bmatrix}
+    =   \begin{bmatrix}
+            1 &  0 &  0 & 0 \\
+            0 & -1 &  0 & 0 \\
+            0 &  0 & -1 & 0 \\
+            0 &  0 &  0 & 1 \\
+        \end{bmatrix}.
 ```
 
-Perspective Projection
+The change of orientation matrices are given by
+
+```{math}
+\Omega_{rh \rightarrow lh} = 
+    \begin{bmatrix}
+        1 & 0 &  0 & 0 \\
+        0 & 1 &  0 & 0 \\
+        0 & 0 & -1 & 0 \\
+        0 & 0 &  0 & 1 \\
+    \end{bmatrix}
+,
+\hspace{4 pt}
+\Omega_{lh \rightarrow rh} = 
+    \begin{bmatrix}
+        1 & 0 &  0 & 0 \\
+        0 & 1 &  0 & 0 \\
+        0 & 0 & -1 & 0 \\
+        0 & 0 &  0 & 1 \\
+    \end{bmatrix}.
+```
+
+To compute the projections, we need to coordinate transform from the chosen view coordinates to
+the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
+to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
+coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
+calculate the perspective projection
 
 ```{math}
 M^{Vulkan}_{per, rh \rightarrow rh}
@@ -2329,13 +2638,13 @@ M^{Vulkan}_{per, rh \rightarrow rh}
                 1 & 0 &  0 & 0 \\
                 0 & 1 &  0 & 0 \\
                 0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
+                0 & 0 &  0 & 1 \\
             \end{bmatrix}
             \begin{bmatrix}
                 1 &  0 &  0 & 0 \\
                 0 & -1 &  0 & 0 \\
                 0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
+                0 &  0 &  0 & 1 \\
             \end{bmatrix}
         \right)
         M^{C,Vulkan}_{per}
@@ -2344,13 +2653,13 @@ M^{Vulkan}_{per, rh \rightarrow rh}
                 1 & 0 &  0 & 0 \\
                 0 & 1 &  0 & 0 \\
                 0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
+                0 & 0 &  0 & 1 \\
             \end{bmatrix}
             \begin{bmatrix}
                 1 &  0 &  0 & 0 \\
                 0 & -1 &  0 & 0 \\
                 0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
+                0 &  0 &  0 & 1 \\
             \end{bmatrix}
         \right)
         \\
@@ -2358,90 +2667,90 @@ M^{Vulkan}_{per, rh \rightarrow rh}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         M^{C,Vulkan}_{per}
         \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
             0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
             0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-            0                                   & 0                                   &  1                                                   &  0
+            0                                   & 0                                   &  1                                                   &  0                  \\
         \end{bmatrix}
         \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{ 2 n }{r - \left( -l \right)} &  0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
             0                                   & -\frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
             0                                   &  0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-            0                                   &  0                                   &  1                                                   &  0
+            0                                   &  0                                   &  1                                                   &  0                  \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{ 2 n }{r + l} &  0                   & -\frac{r - l}{r + l} &  0                  \\
             0                   & -\frac{ 2 n }{t + b} & -\frac{t - b}{t + b} &  0                  \\
             0                   &  0                   &  \frac{f}{f - n}     & -\frac{f n }{f - n} \\
-            0                   &  0                   &  1                   &  0
+            0                   &  0                   &  1                   &  0                  \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{ 2 n }{r + l} &  0                   & -\frac{r - l}{r + l} &  0                  \\
-            0                   & -\frac{ 2 n }{b + t} & \frac{b - t}{b + t} &  0                  \\
-            0                   &  0                   & \frac{f}{f - n}     & -\frac{f n }{f - n} \\
-            0                   &  0                   & 1                   &  0
+            0                   & -\frac{ 2 n }{b + t} &  \frac{b - t}{b + t} &  0                  \\
+            0                   &  0                   &  \frac{f}{f - n}     & -\frac{f n }{f - n} \\
+            0                   &  0                   &  1                   &  0                  \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             \frac{ 2 n }{r + l} & 0                   & -\frac{r - l}{r + l} &  0                  \\
             0                   & \frac{ 2 n }{b + t} & -\frac{b - t}{b + t} &  0                  \\
-            0                   & 0                   & \frac{f}{f - n}     & -\frac{f n }{f - n} \\
-            0                   & 0                   & 1                   &  0
+            0                   & 0                   &  \frac{f}{f - n}     & -\frac{f n }{f - n} \\
+            0                   & 0                   &  1                   &  0                  \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
             0                                   & \frac{ 2 n }{b - \left( -t \right)} & -\frac{b + \left( -t \right)}{b - \left( -t \right)} &  0                  \\
             0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-            0                                   & 0                                   &  1                                                   &  0
+            0                                   & 0                                   &  1                                                   &  0                  \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{Vulkan}_{per, rh \rightarrow rh} = 
@@ -2449,11 +2758,11 @@ M^{Vulkan}_{per, rh \rightarrow rh} =
         \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
         0                                   & \frac{ 2 n }{b - \left( -t \right)} & -\frac{b + \left( -t \right)}{b - \left( -t \right)} &  0                  \\
         0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-        0                                   & 0                                   &  1                                                   &  0
-    \end{bmatrix}
+        0                                   & 0                                   &  1                                                   &  0                  \\
+    \end{bmatrix}.
 ```
 
-Calculation for orthographic projection
+Here is the calculation for the orthographic matrix
 
 ```{math}
     M^{Vulkan}_{orth, rh \rightarrow rh}
@@ -2464,13 +2773,13 @@ Calculation for orthographic projection
                 1 & 0 &  0 & 0 \\
                 0 & 1 &  0 & 0 \\
                 0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
+                0 & 0 &  0 & 1 \\
             \end{bmatrix}
             \begin{bmatrix}
                 1 &  0 &  0 & 0 \\
                 0 & -1 &  0 & 0 \\
                 0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
+                0 &  0 &  0 & 1 \\
             \end{bmatrix}
         \right)
         M^{C,Vulkan}_{orth}
@@ -2479,13 +2788,13 @@ Calculation for orthographic projection
                 1 & 0 &  0 & 0 \\
                 0 & 1 &  0 & 0 \\
                 0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
+                0 & 0 &  0 & 1 \\
             \end{bmatrix}
             \begin{bmatrix}
                 1 &  0 &  0 & 0 \\
                 0 & -1 &  0 & 0 \\
                 0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
+                0 &  0 &  0 & 1 \\
             \end{bmatrix}
         \right)
         \\
@@ -2500,83 +2809,83 @@ Calculation for orthographic projection
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
             0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
             0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-            0                               & 0                               & 0               &  1
+            0                               & 0                               & 0               &  1                                                   \\
         \end{bmatrix}
         \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{2}{r - \left( -l \right)} &  0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
             0                               & -\frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
             0                               &  0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-            0                               &  0                               & 0               &  1
+            0                               &  0                               & 0               &  1                                                   \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{2}{r + l} &  0               & 0               & -\frac{r - l}{r + l} \\
             0               & -\frac{2}{t + b} & 0               & -\frac{t - b}{t + b} \\
             0               &  0               & \frac{1}{f - n} & -\frac{n}{f - n}     \\
-            0               &  0               & 0               &  1
+            0               &  0               & 0               &  1                   \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{2}{r + l} &  0               & 0               & -\frac{r - l}{r + l} \\
             0               & -\frac{2}{b + t} & 0               &  \frac{b - t}{b + t} \\
             0               &  0               & \frac{1}{f - n} & -\frac{n}{f - n}     \\
-            0               &  0               & 0               &  1
+            0               &  0               & 0               &  1                   \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             \frac{2}{r + l} & 0               & 0               & -\frac{r - l}{r + l}  \\
             0               & \frac{2}{b + t} & 0               & -\frac{b - t}{b + t}  \\
             0               & 0               & \frac{1}{f - n} & -\frac{n}{f - n}      \\
-            0               & 0               & 0               &  1
+            0               & 0               & 0               &  1                    \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  \\
             0                               & \frac{2}{b - \left( -t \right)} & 0               & -\frac{b + \left( -t \right)}{b - \left( -t \right)}  \\
             0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                      \\
-            0                               & 0                               & 0               &  1
+            0                               & 0                               & 0               &  1                                                    \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{Vulkan}_{orth, rh \rightarrow rh} = 
@@ -2584,11 +2893,11 @@ M^{Vulkan}_{orth, rh \rightarrow rh} =
         \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  \\
         0                               & \frac{2}{b - \left( -t \right)} & 0               & -\frac{b + \left( -t \right)}{b - \left( -t \right)}  \\
         0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                      \\
-        0                               & 0                               & 0               &  1
-    \end{bmatrix}
+        0                               & 0                               & 0               &  1                                                    \\
+    \end{bmatrix}.
 ```
 
-Symmetric Vertical Field Of View Perspective Projection
+Finally, we calculate the matrix for the symmetric vertical field of view perspective projection
 
 ```{math}
 M^{Vulkan}_{per,vfov,rh \rightarrow rh}
@@ -2599,13 +2908,13 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh}
                 1 & 0 &  0 & 0 \\
                 0 & 1 &  0 & 0 \\
                 0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
+                0 & 0 &  0 & 1 \\
             \end{bmatrix}
             \begin{bmatrix}
                 1 &  0 &  0 & 0 \\
                 0 & -1 &  0 & 0 \\
                 0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
+                0 &  0 &  0 & 1 \\
             \end{bmatrix}
         \right)
         M^{C,Vulkan}_{per,vfov}
@@ -2614,13 +2923,13 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh}
                 1 & 0 &  0 & 0 \\
                 0 & 1 &  0 & 0 \\
                 0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
+                0 & 0 &  0 & 1 \\
             \end{bmatrix}
             \begin{bmatrix}
                 1 &  0 &  0 & 0 \\
                 0 & -1 &  0 & 0 \\
                 0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
+                0 &  0 &  0 & 1 \\
             \end{bmatrix}
         \right)
         \\
@@ -2628,102 +2937,105 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         M^{C,Vulkan}_{per,vfov}
         \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
-            & 0 \\
-
+            & 0
+            \\
             0 
             & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
             & 0
-            & 0 \\
-
+            & 0
+            \\
             0 
             &  0 
             &  \frac{f}{f - n}
-            & -\frac{ f n }{f - n} \\
-    
+            & -\frac{ f n }{f - n}
+            \\
             0 
             & 0 
             & 1 
             & 0
+            \\
         \end{bmatrix}
         \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
-            & 0 \\
-
+            & 0
+            \\
             0 
             & -\frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
             &  0
-            &  0 \\
-
+            &  0
+            \\
             0 
             &  0 
             &  \frac{f}{f - n}
-            & -\frac{ f n }{f - n} \\
-    
+            & -\frac{ f n }{f - n}
+            \\
             0 
             & 0 
             & 1 
             & 0
+            \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
-            & 0 \\
-
+            & 0
+            \\
             0 
             & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
             & 0
-            & 0 \\
-
+            & 0
+            \\
             0 
             &  0 
             &  \frac{f}{f - n}
-            & -\frac{ f n }{f - n} \\
-    
+            & -\frac{ f n }{f - n}
+            \\
             0 
             & 0 
             & 1 
             & 0
+            \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{Vulkan}_{per,vfov,rh \rightarrow rh} = 
@@ -2731,27 +3043,37 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh} =
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0
+        \\
         0 
         &  0 
         &  \frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
+        & -\frac{ f n }{f - n}
+        \\
         0 
         & 0 
         & 1 
         & 0
-    \end{bmatrix}
+        \\
+    \end{bmatrix}.
 ```
 
+This completes the derivation of the matrices for the right-handed Vulkan projected view space coordinates.
 
 ### Left-Handed View Space
+
+The right-handed projected view space coordinate system for Vulkan is the frame 
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, -\mathbf{\hat{y}}, -\mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`-\mathbf{\hat{z}}` points out of the view volume towards 
+the viewer. Notice that the vertical axis points down in this frame. This is a left-handed coordinate system. 
+The clip coordinate system for Vulkan is the same as the right-handed projected projected view space coordinate
+system. A homogeneous rotation about the x-axis is defined as
 
 ```{math}
 R_{x}\left( \theta \right) = 
@@ -2759,27 +3081,55 @@ R_{x}\left( \theta \right) =
         1 & 0                         &  0                         & 0 \\
         0 & \cos\left( \theta \right) & -\sin\left( \theta \right) & 0 \\
         0 & \sin\left( \theta \right) &  \cos\left( \theta \right) & 0 \\
-        0 & 0                         &  0                         & 1
-    \end{bmatrix}
+        0 & 0                         &  0                         & 1 \\
+    \end{bmatrix}.
 ```
+
+The orthogonal transformations for the left-handed Vulkan view space coordinates are given by
 
 ```{math}
-Q^{Vulkan}_{lh} = R_{x}\left( \pi \right) 
-                = \begin{bmatrix}
-                      1 & 0                      &  0                   & 0 \\
-                      0 & \cos\left( \pi \right) & -\sin\left( \pi \right) & 0 \\
-                      0 & \sin\left( \pi \right) &  \cos\left( \pi \right) & 0 \\
-                      0 & 0                      &  0                   & 1
-                  \end{bmatrix}
-                = \begin{bmatrix}
-                      1 &  0 &  0 & 0 \\
-                      0 & -1 &  0 & 0 \\
-                      0 &  0 & -1 & 0 \\
-                      0 &  0 &  0 & 1
-                  \end{bmatrix}
+Q^{Vulkan}_{lh} 
+    = R_{x}\left( \pi \right) 
+    = \begin{bmatrix}
+            1 & 0                      &  0                      & 0 \\
+            0 & \cos\left( \pi \right) & -\sin\left( \pi \right) & 0 \\
+            0 & \sin\left( \pi \right) &  \cos\left( \pi \right) & 0 \\
+            0 & 0                      &  0                      & 1 \\
+        \end{bmatrix}
+    =   \begin{bmatrix}
+            1 &  0 &  0 & 0 \\
+            0 & -1 &  0 & 0 \\
+            0 &  0 & -1 & 0 \\
+            0 &  0 &  0 & 1 \\
+        \end{bmatrix}.
 ```
 
-Perspective Projection
+The change of orientation matrices are given by
+
+```{math}
+\Omega_{lh \rightarrow lh} = 
+    \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 \\
+        0 & 0 & 1 & 0 \\
+        0 & 0 & 0 & 1 \\
+    \end{bmatrix}
+,
+\hspace{4 pt}
+\Omega_{lh \rightarrow rh} = 
+    \begin{bmatrix}
+        1 & 0 &  0 & 0 \\
+        0 & 1 &  0 & 0 \\
+        0 & 0 & -1 & 0 \\
+        0 & 0 &  0 & 1 \\
+    \end{bmatrix}.
+```
+
+To compute the projections, we need to coordinate transform from the chosen view coordinates to
+the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
+to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
+coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
+calculate the perspective projection
 
 ```{math}
 M^{Vulkan}_{per, lh \rightarrow rh}
@@ -2792,13 +3142,13 @@ M^{Vulkan}_{per, lh \rightarrow rh}
                 1 & 0 &  0 & 0 \\
                 0 & 1 &  0 & 0 \\
                 0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
+                0 & 0 &  0 & 1 \\
             \end{bmatrix}
             \begin{bmatrix}
                 1 &  0 &  0 & 0 \\
                 0 & -1 &  0 & 0 \\
                 0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
+                0 &  0 &  0 & 1 \\
             \end{bmatrix}
         \right)
         M^{C,Vulkan}_{per}
@@ -2806,97 +3156,97 @@ M^{Vulkan}_{per, lh \rightarrow rh}
             1 &  0 &  0 & 0 \\
             0 & -1 &  0 & 0 \\
             0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
+            0 &  0 &  0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         M^{C,Vulkan}_{per}
         \begin{bmatrix}
             1 &  0 &  0 & 0 \\
             0 & -1 &  0 & 0 \\
             0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
+            0 &  0 &  0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
             0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
             0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-            0                                   & 0                                   &  1                                                   &  0
+            0                                   & 0                                   &  1                                                   &  0                  \\
         \end{bmatrix}
         \begin{bmatrix}
             1 &  0 &  0 & 0 \\
             0 & -1 &  0 & 0 \\
             0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
+            0 &  0 &  0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{ 2 n }{r - \left( -l \right)} &  0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
             0                                   & -\frac{ 2 n }{t - \left( -b \right)} &  \frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
             0                                   &  0                                   & -\frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-            0                                   &  0                                   & -1                                                   &  0
+            0                                   &  0                                   & -1                                                   &  0                  \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{ 2 n }{r + l} &  0                   &  \frac{r - l}{r + l} &  0                  \\
             0                   & -\frac{ 2 n }{t + b} &  \frac{t - b}{t + b} &  0                  \\
             0                   &  0                   & -\frac{f}{f - n}     & -\frac{f n }{f - n} \\
-            0                   &  0                   & -1                   &  0
+            0                   &  0                   & -1                   &  0                  \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{ 2 n }{r + l} &  0                   &  \frac{r - l}{r + l} &  0                  \\
             0                   & -\frac{ 2 n }{b + t} & -\frac{b - t}{b + t} &  0                  \\
             0                   &  0                   & -\frac{f}{f - n}     & -\frac{f n }{f - n} \\
-            0                   &  0                   & -1                   &  0
+            0                   &  0                   & -1                   &  0                  \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             \frac{ 2 n }{r + l} & 0                   &  \frac{r - l}{r + l} &  0                  \\
             0                   & \frac{ 2 n }{b + t} &  \frac{b - t}{b + t} &  0                  \\
             0                   & 0                   & -\frac{f}{f - n}     & -\frac{f n }{f - n} \\
-            0                   & 0                   & -1                   &  0
+            0                   & 0                   & -1                   &  0                  \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             \frac{ 2 n }{r - \left( -l \right)} & 0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
             0                                   & \frac{ 2 n }{b - \left( -t \right)} &  \frac{b + \left( -t \right)}{b - \left( -t \right)} &  0                  \\
             0                                   & 0                                   & -\frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-            0                                   & 0                                   & -1                                                   &  0
+            0                                   & 0                                   & -1                                                   &  0                  \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{Vulkan}_{per, lh \rightarrow rh} = 
@@ -2904,11 +3254,11 @@ M^{Vulkan}_{per, lh \rightarrow rh} =
         \frac{ 2 n }{r - \left( -l \right)} & 0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
         0                                   & \frac{ 2 n }{b - \left( -t \right)} &  \frac{b + \left( -t \right)}{b - \left( -t \right)} &  0                  \\
         0                                   & 0                                   & -\frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-        0                                   & 0                                   & -1                                                   &  0
-    \end{bmatrix}
+        0                                   & 0                                   & -1                                                   &  0                  \\
+    \end{bmatrix}.
 ```
 
-Calculation for orthographic projection
+Here is the calculation for the orthographic matrix
 
 ```{math}
     M^{Vulkan}_{orth, lh \rightarrow rh}
@@ -2921,13 +3271,13 @@ Calculation for orthographic projection
                 1 & 0 &  0 & 0 \\
                 0 & 1 &  0 & 0 \\
                 0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
+                0 & 0 &  0 & 1 \\
             \end{bmatrix}
             \begin{bmatrix}
                 1 &  0 &  0 & 0 \\
                 0 & -1 &  0 & 0 \\
                 0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
+                0 &  0 &  0 & 1 \\
             \end{bmatrix}
         \right)
         M^{C,Vulkan}_{orth}
@@ -2935,53 +3285,53 @@ Calculation for orthographic projection
             1 &  0 &  0 & 0 \\
             0 & -1 &  0 & 0 \\
             0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
+            0 &  0 &  0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         M^{C,Vulkan}_{orth}
         \begin{bmatrix}
             1 &  0 &  0 & 0 \\
             0 & -1 &  0 & 0 \\
             0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
+            0 &  0 &  0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
             0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
             0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-            0                               & 0                               & 0               &  1
+            0                               & 0                               & 0               &  1                                                   \\
         \end{bmatrix}
         \begin{bmatrix}
             1 &  0 &  0 & 0 \\
             0 & -1 &  0 & 0 \\
             0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
+            0 &  0 &  0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{2}{r - \left( -l \right)} &  0                               &  0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
             0                               & -\frac{2}{t - \left( -b \right)} &  0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
             0                               &  0                               & -\frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-            0                               &  0                               &  0               &  1
+            0                               &  0                               &  0               &  1                                                   \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
@@ -2994,38 +3344,38 @@ Calculation for orthographic projection
             \frac{2}{r + l} &  0               &  0               & -\frac{r - l}{r + l} \\
             0               & -\frac{2}{t + b} &  0               & -\frac{t - b}{t + b} \\
             0               &  0               & -\frac{1}{f - n} & -\frac{n}{f - n}     \\
-            0               &  0               &  0               &  1
+            0               &  0               &  0               &  1                   \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{2}{r + l} &  0               &  0               & -\frac{r - l}{r + l} \\
             0               & -\frac{2}{b + t} &  0               &  \frac{b - t}{b + t} \\
             0               &  0               & -\frac{1}{f - n} & -\frac{n}{f - n}     \\
-            0               &  0               &  0               &  1
+            0               &  0               &  0               &  1                   \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             \frac{2}{r + l} & 0               &  0               & -\frac{r - l}{r + l}  \\
             0               & \frac{2}{b + t} &  0               & -\frac{b - t}{b + t}  \\
             0               & 0               & -\frac{1}{f - n} & -\frac{n}{f - n}      \\
-            0               & 0               &  0               &  1
+            0               & 0               &  0               &  1                    \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             \frac{2}{r - \left( -l \right)} & 0                               &  0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  \\
             0                               & \frac{2}{b - \left( -t \right)} &  0               & -\frac{b + \left( -t \right)}{b - \left( -t \right)}  \\
             0                               & 0                               & -\frac{1}{f - n} & -\frac{n}{f - n}                                      \\
-            0                               & 0                               &  0               &  1
+            0                               & 0                               &  0               &  1                                                    \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{Vulkan}_{orth, lh \rightarrow rh} = 
@@ -3033,11 +3383,11 @@ M^{Vulkan}_{orth, lh \rightarrow rh} =
         \frac{2}{r - \left( -l \right)} & 0                               &  0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  \\
         0                               & \frac{2}{b - \left( -t \right)} &  0               & -\frac{b + \left( -t \right)}{b - \left( -t \right)}  \\
         0                               & 0                               & -\frac{1}{f - n} & -\frac{n}{f - n}                                      \\
-        0                               & 0                               &  0               &  1
-    \end{bmatrix}
+        0                               & 0                               &  0               &  1                                                    \\
+    \end{bmatrix}.
 ```
 
-Symmetric Vertical Field Of View Perspective Projection
+Finally, we calculate the matrix for the symmetric vertical field of view perspective projection
 
 ```{math}
 M^{Vulkan}_{per,vfov,lh \rightarrow rh}
@@ -3050,13 +3400,13 @@ M^{Vulkan}_{per,vfov,lh \rightarrow rh}
                 1 & 0 &  0 & 0 \\
                 0 & 1 &  0 & 0 \\
                 0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
+                0 & 0 &  0 & 1 \\
             \end{bmatrix}
             \begin{bmatrix}
                 1 &  0 &  0 & 0 \\
                 0 & -1 &  0 & 0 \\
                 0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
+                0 &  0 &  0 & 1 \\
             \end{bmatrix}
         \right)
         M^{C,Vulkan}_{per,vfov}
@@ -3064,109 +3414,112 @@ M^{Vulkan}_{per,vfov,lh \rightarrow rh}
             1 &  0 &  0 & 0 \\
             0 & -1 &  0 & 0 \\
             0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
+            0 &  0 &  0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         M^{C,Vulkan}_{per,vfov}
         \begin{bmatrix}
             1 &  0 &  0 & 0 \\
             0 & -1 &  0 & 0 \\
             0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
+            0 &  0 &  0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
-            & 0 \\
-
+            & 0 
+            \\
             0 
             & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
             & 0
-            & 0 \\
-
+            & 0 
+            \\
             0 
             &  0 
             &  \frac{f}{f - n}
-            & -\frac{ f n }{f - n} \\
-    
+            & -\frac{ f n }{f - n} 
+            \\
             0 
             & 0 
             & 1 
             & 0
+            \\
         \end{bmatrix}
         \begin{bmatrix}
             1 &  0 &  0 & 0 \\
             0 & -1 &  0 & 0 \\
             0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
+            0 &  0 &  0 & 1 \\
         \end{bmatrix}
         \\
     &= \begin{bmatrix}
             1 &  0 & 0 & 0 \\
             0 & -1 & 0 & 0 \\
             0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
+            0 &  0 & 0 & 1 \\
         \end{bmatrix}
         \begin{bmatrix}
             \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
-            & 0 \\
-
+            & 0 
+            \\
             0 
             & -\frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
             &  0
-            &  0 \\
-
+            &  0 
+            \\
             0 
             &  0 
             & -\frac{f}{f - n}
-            & -\frac{ f n }{f - n} \\
-    
+            & -\frac{ f n }{f - n} 
+            \\
             0 
             &  0 
             & -1 
             &  0
+            \\
         \end{bmatrix}
         \\
     &=  \begin{bmatrix}
             \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
             & 0 
             & 0
-            & 0 \\
-
+            & 0
+            \\
             0 
             & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
             & 0
-            & 0 \\
-
+            & 0
+            \\
             0 
             &  0 
             & -\frac{f}{f - n}
-            & -\frac{ f n }{f - n} \\
-    
+            & -\frac{ f n }{f - n}
+            \\
             0 
             &  0 
             & -1 
             &  0
+            \\
         \end{bmatrix}
 ```
 
-so
+therefore
 
 ```{math}
 M^{Vulkan}_{per,vfov,rh \rightarrow rh} = 
@@ -3174,983 +3527,24 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh} =
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
         & 0
-        & 0 \\
-
+        & 0 
+        \\
         0 
         &  0 
         & -\frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
+        & -\frac{ f n }{f - n} 
+        \\
         0 
         &  0 
         & -1 
         &  0
-    \end{bmatrix}
+        \\
+    \end{bmatrix}.
 ```
 
-## Vulkan (Standard Coordinates)
-
-### Canonical Matrix
-
-The canonical view volume for for Vulkan in normalized device coordinates is parametrized by 
-{math}`[-1, 1] \times [-1, 1] \times [0, 1]`. The canonical perspective projection matrix for 
-Vulkan is given by
-
-```{math}
-M^{C, Vulkan}_{per} =
-\begin{bmatrix}
-\frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
-0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
-0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-0                                   & 0                                   &  1                                                   &  0
-\end{bmatrix}
-.
-```
-
-The canonical orthographic projection matrix for Vulkan is given by
-
-```{math}
-M^{C, Vulkan}_{orth} = 
-\begin{bmatrix}
-\frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
-0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
-0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-0                               & 0                               & 0               &  1
-\end{bmatrix}
-.
-```
-
-The canonical symmetric vertical field of view perspective projection matrix for Vulkan is given by
-
-```{math}
-M^{C, Vulkan}_{per,vfov} = 
-    \begin{bmatrix}
-        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
-        & 0 
-        & 0
-        & 0 \\
-
-        0 
-        & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
-        & 0
-        & 0 \\
-
-        0 
-        &  0 
-        &  \frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
-        0 
-        & 0 
-        & 1 
-        & 0
-    \end{bmatrix}
-```
-
-### Right-Handed View Space
-
-```{math}
-R_{x}\left( \theta \right) = 
-    \begin{bmatrix}
-        1 & 0                         &  0                         & 0 \\
-        0 & \cos\left( \theta \right) & -\sin\left( \theta \right) & 0 \\
-        0 & \sin\left( \theta \right) &  \cos\left( \theta \right) & 0 \\
-        0 & 0                         &  0                         & 1
-    \end{bmatrix}
-```
-
-```{math}
-Q^{Vulkan}_{rh} = R_{x}\left( \pi \right) 
-                = \begin{bmatrix}
-                      1 & 0                      &  0                   & 0 \\
-                      0 & \cos\left( \pi \right) & -\sin\left( \pi \right) & 0 \\
-                      0 & \sin\left( \pi \right) &  \cos\left( \pi \right) & 0 \\
-                      0 & 0                      &  0                   & 1
-                  \end{bmatrix}
-                = \begin{bmatrix}
-                      1 &  0 &  0 & 0 \\
-                      0 & -1 &  0 & 0 \\
-                      0 &  0 & -1 & 0 \\
-                      0 &  0 &  0 & 1
-                  \end{bmatrix}
-```
-
-Perspective Projection
-
-```{math}
-M^{Vulkan}_{per, rh \rightarrow rh}
-    &= \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} M^{C,Vulkan}_{per} \Omega_{rh \rightarrow lh} Q^{Vulkan}_{rh} \\
-    &= \left( \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} \right) M^{C,Vulkan}_{per} \left( \Omega_{rh \rightarrow lh} Q^{Vulkan}_{rh} \right) \\
-    &= \left( 
-            \begin{bmatrix}
-                1 & 0 &  0 & 0 \\
-                0 & 1 &  0 & 0 \\
-                0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
-            \end{bmatrix}
-            \begin{bmatrix}
-                1 &  0 &  0 & 0 \\
-                0 & -1 &  0 & 0 \\
-                0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
-            \end{bmatrix}
-        \right)
-        M^{C,Vulkan}_{per}
-        \left(
-            \begin{bmatrix}
-                1 & 0 &  0 & 0 \\
-                0 & 1 &  0 & 0 \\
-                0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
-            \end{bmatrix}
-            \begin{bmatrix}
-                1 &  0 &  0 & 0 \\
-                0 & -1 &  0 & 0 \\
-                0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
-            \end{bmatrix}
-        \right)
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        M^{C,Vulkan}_{per}
-        \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
-            0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
-            0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-            0                                   & 0                                   &  1                                                   &  0
-        \end{bmatrix}
-        \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{ 2 n }{r - \left( -l \right)} &  0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
-            0                                   & -\frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
-            0                                   &  0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-            0                                   &  0                                   &  1                                                   &  0
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{ 2 n }{r + l} &  0                   & -\frac{r - l}{r + l} &  0                  \\
-            0                   & -\frac{ 2 n }{t + b} & -\frac{t - b}{t + b} &  0                  \\
-            0                   &  0                   &  \frac{f}{f - n}     & -\frac{f n }{f - n} \\
-            0                   &  0                   &  1                   &  0
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{ 2 n }{r + l} &  0                   & -\frac{r - l}{r + l} &  0                  \\
-            0                   & -\frac{ 2 n }{b + t} & \frac{b - t}{b + t} &  0                  \\
-            0                   &  0                   & \frac{f}{f - n}     & -\frac{f n }{f - n} \\
-            0                   &  0                   & 1                   &  0
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            \frac{ 2 n }{r + l} & 0                   & -\frac{r - l}{r + l} &  0                  \\
-            0                   & \frac{ 2 n }{b + t} & -\frac{b - t}{b + t} &  0                  \\
-            0                   & 0                   & \frac{f}{f - n}     & -\frac{f n }{f - n} \\
-            0                   & 0                   & 1                   &  0
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
-            0                                   & \frac{ 2 n }{b - \left( -t \right)} & -\frac{b + \left( -t \right)}{b - \left( -t \right)} &  0                  \\
-            0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-            0                                   & 0                                   &  1                                                   &  0
-        \end{bmatrix}
-```
-
-so
-
-```{math}
-M^{Vulkan}_{per, rh \rightarrow rh} = 
-    \begin{bmatrix}
-        \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
-        0                                   & \frac{ 2 n }{b - \left( -t \right)} & -\frac{b + \left( -t \right)}{b - \left( -t \right)} &  0                  \\
-        0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-        0                                   & 0                                   &  1                                                   &  0
-    \end{bmatrix}
-```
-
-Calculation for orthographic projection
-
-```{math}
-    M^{Vulkan}_{orth, rh \rightarrow rh}
-    &= \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} M^{C,Vulkan}_{orth} \Omega_{rh \rightarrow lh} Q^{Vulkan}_{rh} \\
-    &= \left( \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} \right) M^{C,Vulkan}_{orth} \left( \Omega_{rh \rightarrow lh} Q^{Vulkan}_{rh} \right) \\
-    &= \left( 
-            \begin{bmatrix}
-                1 & 0 &  0 & 0 \\
-                0 & 1 &  0 & 0 \\
-                0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
-            \end{bmatrix}
-            \begin{bmatrix}
-                1 &  0 &  0 & 0 \\
-                0 & -1 &  0 & 0 \\
-                0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
-            \end{bmatrix}
-        \right)
-        M^{C,Vulkan}_{orth}
-        \left(
-            \begin{bmatrix}
-                1 & 0 &  0 & 0 \\
-                0 & 1 &  0 & 0 \\
-                0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
-            \end{bmatrix}
-            \begin{bmatrix}
-                1 &  0 &  0 & 0 \\
-                0 & -1 &  0 & 0 \\
-                0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
-            \end{bmatrix}
-        \right)
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        M^{C,Vulkan}_{orth}
-        \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
-            0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
-            0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-            0                               & 0                               & 0               &  1
-        \end{bmatrix}
-        \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{2}{r - \left( -l \right)} &  0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
-            0                               & -\frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
-            0                               &  0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-            0                               &  0                               & 0               &  1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{2}{r + l} &  0               & 0               & -\frac{r - l}{r + l} \\
-            0               & -\frac{2}{t + b} & 0               & -\frac{t - b}{t + b} \\
-            0               &  0               & \frac{1}{f - n} & -\frac{n}{f - n}     \\
-            0               &  0               & 0               &  1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{2}{r + l} &  0               & 0               & -\frac{r - l}{r + l} \\
-            0               & -\frac{2}{b + t} & 0               &  \frac{b - t}{b + t} \\
-            0               &  0               & \frac{1}{f - n} & -\frac{n}{f - n}     \\
-            0               &  0               & 0               &  1
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            \frac{2}{r + l} & 0               & 0               & -\frac{r - l}{r + l}  \\
-            0               & \frac{2}{b + t} & 0               & -\frac{b - t}{b + t}  \\
-            0               & 0               & \frac{1}{f - n} & -\frac{n}{f - n}      \\
-            0               & 0               & 0               &  1
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  \\
-            0                               & \frac{2}{b - \left( -t \right)} & 0               & -\frac{b + \left( -t \right)}{b - \left( -t \right)}  \\
-            0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                      \\
-            0                               & 0                               & 0               &  1
-        \end{bmatrix}
-```
-
-so
-
-```{math}
-M^{Vulkan}_{orth, rh \rightarrow rh} = 
-    \begin{bmatrix}
-        \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  \\
-        0                               & \frac{2}{b - \left( -t \right)} & 0               & -\frac{b + \left( -t \right)}{b - \left( -t \right)}  \\
-        0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                      \\
-        0                               & 0                               & 0               &  1
-    \end{bmatrix}
-```
-
-Symmetric Vertical Field Of View Perspective Projection
-
-```{math}
-M^{Vulkan}_{per,vfov,rh \rightarrow rh}
-    &= \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} M^{C,Vulkan}_{per,vfov} \Omega_{rh \rightarrow lh} Q^{Vulkan}_{rh} \\
-    &= \left( \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} \right) M^{C,Vulkan}_{per,vfov} \left( \Omega_{rh \rightarrow lh} Q^{Vulkan}_{rh} \right) \\
-    &= \left( 
-            \begin{bmatrix}
-                1 & 0 &  0 & 0 \\
-                0 & 1 &  0 & 0 \\
-                0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
-            \end{bmatrix}
-            \begin{bmatrix}
-                1 &  0 &  0 & 0 \\
-                0 & -1 &  0 & 0 \\
-                0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
-            \end{bmatrix}
-        \right)
-        M^{C,Vulkan}_{per,vfov}
-        \left(
-            \begin{bmatrix}
-                1 & 0 &  0 & 0 \\
-                0 & 1 &  0 & 0 \\
-                0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
-            \end{bmatrix}
-            \begin{bmatrix}
-                1 &  0 &  0 & 0 \\
-                0 & -1 &  0 & 0 \\
-                0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
-            \end{bmatrix}
-        \right)
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        M^{C,Vulkan}_{per,vfov}
-        \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
-            & 0 
-            & 0
-            & 0 \\
-
-            0 
-            & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
-            & 0
-            & 0 \\
-
-            0 
-            &  0 
-            &  \frac{f}{f - n}
-            & -\frac{ f n }{f - n} \\
-    
-            0 
-            & 0 
-            & 1 
-            & 0
-        \end{bmatrix}
-        \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
-            & 0 
-            & 0
-            & 0 \\
-
-            0 
-            & -\frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
-            &  0
-            &  0 \\
-
-            0 
-            &  0 
-            &  \frac{f}{f - n}
-            & -\frac{ f n }{f - n} \\
-    
-            0 
-            & 0 
-            & 1 
-            & 0
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
-            & 0 
-            & 0
-            & 0 \\
-
-            0 
-            & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
-            & 0
-            & 0 \\
-
-            0 
-            &  0 
-            &  \frac{f}{f - n}
-            & -\frac{ f n }{f - n} \\
-    
-            0 
-            & 0 
-            & 1 
-            & 0
-        \end{bmatrix}
-```
-
-so
-
-```{math}
-M^{Vulkan}_{per,vfov,rh \rightarrow rh} = 
-    \begin{bmatrix}
-        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
-        & 0 
-        & 0
-        & 0 \\
-
-        0 
-        & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
-        & 0
-        & 0 \\
-
-        0 
-        &  0 
-        &  \frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
-        0 
-        & 0 
-        & 1 
-        & 0
-    \end{bmatrix}
-```
-
-
-### Left-Handed View Space
-
-```{math}
-R_{x}\left( \theta \right) = 
-    \begin{bmatrix}
-        1 & 0                         &  0                         & 0 \\
-        0 & \cos\left( \theta \right) & -\sin\left( \theta \right) & 0 \\
-        0 & \sin\left( \theta \right) &  \cos\left( \theta \right) & 0 \\
-        0 & 0                         &  0                         & 1
-    \end{bmatrix}
-```
-
-```{math}
-Q^{Vulkan}_{lh} = R_{x}\left( \pi \right) 
-                = \begin{bmatrix}
-                      1 & 0                      &  0                   & 0 \\
-                      0 & \cos\left( \pi \right) & -\sin\left( \pi \right) & 0 \\
-                      0 & \sin\left( \pi \right) &  \cos\left( \pi \right) & 0 \\
-                      0 & 0                      &  0                   & 1
-                  \end{bmatrix}
-                = \begin{bmatrix}
-                      1 &  0 &  0 & 0 \\
-                      0 & -1 &  0 & 0 \\
-                      0 &  0 & -1 & 0 \\
-                      0 &  0 &  0 & 1
-                  \end{bmatrix}
-```
-
-Perspective Projection
-
-```{math}
-M^{Vulkan}_{per, lh \rightarrow rh}
-    &= \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} M^{C,Vulkan}_{per} \Omega_{lh \rightarrow lh} Q^{Vulkan}_{lh} \\
-    &= \left( \Omega_{lh \rightarrow rh} \left( Q^{Vulkan}_{lh}\right)^{-1} \right) M^{C,Vulkan}_{per} \left( \Omega_{lh \rightarrow lh} Q^{Vulkan}_{lh} \right) \\
-    &= \left( \Omega_{lh \rightarrow rh} \left( Q^{Vulkan}_{lh}\right)^{-1} \right) M^{C,Vulkan}_{per} \left( I Q^{Vulkan}_{lh} \right) \\
-    &= \left( \Omega_{lh \rightarrow rh} \left( Q^{Vulkan}_{lh}\right)^{-1} \right) M^{C,Vulkan}_{per} Q^{Vulkan}_{lh} \\
-    &= \left( 
-            \begin{bmatrix}
-                1 & 0 &  0 & 0 \\
-                0 & 1 &  0 & 0 \\
-                0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
-            \end{bmatrix}
-            \begin{bmatrix}
-                1 &  0 &  0 & 0 \\
-                0 & -1 &  0 & 0 \\
-                0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
-            \end{bmatrix}
-        \right)
-        M^{C,Vulkan}_{per}
-        \begin{bmatrix}
-            1 &  0 &  0 & 0 \\
-            0 & -1 &  0 & 0 \\
-            0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        M^{C,Vulkan}_{per}
-        \begin{bmatrix}
-            1 &  0 &  0 & 0 \\
-            0 & -1 &  0 & 0 \\
-            0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
-            0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
-            0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-            0                                   & 0                                   &  1                                                   &  0
-        \end{bmatrix}
-        \begin{bmatrix}
-            1 &  0 &  0 & 0 \\
-            0 & -1 &  0 & 0 \\
-            0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{ 2 n }{r - \left( -l \right)} &  0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
-            0                                   & -\frac{ 2 n }{t - \left( -b \right)} &  \frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
-            0                                   &  0                                   & -\frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-            0                                   &  0                                   & -1                                                   &  0
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{ 2 n }{r + l} &  0                   &  \frac{r - l}{r + l} &  0                  \\
-            0                   & -\frac{ 2 n }{t + b} &  \frac{t - b}{t + b} &  0                  \\
-            0                   &  0                   & -\frac{f}{f - n}     & -\frac{f n }{f - n} \\
-            0                   &  0                   & -1                   &  0
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{ 2 n }{r + l} &  0                   &  \frac{r - l}{r + l} &  0                  \\
-            0                   & -\frac{ 2 n }{b + t} & -\frac{b - t}{b + t} &  0                  \\
-            0                   &  0                   & -\frac{f}{f - n}     & -\frac{f n }{f - n} \\
-            0                   &  0                   & -1                   &  0
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            \frac{ 2 n }{r + l} & 0                   &  \frac{r - l}{r + l} &  0                  \\
-            0                   & \frac{ 2 n }{b + t} &  \frac{b - t}{b + t} &  0                  \\
-            0                   & 0                   & -\frac{f}{f - n}     & -\frac{f n }{f - n} \\
-            0                   & 0                   & -1                   &  0
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            \frac{ 2 n }{r - \left( -l \right)} & 0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
-            0                                   & \frac{ 2 n }{b - \left( -t \right)} &  \frac{b + \left( -t \right)}{b - \left( -t \right)} &  0                  \\
-            0                                   & 0                                   & -\frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-            0                                   & 0                                   & -1                                                   &  0
-        \end{bmatrix}
-```
-
-so
-
-```{math}
-M^{Vulkan}_{per, lh \rightarrow rh} = 
-    \begin{bmatrix}
-        \frac{ 2 n }{r - \left( -l \right)} & 0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
-        0                                   & \frac{ 2 n }{b - \left( -t \right)} &  \frac{b + \left( -t \right)}{b - \left( -t \right)} &  0                  \\
-        0                                   & 0                                   & -\frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
-        0                                   & 0                                   & -1                                                   &  0
-    \end{bmatrix}
-```
-
-Calculation for orthographic projection
-
-```{math}
-    M^{Vulkan}_{orth, lh \rightarrow rh}
-    &= \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} M^{C,Vulkan}_{orth} \Omega_{lh \rightarrow lh} Q^{Vulkan}_{lh} \\
-    &= \left( \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} \right) M^{C,Vulkan}_{orth} \left( \Omega_{lh \rightarrow lh} Q^{Vulkan}_{lh} \right) \\
-    &= \left( \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} \right) M^{C,Vulkan}_{orth} \left( I Q^{Vulkan}_{lh} \right) \\
-    &= \left( \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} \right) M^{C,Vulkan}_{orth} Q^{Vulkan}_{lh} \\
-    &= \left( 
-            \begin{bmatrix}
-                1 & 0 &  0 & 0 \\
-                0 & 1 &  0 & 0 \\
-                0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
-            \end{bmatrix}
-            \begin{bmatrix}
-                1 &  0 &  0 & 0 \\
-                0 & -1 &  0 & 0 \\
-                0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
-            \end{bmatrix}
-        \right)
-        M^{C,Vulkan}_{orth}
-        \begin{bmatrix}
-            1 &  0 &  0 & 0 \\
-            0 & -1 &  0 & 0 \\
-            0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        M^{C,Vulkan}_{orth}
-        \begin{bmatrix}
-            1 &  0 &  0 & 0 \\
-            0 & -1 &  0 & 0 \\
-            0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
-            0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
-            0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-            0                               & 0                               & 0               &  1
-        \end{bmatrix}
-        \begin{bmatrix}
-            1 &  0 &  0 & 0 \\
-            0 & -1 &  0 & 0 \\
-            0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{2}{r - \left( -l \right)} &  0                               &  0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
-            0                               & -\frac{2}{t - \left( -b \right)} &  0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
-            0                               &  0                               & -\frac{1}{f - n} & -\frac{n}{f - n}                                     \\
-            0                               &  0                               &  0               &  1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{2}{r + l} &  0               &  0               & -\frac{r - l}{r + l} \\
-            0               & -\frac{2}{t + b} &  0               & -\frac{t - b}{t + b} \\
-            0               &  0               & -\frac{1}{f - n} & -\frac{n}{f - n}     \\
-            0               &  0               &  0               &  1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{2}{r + l} &  0               &  0               & -\frac{r - l}{r + l} \\
-            0               & -\frac{2}{b + t} &  0               &  \frac{b - t}{b + t} \\
-            0               &  0               & -\frac{1}{f - n} & -\frac{n}{f - n}     \\
-            0               &  0               &  0               &  1
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            \frac{2}{r + l} & 0               &  0               & -\frac{r - l}{r + l}  \\
-            0               & \frac{2}{b + t} &  0               & -\frac{b - t}{b + t}  \\
-            0               & 0               & -\frac{1}{f - n} & -\frac{n}{f - n}      \\
-            0               & 0               &  0               &  1
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            \frac{2}{r - \left( -l \right)} & 0                               &  0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  \\
-            0                               & \frac{2}{b - \left( -t \right)} &  0               & -\frac{b + \left( -t \right)}{b - \left( -t \right)}  \\
-            0                               & 0                               & -\frac{1}{f - n} & -\frac{n}{f - n}                                      \\
-            0                               & 0                               &  0               &  1
-        \end{bmatrix}
-```
-
-so
-
-```{math}
-M^{Vulkan}_{orth, lh \rightarrow rh} = 
-    \begin{bmatrix}
-        \frac{2}{r - \left( -l \right)} & 0                               &  0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  \\
-        0                               & \frac{2}{b - \left( -t \right)} &  0               & -\frac{b + \left( -t \right)}{b - \left( -t \right)}  \\
-        0                               & 0                               & -\frac{1}{f - n} & -\frac{n}{f - n}                                      \\
-        0                               & 0                               &  0               &  1
-    \end{bmatrix}
-```
-
-Symmetric Vertical Field Of View Perspective Projection
-
-```{math}
-M^{Vulkan}_{per,vfov,lh \rightarrow rh}
-    &= \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} M^{C,Vulkan}_{per,vfov} \Omega_{lh \rightarrow lh} Q^{Vulkan}_{lh} \\
-    &= \left( \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} \right) M^{C,Vulkan}_{per,vfov} \left( \Omega_{lh \rightarrow lh} Q^{Vulkan}_{lh} \right) \\
-    &= \left( \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} \right) M^{C,Vulkan}_{per,vfov} \left( I Q^{Vulkan}_{lh} \right) \\
-    &= \left( \Omega_{lh \rightarrow rh} \left(Q^{Vulkan}_{lh}\right)^{-1} \right) M^{C,Vulkan}_{per,vfov} Q^{Vulkan}_{lh} \\
-    &= \left( 
-            \begin{bmatrix}
-                1 & 0 &  0 & 0 \\
-                0 & 1 &  0 & 0 \\
-                0 & 0 & -1 & 0 \\
-                0 & 0 &  0 & 1
-            \end{bmatrix}
-            \begin{bmatrix}
-                1 &  0 &  0 & 0 \\
-                0 & -1 &  0 & 0 \\
-                0 &  0 & -1 & 0 \\
-                0 &  0 &  0 & 1
-            \end{bmatrix}
-        \right)
-        M^{C,Vulkan}_{per,vfov}
-        \begin{bmatrix}
-            1 &  0 &  0 & 0 \\
-            0 & -1 &  0 & 0 \\
-            0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        M^{C,Vulkan}_{per,vfov}
-        \begin{bmatrix}
-            1 &  0 &  0 & 0 \\
-            0 & -1 &  0 & 0 \\
-            0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
-            & 0 
-            & 0
-            & 0 \\
-
-            0 
-            & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
-            & 0
-            & 0 \\
-
-            0 
-            &  0 
-            &  \frac{f}{f - n}
-            & -\frac{ f n }{f - n} \\
-    
-            0 
-            & 0 
-            & 1 
-            & 0
-        \end{bmatrix}
-        \begin{bmatrix}
-            1 &  0 &  0 & 0 \\
-            0 & -1 &  0 & 0 \\
-            0 &  0 & -1 & 0 \\
-            0 &  0 &  0 & 1
-        \end{bmatrix}
-        \\
-    &= \begin{bmatrix}
-            1 &  0 & 0 & 0 \\
-            0 & -1 & 0 & 0 \\
-            0 &  0 & 1 & 0 \\
-            0 &  0 & 0 & 1
-        \end{bmatrix}
-        \begin{bmatrix}
-            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
-            & 0 
-            & 0
-            & 0 \\
-
-            0 
-            & -\frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
-            &  0
-            &  0 \\
-
-            0 
-            &  0 
-            & -\frac{f}{f - n}
-            & -\frac{ f n }{f - n} \\
-    
-            0 
-            &  0 
-            & -1 
-            &  0
-        \end{bmatrix}
-        \\
-    &=  \begin{bmatrix}
-            \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
-            & 0 
-            & 0
-            & 0 \\
-
-            0 
-            & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
-            & 0
-            & 0 \\
-
-            0 
-            &  0 
-            & -\frac{f}{f - n}
-            & -\frac{ f n }{f - n} \\
-    
-            0 
-            &  0 
-            & -1 
-            &  0
-        \end{bmatrix}
-```
-
-so
-
-```{math}
-M^{Vulkan}_{per,vfov,rh \rightarrow rh} = 
-    \begin{bmatrix}
-        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
-        & 0 
-        & 0
-        & 0 \\
-
-        0 
-        & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
-        & 0
-        & 0 \\
-
-        0 
-        &  0 
-        & -\frac{f}{f - n}
-        & -\frac{ f n }{f - n} \\
-    
-        0 
-        &  0 
-        & -1 
-        &  0
-    \end{bmatrix}
-```
+This completes the derivation of the matrices for the left-handed Vulkan projected view space coordinates.
