@@ -15,11 +15,12 @@ project:
         - Visualization
         - Writing - original draft
         - Writing - review & editing
-      github: lambdaxymox
+      github: https://github.com/lambdaxymox/
+      email: lambdaxymox@gmail.com
   github: https://github.com/lambdaxymox/lambdaxymox.github.io
   toc:
-    - file: content/01-example.md
-    
+    - file: content/01-projection_matrices.md
+  license: CC-BY-4.0
 site:
   template: book-theme
   options:

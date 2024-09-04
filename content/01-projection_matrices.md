@@ -1,4 +1,26 @@
-# A General Derivation Of Perspective And Orthographic Projection Matrices
+---
+title: Perspective Projection And Orthographic Projection Matrices For Computer Graphics
+authors:
+  - name: Christopher Blanchard
+  email: lambdaxymox@gmail.com
+license: CC-BY-4.0
+keywords: computer-graphics, computer-science, linear-algebra
+abstract: We derive a general formula for perspective and orthographic projection matrices in {math}`\mathbb{RP}^{3}`, and then
+apply them to deriving the corresponding matrices for specific platform APIs.
+---
+
+## Introduction
+
+We construct the perspective and orthographic projection matrices common to computer graphics in a very 
+general way. We parameterize the view space viewing frustum in a slightly than the usual one different way to 
+make the perspective view volume specification coordinate invariant. This allows us to construct the matrices 
+for any specific source view space coordinate system, source perspective view volume, source orthographic view 
+volume, target normalized device coordinate system, and target canonical view volume. We define a canonical
+set of transformations where the view space with a left-handed orthonormal frame where the vertical axis 
+points up, the horizontal axis points right, and the depth axis points into the viewing volume, and a clip 
+coordinate system with a left-handed orthonormal frame where the vertical axis points up, the horizontal axis 
+points right, and the depth axis points into the viewing volume. We can then use these formulae applying 
+coordinate transformations as appropriate to derive the specific matrices desired.
 
 ## Projection Matrix Specification
 
@@ -11,15 +33,15 @@ where {math}`\alpha_{max} > \alpha_{min}`, {math}`\beta_{max} > \beta_{min}`, an
 
 The points {math}`\tilde{L} \in \mathbb{E}^{3}`, {math}`\tilde{R} \in \mathbb{E}^{3}` {math}`\tilde{B} \in \mathbb{E}^{3}`, 
 {math}`\tilde{T} \in \mathbb{E}^{3}`, {math}`\tilde{N} \in \mathbb{E}^{3}`, and {math}`\tilde{F} \in \mathbb{E}^{3}` 
-correspond to points along the edge of the viewport on the near plane of the viewing frustum. The point {math}`\tilde{L}` is 
-the point where the near plane, left hand plane, and depth-horizontal-plane intersect each other. The point
-{math}`\tilde{R}` is the point where the near plane, right plane, ans depth-horizontal plane intersect each other.
-The point {math}`\tilde{B}` is the point where the near plane, bottom plane, and horizontal-vertical plane intersect
-each other. The point {math}`\tilde{T}` is the point where the near plane, top plane, and horizontal-vertical plane 
-intersect each other. The point {math}`\tilde{N}` is the point along the depth axis inside the near plane. The 
+correspond to points along the edge of the viewport on the near plane of the viewing frustum. The point 
+{math}`\tilde{L}` is the point where the near plane, left hand plane, and depth-horizontal-plane intersect each 
+other. The point {math}`\tilde{R}` is the point where the near plane, right plane, ans depth-horizontal plane intersect 
+each other. The point {math}`\tilde{B}` is the point where the near plane, bottom plane, and horizontal-vertical plane 
+intersect each other. The point {math}`\tilde{T}` is the point where the near plane, top plane, and horizontal-vertical 
+plane intersect each other. The point {math}`\tilde{N}` is the point along the depth axis inside the near plane. The 
 point {math}`\tilde{F}` is the point along the depth axis inside the far plane. More precisely, in the orthonormal
-frame {math}`(\tilde{O}_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))`, the points are given
-by
+frame {math}`(\tilde{O}_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))`, the points 
+are given by
 
 ```{math}
 \tilde{L} &= \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} + l \left( -\mathbf{\hat{u}}_{h} \right) = \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} - l \mathbf{\hat{u}}_{h} \\
