@@ -11,27 +11,549 @@ apply them to deriving the corresponding matrices for specific platform APIs.
 
 ## Introduction
 
-We construct the perspective and orthographic projection matrices common to computer graphics in a very 
-general way. The usual parametrizations are defined with respect to specific coordinate system and a 
-specific canonincal view volume, such that the view volume parameters define the frustum planes directly 
-in terms of coordinates. This is how most computer graphics books construct the projection transformations.
+We construct the perspective and orthographic projection matrices common to computer graphics in a 
+very general way. The usual parametrizations are defined with respect to specific coordinate system 
+and a specific canonincal view volume, such that the view volume parameters define the frustum 
+planes directly in terms of coordinates. This is how most computer graphics books construct the 
+projection transformations.
+
+Rendering is done in the manifold {math}`\mathbb{RP}^{3}` (i.e. homogeneous coordinates) for several
+reasons: (1) affine transformations become linear transformations one dimension higher, so translations
+can be treated like any other linear transformations; (2) transformations in {math}`\mathbb{RP}^{3}` 
+are well-defined under changes in scale, so we can handle projective transformations in a unified fashion;
+(3) we can treat projective transformations in the same setting as affine transformations;
+(4) Coordinate systems and scales become equivalent, allowing spatial simulation problems to be 
+expressed directly in a coordinate independent way; (5) we can change coordinate systems to whatever 
+makes coordinate system makes the simulation problem at hand convenient to work with; (6) for very 
+practical reasons, we can express the problem in a coordinate system that affords the best numerical 
+precision possible on the hardware. 
+
+Regarding the last point, a platform such as OpenGL, Vulkan, DirectX, Metal, or WebGPU typically defines
+its normalized device coordinate system as one that is a numerically favorable coordinate system. Any 
+spatial computing domain whose problems are done in Euclidean space can take advantage of the 
+manifold {math}`\mathbb{RP}^{3}`, including computer graphics, computer vision, geometric modeling, and 
+robotics. In the context of computer graphics, the platform coordinate system is whichever one maps 
+the view volume in the viewing space to the canonical view volume defined by the platform interface. 
+In particular, the canonical view volume tends to be parametrized by either
+{math}`[-1, 1] \times [-1, 1] \times [-1, 1]` or {math}`[-1, 1] \times \ [-1, 1] \times [0, 1]`. In 
+either case, transforming the problem to a unit interval adds one free bit of extra precision when 
+working with floating point numbers. This maximizes the accuracy of floating point computations on 
+the GPU, including tasks such as intersection testing, depth testing, sampling, and clipping.
 
 We parameterize the view space viewing frustum in a slightly different way than the usual one to 
-make the perspective view volume specification coordinate invariant. This allows us to construct the matrices 
-for any specific source view space coordinate system, source perspective view volume, source orthographic view 
-volume, target normalized device coordinate system, and target canonical view volume. We define a canonical
-set of transformations where the view space with a left-handed orthonormal frame where the vertical axis 
-points up, the horizontal axis points right, and the depth axis points into the viewing volume, and a clip 
-coordinate system with a left-handed orthonormal frame where the vertical axis points up, the horizontal axis 
-points right, and the depth axis points into the viewing volume. We show how to construct a general perspective 
-projection or orthographic projection from any source view space coordinate system to any targe clip coordinate 
-system, and that the resulting transformation is coordinate invariant.
+make the perspective view volume specification coordinate invariant. This allows us to construct the 
+matrices for any specific source view space coordinate system, source perspective view volume, source 
+orthographic view volume, target normalized device coordinate system, and target canonical view volume. 
+We define a canonical set of transformations where the view space with a left-handed orthonormal frame 
+where the vertical axis points up, the horizontal axis points right, and the depth axis points into the 
+viewing volume, and a clip coordinate system with a left-handed orthonormal frame where the vertical axis 
+points up, the horizontal axis points right, and the depth axis points into the viewing volume. We show 
+how to construct a general perspective projection or orthographic projection from any source view coordinate 
+system to any targe clip coordinate system, and that the resulting transformation is coordinate invariant.
+
+## The Topological Manifold Structure Of Real Projective Space
+
+This section is primarily establishes the topological properties nad manifold structure of real 
+projective space, and can be skipped if desired.
+
+We define real projective space {math}`\mathbb{RP}^{3}` as follows. Define {math}`\mathbf{w_{1}} \sim \mathbf{w_{2}}`
+if an only if there exists a nonzero real number {math}`\lambda \in \mathbb{R} - \{0\}` such that 
+{math}`\mathbf{w_{1}} = \lambda \mathbf{w_{2}}`. The relation {math}`\sim` is an equivalence relation. 
+To prove this, we need to show that {math}`\sim` is reflexive, symmetric, and transitive. For reflexivity,
+trivially {math}`\mathbf{w} = \mathbf{w}` so we can take {math}`\lambda = 1` which shows that 
+{math}`\mathbf{w} \sim \mathbf{w}`. To show symmetry, suppose that {math}`\mathbf{w}_{1} \sim \mathbf{w}_{2}`.
+Then there exists {math}`\lambda \in \mathbb{R} - \{ 0 \}` such that {math}`\mathbf{w}_{2} = \lambda \mathbf{w}_{1}`
+implying that {math}`\mathbf{w}_{1} = \frac{1}{\lambda} \mathbf{w}_{2}` hence {math}`\mathbf{w}_{2} \sim \mathbf{w}_{1}`.
+Now it remains to prove that {math}`\sim` is transitive. Suppose that {math}`\mathbf{w}_{1} \sim \mathbf{w}_{2}`
+and {math}`\mathbf{w}_{2} \sim \mathbf{w}_{3}`. Then there exist real numbers 
+{math}`\mathbf{\lambda}, \mathbf{\mu} \in \mathbb{R} - \{ 0 \}` such that {math}`\mathbf{w}_{2} = \lambda \mathbf{w}_{1}`
+and {math}`\mathbf{w}_{3} = \mu \mathbf{w}_{2}`. This implies that
+
+```{math}
+\mathbf{w}_{3} 
+    = \mu \mathbf{w}_{2}
+    = \mu \left( \lambda \mathbf{w}_{1} \right) 
+    = \left( \mu \lambda \right) \mathbf{w}_{1}
+    = \mu \lambda \mathbf{w}_{1}
+```
+
+implying that {math}`\mathbf{w}_{1} \sim \mathbf{w}_{3}`. This proves transitivity. Therefore, {math}`\sim` is
+and equivalence relation.
+
+We define the **real projective space** by {math}`\mathbb{RP}^{3} = ( \mathbb{R}^{4} - \{ \mathbf{0}\} )/\sim`. 
+The real projective space identifies lines through the origin in {math}`\mathbb{R}^{3}` with points in 
+{math}`\mathbb{RP}^{3}`. 
+
+Define a map 
+{math}`\pi : \mathbb{R}^{4} - \{\mathbf{0}\} \rightarrow \mathbb{RP}^{3}` by 
+
+```{math}
+\pi\left( P \right) = \begin{bmatrix} P \end{bmatrix}
+``` 
+
+where {math}`[.]` on the right-hand side indicates the equivalence class of 
+{math}`\begin{pmatrix} P^{T}, w \end{pmatrix}^{T}`. The function {math}`\pi` is surjective. To show this, 
+suppose that {math}`[P]` is a homogeneous point in {math}`\mathbb{RP}^{3}`. Since 
+{math}`[P]` is an equivalence class, it is nonempty, so there is at least one element in {math}`[P]`, namely 
+{math}`P` itself. Since the map {math}`\pi` maps elements to its equivalence class, we obtain 
+{math}`\pi(P) = [P]`. Since the equivalence class {math}`[P]` was chosen 
+arbitrarily, the function {math}`\pi` is surjective.
+
+Now that we have established that {math}`\pi` is surjective, we can use {math}`\pi` to define a topology on 
+{math}`\mathbb{RP}^{3}`. We say that a set {math}`U \subset \mathbb{RP}^{3}` is **open** if and only if 
+the inverse image {math}`\pi^{-1}(U)` is open in {math}`\mathbb{R}^{4}`. In particular, we define the topology 
+of {math}`\mathbb{RP}^{3}` to be the quotient topology induced by {math}`\pi`. The real projective 
+space {math}`\mathbb{RP}^{3}` in conjunction with the quotient toplogy induced by {math}`\pi` is a topological 
+space. The quotient topology automatically makes the surjection {math}`\pi` a continuous function. 
+
+Now we want to create a topological manifold out of {math}`\mathbb{RP}^{3}`. We need to define an atlas,
+then show that the charts in the atlas are homeomorphic to open subsets of 
+{math}`\mathbb{R}^{3} - \{ \mathbf{0} \}`. Then we need to show that the resulting atlas makes 
+{math}`\mathbb{RP}^{3}` locally Euclidean. That is, every point in {math}`\mathbb{RP}^{3}` has an open
+neighborhood homeomorphic to {math}`\mathbb{R}^{3} - \{ \mathbf{0} \}`. After that, we show that 
+{math}`\mathbb{RP}^{3}` is Hausdorff and second countable. All of this together shows that 
+{math}`\mathbb{RP}^{3}` is a topological {math}`3`-manifold.
+
+For every {math}`i \in \{ 0, 1, 2, 3 \}`, define the set {math}`U_{i}` by
+
+```{math}
+U_{i} = \{ \mathbf{x} \in \mathbb{R}^{4} - \{ \mathbf{0} \} \mid x_{i} \neq 0 \}
+```
+
+The set {math}`U_{i}` is an open set in {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`. To prove this, we will
+show that {math}`U_{i}` can be covered by open balls of elements in {math}`U_{i}`. Suppose that 
+{math}`\mathbf{p} \in U_{i}`. Let {math}`h = |\mathbf{p} \cdot \mathbf{\hat{e}}_{i}| = |p_{i}|` be the distance 
+of the point {math}`\mathbf{p}` from the hyperplane defined by {math}`x_{i} = 0`. Let 
+{math}`d = \Vert \mathbf{p} \Vert =  \Vert \mathbf{p} - \mathbf{0} \Vert` be the Euclidean norm of the vector 
+{math}`\mathbf{p}`. Let {math}`r = \min \{ d, h \}` and consider the open ball {math}`B_{r}(\mathbf{p})` in 
+{math}`\mathbb{R}^{4}`. Choose {math}`\mathbf{q} \in B_{r}(\mathbf{p})`. By the triangle inequality
+
+```{math}
+\Vert \mathbf{q} \Vert 
+    \geq \Vert \mathbf{p} \Vert - \Vert \mathbf{q} - \mathbf{p} \Vert 
+    > d - r 
+    \geq d - \frac{d}{2} 
+    = \frac{d}{2} 
+    > 0.
+```
+
+Hence {math}`\mathbf{q} \in \mathbb{R}^{4} - \{ \mathbf{0} \}`. Since {math}`\mathbf{q}` was chosen arbitrarily,
+this implies that {math}`B_{r}(\mathbf{p}) \subset \mathbb{R}^{4} - \{ \mathbf{0} \}`.
+Applying the triangle inequality again,
+
+```{math}
+|q_{i}| \geq |p_{i}| - |q_{i} - p_{i}| > h - r \geq h - \frac{h}{2} = \frac{h}{2} > 0.
+```
+
+Thus {math}`\mathbf{q}` does not lie on the hyperplane defined by {math}`x_{i} = 0`. Therefore 
+{math}`\mathbf{q} \in U_{i}` implying that {math}`B_{r}(\mathbf{p}) \subset U_{i}`. Since the vector 
+{math}`\mathbf{p} \in U_{i}` was arbitrary, every point in {math}`U_{i}` lies in an open neighborhood 
+that contains only elements of {math}`U_{i}`, we see that
+
+```{math}
+\bigcup_{\mathbf{p} \in U_{i}} B_{r(\mathbf{p})}(\mathbf{p}) = U_{i}.
+```
+
+The open balls constructed above cover {math}`U_{i}` in open sets. Since {math}`\mathbb{R}^{4}` is a 
+topological space, and {math}`U_{i}` is the union of open sets in the topology of {math}`\mathbb{R}^{4}`,
+then {math}`U_{i}` is an open set in {math}`\mathbb{R}^{4}`. Moreover, since {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`
+is an open set in {math}`\mathbb{R}^{4}`, the set {math}`U_{i}` is an open set of {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}` in 
+the subspace topology that {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}` inherits from {math}`\mathbb{R}^{4}`.
+
+Define the set {math}`V_{i} \subset \mathbb{RP}^{3}` by {math}`V_{i} = \pi\left(U_{i}\right)`. The set 
+{math}`V_{i}` is open in {math}`\mathbb{RP}^{3}`. To show this, observe the following equalities
+
+```{math}
+\pi^{-1}\left( V_{i} \right) 
+    &= \pi^{-1}\left( \pi\left( U_{i} \right) \right) \\
+    &= \{ \mathbf{p} \in \mathbb{R}^{4} - \{ \mathbf{0} \} \mid \pi\left( \mathbf{p} \right) \in V_{i} \} \\
+    &= \{ \mathbf{p} \in \mathbb{R}^{4} - \{ \mathbf{0} \} \mid \exists \lambda \in \mathbb{R} - \{ 0 \} \hspace{4 pt} \text{such that} \hspace{4 pt} \mathbf{p} \in \lambda U_{i} \} \\
+    &= U_{i}
+```
+
+where the last equality follows because the preimage of any element in {math}`V_{i}` contains all nonzero 
+multiples of an element of {math}`U_{i}`, which are still an elements of {math}`U_{i}`. Therefore, the set 
+{math}`\pi^{-1}(V_{i})` is an open set in {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`, which makes {math}`V_{i}`
+an open set in {math}`\mathbb{RP}^{3}` under the quotient topology.
+
+For each {math}`i \in \{ 0, 1, 2, 3 \}` define the map {math}`\pi_{i} : U_{i} \rightarrow V_{i}` by 
+{math}`\pi_{i} = \pi|_{U_{i}}`. Since the map {math}`\pi_{i}` is the restriction of a continuous map, it is also a
+continuous map. It is surjective by definition, since the codomain is the image {math}`\pi(U_{i})`.
+To show that {math}`\pi_{i}` is a quotient map, we must prove that a subset {math}`W \subset V_{i}` is open
+in {math}`V_{i}` if and only if {math}`\pi^{-1}_{i}(W)` is open in {math}`U_{i}`. Suppose that {math}`W` is
+open in {math}`V_{i}`. Then the inverse image of {math}`W` under {math}`\pi` is open in 
+{math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`. Since {math}`U_{i}` is open in {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`
+we see that {math}`\pi^{-1}_{i}(W) = \pi^{-1}(W) \cap U_{i}`. Since {math}`W` is open in {math}`V_{i}`, there exists an 
+open set {math}`X \subset \mathbb{RP}^{3}` such that {math}`W = X \cap V_{i}`. Since {math}`\pi` is continuous, 
+{math}`\pi^{-1}(X)` is open in {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`, which implies that {math}`\pi^{-1}(X) \cap U_{i}`
+is open in {math}`U_{i}`. But
+
+```{math}
+\pi^{-1}\left( X \right) \cap U_{i} 
+    = \pi^{-1}\left( X \cap V_{i} \right) \cap U_{i} 
+    = \pi^{-1}\left( W \right) \cap U_{i} 
+    = \pi^{-1}_{i}\left( W \right)
+```
+
+which is an open set in {math}`U_{i}`. Thus {math}`\pi^{-1}_{i}(W)` is an open set in {math}`U_{i}`. This 
+proves that if {math}`W \subset V_{i}` is open, then {math}`\pi^{-1}(W) \subset U_{i}` is open. Conversely, suppose 
+that {math}`\pi^{-1}_{i}(W)` is open in {math}`U_{i}`. Since {math}`U_{i}` is open in 
+{math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`, there exists an open set {math}`X` of {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`
+such that {math}`\pi^{-1}_{i}(W) = X \cap U_{i}`. Define the set {math}`X^{\prime} = X \cup ((\mathbb{R}^{4} - \{ \mathbf{0} \}) - U_{i})`.
+We show that the set {math}`X^{\prime}` is open in {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`.
+Suppose that {math}`\mathbf{q} \in (\mathbb{R}^{4} - \{ \mathbf{0} \}) - U_{i}`. We can find a radius {math}`r > 0`
+such that {math}`B_{r}(\mathbf{q})` does not intersect {math}`U_{i}` such that {math}`B_{r}(\mathbf{q}) \cap U_{i} = \emptyset`.
+Indeed, we can choose {math}`r` to be less than the distance to the nearest point where the {math}`i^{th}` coordinate 
+is zero, i.e. {math}`r < |q_{i}|`. With the chosen {math}`r`, we have
+{math}`B_{r}(\mathbf{q}) \subset \mathbb{R}^{4} - \{ \mathbf{0} \} - U_{i}` for each 
+{math}`\mathbf{q} \in \mathbb{R}^{4} - \{ \mathbf{0} \} - U_{i}`. This shows that {math}`\mathbb{R}^{4} - \{ \mathbf{0} \} - U_{i}` is open in {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`. Since {math}`X^{\prime}` is the union of two open sets, it is also open.
+The set {math}`X^{\prime}` is open and saturated with respect to {math}`\pi`, so that image {math}`\pi(X^{\prime})` 
+is open in {math}`\mathbb{RP}^{3}` because {math}`\pi` is a quotient map. We have 
+
+```{math}
+W = \pi_{i}(\pi^{-1}_{i}\left( W \right)) = \pi_{i}\left( X \cap U_{i} \right) = \pi\left( X^{\prime} \right) \cap V_{i}.
+```
+
+and it follows that {math}`\pi^{-1}_{i}(W)` is open in {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`. This demonstrates
+that {math}`\pi_{i}` is a quotient map.
+
+We show that each set {math}`V_{i}` is homeomorphic to {math}`\mathbb{R}^{4}`. For each {math}`i \in \{ 0, 1, 2, 3 \}`, 
+define the map {math}`H_{i} : V_{i} \rightarrow \mathbb{RP}^{3}` by
+
+```{math}
+H_{i}  \left(
+       \begin{bmatrix} 
+            \begin{pmatrix} 
+                P_{0}     \\ 
+                P_{1}     \\
+                \vdots    \\
+                P_{i - 1} \\
+                P_{i}     \\
+                P_{i + 1} \\
+                \vdots    \\
+                P_{3}     \\
+            \end{pmatrix} 
+        \end{bmatrix} 
+        \right) 
+    =   \begin{bmatrix} 
+            \begin{pmatrix}
+                P_{0} / P_{i}     \\
+                P_{1} / P_{i}     \\
+                \vdots            \\
+                P_{i-1} / P_{i}   \\
+                1                 \\
+                P_{i+1} / {P_{i}} \\
+                \vdots            \\
+                P_{3} / P_{i}     \\
+            \end{pmatrix}
+        \end{bmatrix}.
+```
+
+That is, the {math}`i^{th}` coordinate is {math}`1`, and the rest are divided by {math}`P_{i}`. This map sends 
+a homogeneous point to the homogeneous point with the {math}`i^{th}` coordinate normalized. Let {math}`W_{i}` 
+be the set of points in {math}`\mathbb{RP}^{3}` whose {math}`i^{th}` coordinate is {math}`1`. Define the map 
+{math}`\text{proj}_{i} : \mathbb{RP}^{3} \supset W_{i} \rightarrow \mathbb{R}^3` by 
+
+```{math}
+\text{proj}_{i}
+    \left(   
+        \begin{bmatrix} 
+            \begin{pmatrix}
+                P_{0}   \\
+                P_{1}   \\
+                \vdots  \\
+                P_{i-1} \\
+                1       \\
+                P_{i+1} \\
+                \vdots  \\
+                P_{3}   \\
+            \end{pmatrix}
+        \end{bmatrix}
+    \right)
+    = 
+    \begin{pmatrix}
+        P_{0}   \\
+        P_{1}   \\
+        \vdots  \\
+        P_{i-1} \\
+        P_{i+1} \\
+        \vdots  \\
+        P_{3}   \\
+    \end{pmatrix}
+```
+
+which maps the homogeneous point to a Euclidean point with the {math}`i^{th}` component removed.
+The maps {math}`\text{proj}_{i}` and {math}`H_{i}` together allow us to define our coordinate maps. Define the map
+{math}`\psi_{i} : V_{i} \rightarrow \mathbb{R}^{3}` by {math}`\psi_{i} = \text{proj}_{i} \circ H_{i}`,
+written out as
+
+```{math}
+\psi_{i}
+    \left( 
+        \begin{bmatrix}
+            \begin{pmatrix} 
+                P_{0}     \\ 
+                P_{1}     \\
+                \vdots    \\
+                P_{i - 1} \\
+                P_{i}     \\
+                P_{i + 1} \\
+                \vdots    \\
+                P_{3}     \\
+            \end{pmatrix} 
+        \end{bmatrix}
+    \right)
+    =
+    \begin{pmatrix}
+        P_{0} / P_{i}     \\
+        P_{1} / P_{i}     \\
+        \vdots            \\
+        P_{i-1} / P_{i}   \\
+        P_{i+1} / {P_{i}} \\
+        \vdots            \\
+        P_{3} / P_{i}     \\
+    \end{pmatrix}.
+```
+
+Let {math}`\varphi_{i} : U_{i} \rightarrow \mathbb{R}^{3}` be given by {math}`\varphi_{i} = \psi_{i} \circ \pi`, 
+written out as
+
+```{math}
+\varphi_{i}
+    \left( 
+        \begin{pmatrix} 
+            P_{0}     \\ 
+            P_{1}     \\
+            \vdots    \\
+            P_{i - 1} \\
+            P_{i}     \\
+            P_{i + 1} \\
+            \vdots    \\
+            P_{3}     \\
+        \end{pmatrix}     
+    \right)
+    =
+    \begin{pmatrix}
+        P_{0} / P_{i}     \\
+        P_{1} / P_{i}     \\
+        \vdots            \\
+        P_{i-1} / P_{i}   \\
+        P_{i+1} / {P_{i}} \\
+        \vdots            \\
+        P_{3} / P_{i}     \\
+    \end{pmatrix}.
+```
+
+The map {math}`\varphi_{i}` is continuous by the universal property of product spaces applied to {math}`\mathbb{R}^{4}`. 
+Since the map {math}`\varphi_{i}` is continuous, the universal property of quotient maps implies that the map 
+{math}`\psi_{i}` is continuous. We must show that {math}`\psi_{i}` is bijective. Let's prove surjectivity: let 
+{math}`\begin{pmatrix} P_{0} \ P_{1} \ \dots \ P_{i-1} \ P_{i+1} \dots \ P_{3}  \end{pmatrix}^{T} \in \mathbb{R}^{3}`,
+let
+{math}`\begin{bmatrix} \begin{pmatrix} P_{0} \ P_{1} \ \dots \ P_{i-1} \ 1 \ P_{i+1} \dots \ P_{3} \end{pmatrix} \end{bmatrix}^{T} \in V_{i}`,
+From the definition of {math}`\psi_{i}`, we see that
+
+```{math}
+\psi_{i}
+    \left( 
+        \begin{bmatrix}
+            \begin{pmatrix} 
+                P_{0}     \
+                P_{1}     \
+                \dots    \
+                P_{i - 1} \
+                1         \
+                P_{i + 1} \
+                \dots    \
+                P_{3}     \
+            \end{pmatrix}
+        \end{bmatrix}^{T}
+    \right)
+    =
+    \begin{pmatrix}
+        P_{0}   \
+        P_{1}   \
+        \dots  \
+        P_{i-1} \
+        P_{i+1} \
+        \dots  \
+        P_{3}   \
+    \end{pmatrix}^{T}.
+```
+
+which establishes surjectivity. To show injectivity, we require the following fact: every element in {math}`V_{i}`
+has a unique representative whose {math}`i^{th}` coordinate is {math}`1`. To see this, suppose that {math}`[Q]` is a
+homogeneous point in {math}`V_{i}` with representatives 
+{math}`\begin{pmatrix} Q_{0} \ Q_{1} \ \dots \ Q_{i-1} \ 1 \ Q_{i+1} \dots \ Q_{3}  \end{pmatrix}^{T} \in \mathbb{R}^{3}`
+and 
+{math}`\begin{pmatrix} Q^{\prime}_{0} \ Q^{\prime}_{1} \ \dots \ Q^{\prime}_{i-1} \ 1 \ Q^{\prime}_{i+1} \dots \ Q^{\prime}_{3}  \end{pmatrix}^{T} \in \mathbb{R}^{3}`
+where the {math}`i^{th}` component is {math}`1`. Since both representatives represent the same point, they 
+must be equivalent, i.e. there exists {math}`\lambda \in \mathbb{R} - \{0\}` such that
+
+```{math}
+\begin{pmatrix} Q_{0} \ Q_{1} \ \dots \ Q_{i-1} \ 1 \ Q_{i+1} \dots \ Q_{3} \end{pmatrix}^{T}
+=
+\lambda 
+\begin{pmatrix} Q^{\prime}_{0} \ Q^{\prime}_{1} \ \dots \ Q^{\prime}_{i-1} \ 1 \ Q^{\prime}_{i+1} \dots \ Q^{\prime}_{3} \end{pmatrix}^{T}.
+```
+
+The fact that the {math}`i^{th}` component is {math}`1` in both representatives implies that 
+{math}`Q^{\prime}_{j} = Q_{j}` for each {math}`j \in \{ 0, 1, 2, 3 \}`. Therefore
+
+```{math}
+\begin{pmatrix} Q_{0} \ Q_{1} \ \dots \ Q_{i-1} \ 1 \ Q_{i+1} \dots \ Q_{3} \end{pmatrix}^{T}
+=
+\begin{pmatrix} Q^{\prime}_{0} \ Q^{\prime}_{1} \ \dots \ Q^{\prime}_{i-1} \ 1 \ Q^{\prime}_{i+1} \dots \ Q^{\prime}_{3} \end{pmatrix}^{T}.
+```
+
+establishing uniqueness of the representative of {math}`[Q]` whose {math}`i^{th}` component is {math}`1`.
+Proving the injectivity of {math}`\psi_{i}` becomes easy. Recall the original definition of {math}`\psi_{i}` as
+{math}`\psi_{i} = \text{proj}_{i} \circ H_{i}`. Since a given homogeneous point has a unique representative whose
+{math}`i^{th}` component is {math}`1`, the normalization map {math}`H_{i}` is injective. That is, given homogeneous 
+points {math}`[Q]` and {math}`[Q^{\prime}]` with {math}`H_{i}([Q]) = H_{i}([Q^{\prime}])`, we conclude 
+{math}`[Q] = [Q^{\prime}]`. Also, notice that {math}`\text{proj}_{i}` is bijective with inverse map 
+{math}`\text{proj}^{-1}_{i} : \mathbb{R}^{3} \rightarrow \mathbb{RP}^{3}` defined by
+
+```{math}
+\text{proj}^{-1}_{i}
+    \left(   
+        \begin{pmatrix}
+            P_{0}   \
+            P_{1}   \
+            \dots   \
+            P_{i-1} \
+            P_{i+1} \
+            \dots   \
+            P_{3}   \
+        \end{pmatrix}^{T}
+    \right)
+    = 
+    \begin{bmatrix} 
+        \begin{pmatrix}
+            P_{0}   \
+            P_{1}   \
+            \dots   \
+            P_{i-1} \
+            1       \
+            P_{i+1} \
+            \dots   \
+            P_{3}   \
+        \end{pmatrix}^{T}
+    \end{bmatrix}.
+```
+
+Since {math}`\text{proj}_{i}` is bijective, it is injective, and since {math}`H_{i}` is injective, so is 
+their composite {math}`\psi_{i}`. This proves that {math}`\psi_{i}` is bijective.
+
+Next, we show that {math}`\psi^{-1}_{i}` is continuous. Consider the map 
+{math}`\rho_{i} : \mathbb{R}^{3} \rightarrow \mathbb{R}^{4} - \{ \mathbf{0} \}` given by
+
+```{math}
+\rho_{i}
+    \left(  
+        \begin{pmatrix}
+            P_{0}   \
+            P_{1}   \
+            \dots   \
+            P_{i-1} \
+            P_{i+1} \
+            \dots   \
+            P_{3}   \
+        \end{pmatrix}^{T}
+    \right)
+    =
+    \begin{pmatrix}
+        P_{0}   \
+        P_{1}   \
+        \dots  \
+        P_{i-1} \
+        1       \
+        P_{i+1} \
+        \dots   \
+        P_{3}   \
+    \end{pmatrix}^{T}.
+```
+
+The map {math}`\rho_{i}` is continuous, its image is contained in {math}`V_{i}`, and 
+{math}`\pi_{i} \circ \rho_{i} = \psi^{-1}_{i}`. This implies that {math}`\psi^{-1}_{i}` is continuous, since
+it is the composite of continuous functions. We have shown that {math}`\psi_{i}` is continuous, bijective,
+and has a continuous inverse. Therefore, it is a homeomorphism. Moreover, we can cover {math}`\mathbb{RP}^{3}`
+with the charts {math}`\{ (V_{i}, \psi_{i}) \mid i \in \{ 0, 1, 2, 3 \} \}`, which means that 
+{math}`\mathbb{RP}^{3}` is locally Euclidean.
+
+We show that {math}`\mathbb{RP}^{3}` is Hausdorff. Suppose that {math}`[P]` and {math}`[Q]` are two distinct
+points in {math}`\mathbb{RP}^{3}`. There are two possibilities: there is an {math}`0 \leq i \leq 2` such that 
+both points lie in {math}`V_{i}`, or no such {math}`i` exists such that both points lie in {math}`V_{i}`.
+In the first case, {math}`\psi_{i}([P])` and {math}`\psi_{i}([Q])` are distinct points in {math}`\mathbb{R}^{3}`.
+Since {math}`\mathbb{R}^{3}` is Hausdorff, there exist disjoint sets {math}`A` and {math}`B` such that
+{math}`\psi_{i}([P]) \in A` and {math}`\psi_{i}([Q]) \in B`. Hence, {math}`\psi^{-1}_{i}(A)` and {math}`\psi^{-1}_{i}`
+are disjoint open subsets of {math}`V_{i}`, and hence {math}`\psi^{-1}_{i}(A)` and {math}`\psi^{-1}_{i}` are open 
+subsets of {math}`\mathbb{RP}^{3}`. This yields the first case. Consider the second case. Suppose that no
+such {math}`i` exists such that {math}`\psi_{i}([P])` and {math}`\psi_{i}([Q])` are distinct points in {math}`V_{i}`.
+Let {math}`(x_{0}, x_{1}, x_{2}, x_{3})` be a representative of {math}`[P]` and let {math}`(y_{0}, y_{1}, y_{2}, y_{3})` 
+be a representative of {math}`[Q]`. There exists {math}`i \neq j` or {math}`0 \leq i, j \leq 3` such that
+{math}`x_{i} \neq 0, y_{i} = 0` and {math}`x_{j} = 0, y_{j} \neq 0`. Choose a representative such that {math}`x_{i} = 1`
+and {math}`y_{j} = 1`. Assume without loss of generality that {math}`i < j`, and choose {math}`0 < \epsilon < 1`.
+The set 
+
+```{math}
+A = \{ 
+        \begin{pmatrix} a_{0} \ a_{1} \ \dots a_{i-1} \ 1 \ a_{i + 1} \dots a_{3} \end{pmatrix}^{T}
+        \mid  
+        \forall k \neq i \hspace{4 pt} \lvert a_{k} - x_{k} \rvert < \epsilon
+    \} 
+    \subset
+    V_{i}
+```
+
+is an open set containing {math}`[P]` and the set
+
+```{math}
+B = \{ 
+        \begin{pmatrix} b_{0} \ b_{1} \ \dots b_{j-1} \ 1 \ b_{j + 1} \dots b_{3} \end{pmatrix}^{T}
+        \mid
+        \forall k \neq i \hspace{4 pt} \lvert b_{k} - y_{k} \rvert < \epsilon
+    \} 
+    \subset
+    V_{j}
+```
+
+is an open set containing {math}`[Q]`. The image {math}`\psi_{i}(A)` is an open rectangle in {math}`\mathbb{R}^{3}`
+centered on {math}`\psi_{i}([P])` with a side length of {math}`2 \epsilon`. Similarly, the image {math}`\psi_{i}(B)` is 
+an open rectangle in {math}`\mathbb{R}^{3}` centered on {math}`\psi_{i}([Q])` with a side length of {math}`2 \epsilon`.
+The sets {math}`A` and {math}`B` are disjoint. To show this, suppose {math}`A` and {math}`B` are not disjoint. Then for 
+{math}`\begin{pmatrix} a_{0} \ a_{1} \ \dots a_{i-1} \ 1 \ a_{i + 1} \dots a_{3} \end{pmatrix}^{T} = \begin{pmatrix} b_{0} \ b_{1} \ \dots b_{j-1} \ 1 \ b_{j + 1} \dots b_{3} \end{pmatrix}^{T}`
+we must have {math}`a_{j} \neq 0` and {math}`b_{i} \neq 0` which implies that {math}`a_{j} b_{i} = 1`. But this is 
+impossible, because {math}`\lvert a_{j} \rvert < 1` and {math}`\lvert b_{i} \rvert < 1`.
+Therefore, the sets {math}`A` and {math}`B` must be disjoint. This proves that {math}`\mathbb{RP}^{3}` is Hausdorff.
+
+Finally, second countability follows from the fact that {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}` is 
+second countable. More precisely, let {math}`\mathcal{B}` be a countable base for the topology on
+{math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`. The set
+
+```{math}
+\mathcal{B}^{\prime} = \{ \pi\left( U \right) \mid U \in \mathcal{B} \}
+```
+
+is a countable set of open sets in {math}`\mathbb{RP}^{3}` because {math}`\pi` is saturated. Since {math}`\pi`
+is surjective, {math}`\cup_{B \in \mathcal{B}^{\prime}} B = \mathbb{RP}^{3}`, i.e. the set 
+{math}`\mathcal{B}^{\prime}` covers {math}`\mathbb{RP}^{3}`. Hence {math}`\mathbb{RP}^{3}` is second countable.
+Note that second countability implies that {math}`\mathbb{RP}^{3}` is compact. We sketch a proof here.
+It comes from the fact that the {math}`3`-sphere {math}`S^{3}` is a compact subset of {math}`\mathbb{R}^{4}`,
+that the canonical surjection {math}`\pi_{S^{3}}` is continuous, and that the image of a compact set by a 
+continuous map is compact. Since {math}`\pi_{S^{3}}(S^{3})` is compact, and {math}`\pi_{S^{3}}(S^{3}) = \mathbb{RP}^{3}`
+we immediately infer that {math}`\mathbb{RP}^{3}` is compact.
+
+We have topologized real projective space, and proven that {math}`\mathbb{RP}^{3}` is second countable, 
+Hausdorff and locally Euclidean. Therefore {math}`\mathbb{RP}^{3}` is a topological {math}`3`-manifold 
+(or we just say that it is a {math}`3`-manifold, or a manifold). Finally, {math}`\mathbb{RP}^{3}` is 
+compact, so it is a nice setting to work with topologically.
 
 ## Projection Matrix Specification
 
-The projection transformations are parametrized by two set of parameters: the view volume bounds
-{math}`l`, {math}`r`, {math}`b`, {math}`t`, {math}`n`, {math}`f` where {math}`l > 0`, {math}`r > 0`, 
-{math}`b > 0`, {math}`t > 0`, and {math}`f > n > 0`; the canonical view volume parametrized by
+The projection transformations are parametrized by two set of parameters. The first one is the view volume 
+parameters {math}`l`, {math}`r`, {math}`b`, {math}`t`, {math}`n`, {math}`f` where {math}`l > 0`, {math}`r > 0`, 
+{math}`b > 0`, {math}`t > 0`, and {math}`f > n > 0` such that the view volume is parametrized by 
+{math}`[-l, r] \times [-b, t] \times [n f]`. The second one is the canonical view volume parametrized by
 {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
 where {math}`\alpha_{max} > \alpha_{min}`, {math}`\beta_{max} > \beta_{min}`, and 
 {math}`\gamma_{max} > \gamma_{min}`.
@@ -91,26 +613,23 @@ to {math}`\mathbf{0}`: {math}`O_{view}` = {math}`\psi(\tilde{O}_{view}) = \tilde
 This shows that the view space frame origin in {math}`\mathbb{E}^{3}` indeed maps to the vector space origin 
 {math}`\mathbf{0}` in {math}`\mathbb{R}^{3}`.
 
+Recall that the definition of real projective space defines the manifold structure using the surjection 
+{math}`\pi : \mathbb{R}^{4} - \{\mathbf{0}\} \rightarrow \mathbb{RP}^{3}` given by 
+
+```{math}
+\pi\left( \begin{pmatrix} P \\ w \\ \end{pmatrix} \right) = \begin{bmatrix} \begin{pmatrix} P \\ w \\ \end{pmatrix} \end{bmatrix}
+```
+
+where {math}`[.]` on the right-hand side indicates the equivalence class of 
+{math}`\begin{pmatrix} P^{T}, w \end{pmatrix}^{T}`. 
+
 Define a map {math}`\rho : \mathbb{R}^{3} \rightarrow \mathbb{R}^{4} - \{\mathbf{0}\}` by
 
 ```{math}
 \rho\left( P \right) = \begin{pmatrix} P \\ 1 \\ \end{pmatrix}
 ```
 
-We define projective space {math}`\mathbb{RP}^{3}` as follows. We define {math}`\mathbf{w_{1}} \sim \mathbf{w_{2}}`
-if an only if there exists a nonzero real number {math}`k \in \mathbb{R} - \{0\}` such that 
-{math}`\mathbf{w_{1}} = k \mathbf{w_{2}}`. The relation {math}`\sim` is an equivalence relation. 
-We define the **real projective space** by {math}`\mathbb{RP}^{3} = ( \mathbb{R}^{4} - \{ \mathbf{0}\} )/\sim`. 
-The real projective space identifies lines through the origin in {math}`\mathbb{R}^{3}` with points in 
-{math}`\mathbb{RP}^{3}`. The definition of real projective space allows us to define a surjective map 
-{math}`\pi : \mathbb{R}^{4} - \{\mathbf{0}\} \rightarrow \mathbb{RP}^{3}` by 
-
-```{math}
-\pi\left( \begin{pmatrix} P \\ w \\ \end{pmatrix} \right) = \begin{bmatrix} \begin{pmatrix} P \\ w \\ \end{pmatrix} \end{bmatrix}
-```
-
-where {math}`[.]` on the right-hand side indicates the equivalence class of {math}`\begin{pmatrix} P^{T}, 1 \end{pmatrix}^{T}`.
-The function {math}`\pi` is well-defined. The maps {math}`\pi` and {math}`\rho` together allow us to map from view space to 
+The maps {math}`\pi` and {math}`\rho` together allow us to map from view space to 
 projective view space with the camera orthonormal frame by
 
 ```{math}
@@ -1112,6 +1631,111 @@ Notice that the perspective matrix passes along the input depth coordinate undis
 
 ## Every Other Matrix
 
+For any given projected view coordinate system and clip coordinate system, there exists a perspective 
+projection matrix that can be expressed as {math}`M_{per} = T^{-1}_{clip} M^{C}_{per} T_{view}` where 
+{math}`M^{C}_{per}` is the canonical perspective projection matrix. Let {math}`[\mathbf{x}]` be a homogeneous 
+point in {math}`\mathbb{RP}^3`. Let {math}`\mathbf{x}_{view}` be a representive of {math}`[\mathbf{x}]` in 
+projected view coordinates, {math}`\mathbf{x}_{clip}` be a representative of {math}`[\mathbf{x}]` in clip 
+coordinates, {math}`\mathbf{x}^{C}_{view}` be a representive of {math}`[\mathbf{x}]` in the canonically 
+chosen view space coordinate system, {math}`\mathbf{x}^{C}_{clip}` be a representive of {math}`[\mathbf{x}]` 
+in the canonically chosen clip coordinates, such that
+
+```{math}
+:label: eq_view_to_clip_can1
+\mathbf{x}^{C}_{clip} = M^{C}_{per} \mathbf{x}^{C}_{view}.
+```
+
+That is, {math}`\mathbf{x}^{C}_{clip}` represents the perspective projected point {math}`\mathbf{x}`. 
+Let {math}`T_{view} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` denote the coordinate transformation 
+from projected view coordinates to the canonical projected view coordinates. Let 
+{math}`T_{clip} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` denote the coordinate transformation 
+from clip coordinates to canonical clip coordinates. The coordinate relations are given by 
+{math}`\mathbf{x}^{C}_{view} = T_{view} \mathbf{x}^{C}_{view}` and 
+{math}`\mathbf{x}^{C}_{clip} = T_{clip} \mathbf{x}^{C}_{clip}`. Applying these relationships in
+{ref}`eq_view_to_clip_can1`
+
+```{math}
+T_{clip} \mathbf{x}_{clip} = M^{C}_{per} T_{view} \mathbf{x}_{view}
+```
+
+or equivalently
+
+```{math}
+\mathbf{x}_{clip} 
+    = T^{-1}_{clip} M^{C}_{per} T_{view} \mathbf{x}_{view} 
+    = \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) \mathbf{x}_{view}
+```
+
+therefore we can identify 
+
+```{math}
+:label: eq_view_to_clip_can2
+M_{per} = T^{-1}_{clip} M^{C}_{per} T_{view}.
+```
+
+This proves the existence of a perspective projection for any source projected view space 
+coordinate system, and any target clip coordinate system. To show uniqueness, suppose that 
+{math}`M^{\prime}_{per}` is another transformation that maps view coordinates to clip 
+coordinates, such that {math}`\mathbf{x}_{clip} = M^{\prime}_{per} \mathbf{x}_{view}`. Using the 
+coordinate transformations again, we can write {math}`\mathbf{x}^{C}_{clip} = T_{clip} \mathbf{x}_{clip}`
+and {math}`\mathbf{x}^{C}_{view} = T_{view} \mathbf{x}_{view}`. Inverting these relations, we get
+{math}`\mathbf{x}^{C}_{view} = T^{-1}_{view} \mathbf{x}_{view}` and
+{math}`\mathbf{x}^{C}_{clip} = T^{-1}_{clip} \mathbf{x}_{clip}`. Using the relation for 
+{math}`M^{\prime}_{per}` in equation {ref}`eq_view_to_clip_can2` implies
+
+```{math}
+T^{-1}_{clip} \mathbf{x}^{C}_{clip} = M^{\prime}_{per} T^{-1}_{view} \mathbf{x}^{C}_{view}
+```
+
+or equivalently
+
+```{math}
+\mathbf{x}^{C}_{clip} 
+    = T_{clip} M^{\prime}_{per} T^{-1}_{view} \mathbf{x}^{C}_{view}
+    = \left( T_{clip} M^{\prime}_{per} T^{-1}_{view} \right) \mathbf{x}^{C}_{view}.
+```
+
+Applying the relation for the canonical perspective projection matrix
+
+```{math}
+\mathbf{x}^{C}_{clip} 
+    = M^{C}_{per} \mathbf{x}^{C}_{view} 
+    = \left( T_{clip} M^{\prime}_{per} T^{-1}_{view} \right) \mathbf{x}^{C}_{view}
+```
+
+which imples that
+
+```{math}
+M^{C}_{per} = T_{clip} M^{\prime}_{per} T^{-1}_{view}
+```
+
+or equivalently
+
+```{math}
+:label: eq_view_to_clip_can3
+M^{\prime}_{per} = T^{-1}_{clip} M^{C}_{per} T_{view} = M_{per}
+```
+
+where the last equality in {ref}`eq_view_to_clip_can3` follows from {ref}`eq_view_to_clip_can2`.
+This proves uniqueness for the perspective projection matrix.
+
+To show that any perspective projection is well-defined, let {math}`[\mathbf{x}] \in \mathbb{RP}^{3}` be 
+a point and let {math}`\mathbf{x}_{1} \sim \mathbf{x_{2}}` be representatives of {math}`[\mathbf{x}]`.
+Then there exists {math}`\lambda \in \mathbb{R} - \{ 0 \}` such that {math}`\mathbf{x}_{2} = \lambda \mathbf{x_{1}}`.
+By linearity of the canonical perspective projection, 
+{math}`\lambda M^{C}_{per} \mathbf{x}_{1} = M^{C}_{per} ( \lambda \mathbf{x}_{1} ) = M^{C}_{per} \mathbf{x}_{2}`
+which shows that {math}`M^{C}_{per}` is well-defined. By the linearity of homogeneous orthogonal transformations 
+
+```{math}
+\lambda M_{per} \mathbf{x}_{1}
+    &= \lambda T^{-1}_{clip} M^{C}_{per} T_{view} \mathbf{x}_{1} \\
+    &= \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) \left( \lambda \mathbf{x}_{1} \right) \\
+    &= \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) \mathbf{x}_{2} \\
+    &= M_{per} \mathbf{x}_{2} \\
+    &= M_{per} \left( \lambda \mathbf{x}_{1} \right) \\
+```
+
+which shows that {math}`M_{per}` is well-defined.
 
 
 ## The Canonical Symmetric Vertical Field Of View Perspective Matrix
@@ -1240,7 +1864,11 @@ it easy to derive any other projection matrix using coordinate transformations i
 the relevant coordinate transformations to create the final result. We chose a view space coordinate 
 system where the horizontal axis points to the right, the vertical axis points up, and the depth
 axis points into the view volume. This has the benefit of keeping all of the computations in the same
-orthonormal frame, which makes the behavior of the projection more obvious.
+orthonormal frame, which makes the behavior of the projection more obvious. Operating in real projective 
+space allows us to express our rendering problems in a coordinate system and scale independent way, such
+that the choice of coordinate system is a degree of freedom for the problem at hand. Moreover, the 
+coordinate system independent formulation is a low-key form of separation of concerns in software 
+engineering for spatial computing domains.
 
 We show how to construct perspective and orthographic projection transformations in {math}`\mathbb{RP}^{3}`
 from any view space orthonormal frame to any clip coordinate frame by first defining the matrix
@@ -1249,7 +1877,7 @@ using the appropriate orthogonal transformations and changes of orientation to m
 desired view space coordinate system to the canonical one on one side, and mapping from the canonical
 clip coordinate system to the desired clip coordinate system using the same process. This
 result shows that perspective and orthographic projections are indeed coordinate-independent 
-transformations. In future work, it would be desirable to find a way to construct the transformations
+transformations. In future work, it would be desirable to find a way to define the transformations
 directly in a more geometrical fashion without mentioning any coordinate systems, and then the particular
 matrices would fall out going to other direction.
 
