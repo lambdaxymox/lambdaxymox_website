@@ -53,8 +53,8 @@ system to any targe clip coordinate system, and that the resulting transformatio
 
 ## The Topological Manifold Structure Of Real Projective Space
 
-This section is primarily establishes the topological properties nad manifold structure of real 
-projective space, and can be skipped if desired.
+This section establishes the topological structure and manifold structure of the real 
+projective space {math}`\mathbb{RP}^{3}`. It can be skipped if the reader so desires.
 
 We define real projective space {math}`\mathbb{RP}^{3}` as follows. Define {math}`\mathbf{w_{1}} \sim \mathbf{w_{2}}`
 if an only if there exists a nonzero real number {math}`\lambda \in \mathbb{R} - \{0\}` such that 
@@ -548,68 +548,28 @@ Hausdorff and locally Euclidean. Therefore {math}`\mathbb{RP}^{3}` is a topologi
 (or we just say that it is a {math}`3`-manifold, or a manifold). Finally, {math}`\mathbb{RP}^{3}` is 
 compact, so it is a nice setting to work with topologically.
 
-## Projection Matrix Specification
+## Representing Transformations In Real Projective Space
 
-The projection transformations are parametrized by two set of parameters. The first one is the view volume 
-parameters {math}`l`, {math}`r`, {math}`b`, {math}`t`, {math}`n`, {math}`f` where {math}`l > 0`, {math}`r > 0`, 
-{math}`b > 0`, {math}`t > 0`, and {math}`f > n > 0` such that the view volume is parametrized by 
-{math}`[-l, r] \times [-b, t] \times [n f]`. The second one is the canonical view volume parametrized by
-{math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
-where {math}`\alpha_{max} > \alpha_{min}`, {math}`\beta_{max} > \beta_{min}`, and 
-{math}`\gamma_{max} > \gamma_{min}`.
-
-The points {math}`\tilde{L} \in \mathbb{E}^{3}`, {math}`\tilde{R} \in \mathbb{E}^{3}`, {math}`\tilde{B} \in \mathbb{E}^{3}`, 
-{math}`\tilde{T} \in \mathbb{E}^{3}`, {math}`\tilde{N} \in \mathbb{E}^{3}`, and {math}`\tilde{F} \in \mathbb{E}^{3}` 
-correspond to points along the edge of the viewport on the near plane of the viewing frustum. The point 
-{math}`\tilde{L}` is the point where the near plane, left hand plane, and depth-horizontal-plane intersect each 
-other. The point {math}`\tilde{R}` is the point where the near plane, right plane, ans depth-horizontal plane intersect 
-each other. The point {math}`\tilde{B}` is the point where the near plane, bottom plane, and horizontal-vertical plane 
-intersect each other. The point {math}`\tilde{T}` is the point where the near plane, top plane, and horizontal-vertical 
-plane intersect each other. The point {math}`\tilde{N}` is the point along the depth axis inside the near plane. The 
-point {math}`\tilde{F}` is the point along the depth axis inside the far plane. More precisely, in the orthonormal
-frame {math}`(\tilde{O}_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))`, the points 
-are given by
-
-```{math}
-\tilde{L} &= \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} + l \left( -\mathbf{\hat{u}}_{h} \right) 
-           = \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} - l \mathbf{\hat{u}}_{h} \\
-\tilde{R} &= \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} + r \mathbf{\hat{u}}_{h} \\
-\tilde{B} &= \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} + b \left( -\mathbf{\hat{u}}_{v} \right)
-           = \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} - b \mathbf{\hat{u}}_{v} \\
-\tilde{T} &= \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} + t \mathbf{\hat{u}}_{v} \\
-\tilde{N} &= \tilde{O}_{view} + n \mathbf{\hat{u}}_{d} \\
-\tilde{F} &= \tilde{O}_{view} + f \mathbf{\hat{u}}_{d} \\
-```
-
-In the coordinate system of the local view space frame with origin {math}`\tilde{O}_{view}`, the points are represented by
-
-```{math}
-L \equiv \tilde{L} - \tilde{O}_{view} &= n \mathbf{\hat{u}}_{d} + l \left( -\mathbf{\hat{u}}_{h} \right) = n \mathbf{\hat{u}}_{d} - l \mathbf{\hat{u}}_{h} \\
-R \equiv \tilde{R} - \tilde{O}_{view} &= n \mathbf{\hat{u}}_{d} + r \mathbf{\hat{u}}_{h} \\
-B \equiv \tilde{B} - \tilde{O}_{view} &= n \mathbf{\hat{u}}_{d} + b \left( -\mathbf{\hat{u}}_{v} \right) = n \mathbf{\hat{u}}_{d} - b \mathbf{\hat{u}}_{v} \\
-T \equiv \tilde{T} - \tilde{O}_{view} &= n \mathbf{\hat{u}}_{d} + t \mathbf{\hat{u}}_{v} \\
-N \equiv \tilde{N} - \tilde{O}_{view} &= n \mathbf{\hat{u}}_{d} \\
-F \equiv \tilde{F} - \tilde{O}_{view} &= f \mathbf{\hat{u}}_{d} \\
-```
-
-The orthonormal frame {math}`\left(\tilde{O}_{view}, \left( \mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d} \right) \right)` 
+Any orthonormal frame {math}`(\tilde{O}_{frame}, \left( \mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d} \right))` 
 on {math}`\mathbb{E}^{3}` induces a coordinate chart as follows. A point {math}`\tilde{P} \in \mathbb{E}^{3}` is written as
 
 ```{math}
-\tilde{P} = \tilde{O}_{view} + P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v} + P_{d} \mathbf{\hat{u}}_{d}
+\tilde{P} = \tilde{O}_{frame} + P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v} + P_{d} \mathbf{\hat{u}}_{d}
 ```
 
-and the orthonormal frame {math}`\left(\tilde{O}_{view}, \left( \mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d} \right) \right)` 
-defines a coordinate chart {math}`\psi : \mathbb{E}^{3} \rightarrow \mathbb{R}^{3}` by 
-{math}`\psi( \tilde{P} ) = \tilde{P} - \tilde{O}_{view}`. In particular,
+and the orthonormal frame 
+{math}`(\tilde{O}_{frame}, \left( \mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d} \right))` 
+defines a coordinate chart {math}`\varphi_{frame} : \mathbb{E}^{3} \rightarrow \mathbb{R}^{3}` by 
+{math}`\varphi_{frame}( \tilde{P} ) = \tilde{P} - \tilde{O}`. Written out
 
 ```{math}
-P = \psi(\tilde{P}) \equiv \tilde{P} - \tilde{O}_{view} = P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v} + P_{d} \mathbf{\hat{u}}_{d}
+P = \varphi_{frame}(\tilde{P}) \equiv \tilde{P} - \tilde{O}_{frame} = P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v} + P_{d} \mathbf{\hat{u}}_{d}
 ```
 
-is the representation of {math}`\tilde{P}` in {math}`\mathbb{R}^{3}`. Also, the coordinate map 
-{math}`\psi` maps the origin {math}`\tilde{O}_{view}` of the view space frame in {math}`\mathbb{E}^{3}` 
-to {math}`\mathbf{0}`: {math}`O_{view}` = {math}`\psi(\tilde{O}_{view}) = \tilde{O}_{view} - \tilde{O}_{view} = \mathbf{0}`. 
+is the representation of {math}`\tilde{P}` in {math}`\mathbb{R}^{3}`. Also, the coordinate chart
+{math}`\varphi_{frame}` maps the origin {math}`\tilde{O}_{frame}` of the view coordinate system in {math}`\mathbb{E}^{3}` 
+to {math}`\mathbf{0}`: 
+{math}`O_{frame}` = {math}`\varphi_{frame}(\tilde{O}_{frame}) = \tilde{O}_{frame} - \tilde{O}_{frame} = \mathbf{0}`. 
 This shows that the view space frame origin in {math}`\mathbb{E}^{3}` indeed maps to the vector space origin 
 {math}`\mathbf{0}` in {math}`\mathbb{R}^{3}`.
 
@@ -621,7 +581,7 @@ Recall that the definition of real projective space defines the manifold structu
 ```
 
 where {math}`[.]` on the right-hand side indicates the equivalence class of 
-{math}`\begin{pmatrix} P^{T}, w \end{pmatrix}^{T}`. 
+{math}`\begin{pmatrix} P^{T}, w \end{pmatrix}^{T}`.
 
 Define a map {math}`\rho : \mathbb{R}^{3} \rightarrow \mathbb{R}^{4} - \{\mathbf{0}\}` by
 
@@ -639,151 +599,262 @@ projective view space with the camera orthonormal frame by
     = \begin{bmatrix} \begin{pmatrix} P \\ 1 \\ \end{pmatrix} \end{bmatrix}.
 ```
 
+The map {math}`\rho` defines an embedding (injection) of {math}`\mathbb{R}^{3}` into {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`,
+because each element in {math}`\rho(\mathbb{R}^{3})` has a unique elements {math}`P \in \mathbb{R}^{3}` such that
+{math}`\rho(P) = \begin{pmatrix} P^{T} \ 1 \end{pmatrix}^{T}`. Since {math}`\rho` is surjective on its image, injective, and
+continuous with continuous inverse, it is a homeomorphism on its image, hence an embedding. Since every element
+of {math}`\mathbb{R}^{3}` has a unique homogeneous point {math}`Q` such that 
+{math}`Q = [\begin{pmatrix} P^{T} \ 1 \end{pmatrix}^{T}]`, the map {math}`\pi \circ \rho` is also an embedding.
+The set {math}`\pi(\rho(\mathbb{R}^{3}))` is sometimes called the **affine patch** or **Euclidean patch** of 
+{math}`\mathbb{RP}^{3}`.
+
+We can lift points in {math}`\mathbb{E}^{3}` into {math}`\mathbb{RP}^{3}`. Let's do the same for transformations.
+Suppose that {math}`A : \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}` is an affine map. We define the **lifted** map 
+of {math}`A` over to {math}`\mathbb{RP}^{3}` to be the map 
+{math}`\hat{A} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` such that
+
+```{math}
+:label: eq_lift_affine1
+\left( \rho \circ A \right)\left( P \right) = \left( \hat{A} \circ \rho \right) \begin{pmatrix} P \end{pmatrix}.
+```
+
+Recall that an affine map has the form {math}`A(P) = L(P) + \mathbf{t}` where 
+{math}`L : \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}` is a linear map, and
+{math}`\mathbf{t}` is a vector, i.e. a linear map plus a translation term. Expanding this out, 
+the left-hand side of {ref}`eq_lift_affine1` becomes
+
+```{math}
+\left( \rho \circ A \right)\left( P \right)
+    = \begin{pmatrix} A\left( P \right) \\ 1 \\ \end{pmatrix}
+    = \begin{pmatrix} L\left( P \right) + \mathbf{t} \\ 1 \\ \end{pmatrix}
+    = \begin{bmatrix} L & \mathbf{t} \\ \mathbf{0}^{T} & 1 \\ \end{bmatrix} \begin{pmatrix} P \\ 1 \\ \end{pmatrix}
+```
+
+and on the right-hand side we have
+
+```{math}
+\left( \hat{A} \circ \rho \right) \left( P \right)
+    = \hat{A} \left(\rho \left( P \right) \right)
+    = \hat{A} \left( \begin{pmatrix} P \\ 1 \\ \end{pmatrix} \right).
+```
+
+Equating both sides of {ref}`eq_lift_affine1` we have
+
+```{math}
+\hat{A} \left( \begin{pmatrix} P \\ 1 \\ \end{pmatrix} \right) 
+    = \begin{bmatrix} L & \mathbf{t} \\ \mathbf{0}^{T} & 1 \\ \end{bmatrix} \begin{pmatrix} P \\ 1 \\ \end{pmatrix}
+```
+
+or
+
+```{math}
+:label: matrix_repr_affine
+\hat{A} = \begin{bmatrix} L & \mathbf{t} \\ \mathbf{0}^{T} & 1 \\ \end{bmatrix}
+```
+
+so that {math}`\hat{A}` is unique. An affine map in {math}`\mathbb{R}^{3}` becomes a linear map in 
+{math}`\mathbb{RP}^{3}`. In the case of a linear map {math}`L`, {math}`\mathbf{t} = \mathbf{0}` and
+
+```{math}
+:label: matrix_repr_linear
+\hat{L} = \begin{bmatrix} L & \mathbf{0} \\ \mathbf{0}^{T} & 1 \\ \end{bmatrix}.
+```
+
+Now suppose that {math}`T : \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}` is a projective transformation. 
+A projective transformation is a map of the form
+
+```{math}
+T \left( P \right) = \left( \frac{1}{g(P)} \right) A \left( P \right) = \left( \frac{1}{g(P)} \right) \left( L(P) + \mathbf{t} \right)
+```
+
+where {math}`A` is an affine map and {math}`g : \mathbb{R}^{3} \rightarrow \mathbb{R}` is an affine 
+scalar function. This means that {math}`g` has the form {math}`g(P) = \mathbf{c} \cdot P + h`. We define 
+the **lifted** map of {math}`T` over to {math}`\mathbb{RP}^{3}` to be the map 
+{math}`\hat{T} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` such that
+
+```{math}
+:label: eq_lift_projective1
+g\left( P \right) \left( \rho \circ T \right) \left( P \right) = \left( \hat{T} \circ \rho \right) \left( P \right)
+```
+
+Expanding out the right-hand side of {ref}`eq_lift_projective1`
+
+```{math}
+:label: eq_lift_projective2
+\left( \hat{T} \circ \rho \right) \left( P \right)
+    = \hat{T} \left( \rho \left( P \right) \right)
+    = \hat{T} \begin{pmatrix} P \\ 1 \end{pmatrix}.
+```
+
+More interestingly, expanding out the left-hand side of {ref}`eq_lift_projective1` gives
+
+```{math}
+:label: eq_lift_projective3
+g\left( P \right) \left( \rho \circ T \right) \left( P \right) 
+    &= g\left( P \right) \begin{pmatrix} T(P) \\ 1 \end{pmatrix} \\
+    &= \begin{pmatrix} g\left( P \right) T(P) \\ g\left( P \right) \end{pmatrix} \\
+    &= \begin{pmatrix} A(P) \\ g\left( P \right) \end{pmatrix} \\
+    &= \begin{pmatrix} L(P) + \mathbf{t} \\ g\left( P \right) \end{pmatrix} \\
+    &= \begin{pmatrix} L(P) + \mathbf{t} \\ \mathbf{c} \cdot P + h \end{pmatrix} \\
+    &= \begin{bmatrix} L & \mathbf{t} \\ \mathbf{c}^{T} & h \\ \end{bmatrix} \begin{pmatrix} P \\ 1 \\ \end{pmatrix}
+```
+
+where the third equality follows from the definition of the projective transformation. Combining 
+{ref}`eq_lift_projective2` and {ref}`eq_lift_projective3` back into {ref}`eq_lift_projective1` yields
+
+```{math}
+\hat{T} \begin{pmatrix} P \\ 1 \end{pmatrix} 
+    = \begin{bmatrix} L & \mathbf{t} \\ \mathbf{c}^{T} & h \\ \end{bmatrix} \begin{pmatrix} P \\ 1 \\ \end{pmatrix}
+```
+
+and therefore
+
+```{math}
+:label: matrix_repr_projective
+\hat{T} = \begin{bmatrix} L & \mathbf{t} \\ \mathbf{c}^{T} & h \\ \end{bmatrix}.
+```
+
+This is a unique representation of the projective transformation {math}`T` lifted over to {math}`\mathbb{RP}^{3}`.
+Here is a wonderful discovery: in {math}`\mathbb{RP}^{3}` where all coordinate scales are treated as equivalent, 
+we can work with linear, affine, and projective transformations in a unified setting by 
+going one dimension higher in our representation from {math}`T : \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}`
+to its lifted counterpart {math}`\hat{T} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}`.
+
+The punchline is that we can lift the Euclidean space {math}`\mathbb{E}^{3}` into real projective space, in such a way that
+each point in {math}`\mathbb{E}^{3}` has a corresponding unique point in the affine subspace of {math}`\mathbb{RP}^{3}`
+under any coordinate chart. This lift allows us to construct our projections between different coordinate systems 
+in real-projective space in a coherent and well-defined manner. Via the embedding {math}`\pi \circ \rho`, the manifold 
+structure of {math}`\mathbb{RP}^{3}` allows us to scale our coordinates in any way we like, because in projective 
+coordinates we don't care about scaling. We can also lift transformations from {math}`\mathbb{E}^{3}` 
+to {math}`\mathbb{RP}^{3}` as a consequence of the embedding {math}`\pi \circ \rho` too. This setting makes it 
+convenient to construct perspective and orthographic projections, because at the end, we are back in the affine 
+portion of {math}`\mathbb{RP}^{3}` after normalization, so we can map back out of {math}`\mathbb{RP}^{3}` again by choosing 
+a chart on {math}`\mathbb{RP}^{3}` and applying it.
+
+We have shown how to map Euclidean space to real projective space, and how to represent linear, affine, 
+and projective transformations as linear transformations in linear projective space. It remains to apply
+these developments to our primary goal: constructing orthographic and perspective projection matrices 
+in homogeneous coordinates.
+
+## Specifying Projection Matrices
+
+To define a projection matrix, we need two coordinate systems: the view coordinate system, and the 
+normalized device coordinate system. The view coordinte system is where the view volume is defined.
+The normalized device coordinate system is where the canonical view volume is defined. The task of
+the projection transformation is to map the view volume to the canonical view volume.
+
 To understand what the projection matrices do, we must understand the coordinate systems that 
 we map between at each step in the pipeline leading from the view space to the canonical view 
 volume. The transformations stem from choosing a convenient coordinate system 
 in which to render computer graphics. The convenient coordinate system we choose is often called
-**normalized device coordinates**, defined in the following. The canonical coordinate system differs from platform 
-to platform. The other coordinates systems exist to articulate a clear path from projective view coordinates to
-normalized device coordinates. First we must define the viewing space. 
+**normalized device coordinates**, defined in the following. The canonical coordinate system differs 
+from platform to platform. The other coordinates systems exist to articulate a clear path from projective 
+view coordinates to normalized device coordinates. First we must define the view space and the view coordinates. 
 
-The **view space** is the Euclidean space {math}`(\mathbb{E}^{3}, (\tilde{O}_{view}, B_{view}))` with 
-the following properties:
+The **view coordinate system** for Euclidean space {math}`\mathbb{E}^{3}` is given by the 
+orthonormal frame {math}`(\tilde{O}_{view}, \mathcal{B}_{view})` where (1) the **origin** of the orthonormal frame is 
+the point {math}`\tilde{O}_{view} \in \mathbb{E}^{3}`; (2) The **basis** of the orthonormal frame is 
+{math}`\mathcal{B}_{view} = (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d})` where
+the basis vector {math}`\mathbf{\hat{u}}_{h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{v}`
+points up, and the basis vector {math}`\mathbf{\hat{u}}_{d}` points into the view volume or out of the 
+view volume, depending on the choice of orientation; (3) the view volume in this coordinate system is 
+called the **view volume** (or in the case of perspective projection, the **perspective view volume**).
 
-* The underlying vector space is {math}`\mathbb{R}^{3}`.
-* The **origin** of the orthonormal frame is the point {math}`\tilde{O}_{view} \in \mathbb{E}^{3}`.
-* The **basis** of the orthonormal frame is 
-  {math}`B_{view} = (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d})` where
-  the basis vector {math}`\mathbf{\hat{u}}_{h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{v}`
-  points up, and the basis vector {math}`\mathbf{\hat{u}}_{d}` points into the view volume.
+The **projected coordinate system** for Euclidean space {math}`\mathbb{E}^{3}` is given by the 
+orthonormal frame {math}`(\tilde{O}_{proj}, \mathcal{B}_{proj})` where (1) the **origin** of the orthonormal frame is 
+the point {math}`\tilde{O}_{proj} \in \mathbb{E}^{3}`; (2) The **basis** of the orthonormal frame is 
+{math}`\mathcal{B}_{proj} = (\mathbf{\hat{u}}_{proj,h}, \mathbf{\hat{u}}_{proj,v}, \mathbf{\hat{u}}_{proj,d})` where
+the basis vector {math}`\mathbf{\hat{u}}_{proj,h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{proj,v}`
+points up, and the basis vector {math}`\mathbf{\hat{u}}_{proj,d}` points into the view volume or out of the 
+view volume, depending on the choice of orientation; (3) the view volume in this coordinate system is 
+called the **projected view volume** (or in the case of perspective projection, the 
+**perspective projected view volume**).
 
-The **projected view space** is the real projective space {math}`\mathbb{RP}^{3}` where each 
-point is a homogeneous vector in {math}`\mathbb{R}^{3}` in the coordinate frame {math}`(\tilde{O}_{view}, B_{view})`. 
-The **view coordinates** coordinate system is the coordinate system defined by the basis {math}`B_{view}`.
+The **clip coordinate system** for Euclidean space {math}`\mathbb{E}^{3}` is given by the orthonormal frame 
+{math}`(\tilde{O}_{clip}, \mathcal{B}_{clip})` defined on {math}`\mathbb{E}^{3}` where (1) The **origin** of 
+the orthonormal frame {math}`(\tilde{O}_{clip}, \mathcal{B}_{clip})` is the point {math}`\tilde{O}_{clip} \in \mathbb{E}^{3}`; 
+(2) The **basis** of the orthonormal frame is 
+{math}`\mathcal{B}_{clip} = (\mathbf{\hat{u}}_{clip,h}, \mathbf{\hat{u}}_{clip,v}, \mathbf{\hat{u}}_{clip,d})` 
+where the basis vector {math}`\mathbf{\hat{u}}_{clip,h}` points to the right, the basis vector 
+{math}`\mathbf{\hat{u}}_{clip,v}` points up, and the basis vector {math}`\mathbf{\hat{u}}_{clip,d}` points into the 
+view volume, or out of the view volume depending on the choice or orientation; (3) The view volume in this
+coordinate system is called the **orthographic view volume**.
 
-## Coordinate Systems To Construct An Orthographic Projection
+The **normalized device coordinate system** for Euclidean space {math}`\mathbb{E}^{3}` is given by the 
+orthonormal frame {math}`(\tilde{O}_{ndc}, \mathcal{B}_{ndc})` defined on {math}`\mathbb{E}^{3}` where 
+(1) The **origin** of the orthonormal {math}`(\tilde{O}_{ndc}, \mathcal{B}_{ndc})` frame is the point 
+{math}`\tilde{O}_{ndc} \in \mathbb{E}^{3}`; (2) The **basis** of the orthonormal frame is 
+{math}`\mathcal{B}_{ndc} = (\mathbf{\hat{u}}_{ndc,h}, \mathbf{\hat{u}}_{ndc,v}, \mathbf{\hat{u}}_{ndc,d})` 
+where the basis vector {math}`\mathbf{\hat{u}}_{ndc,h}` points to the right, the basis vector 
+{math}`\mathbf{\hat{u}}_{ndc,v}` points up, and the basis vector {math}`\mathbf{\hat{u}}_{ndc,d}` points into the 
+view volume, or out of the view volume depending on the choice or orientation; (3) The view volume in this
+coordinate system is called the **canonical view volume**.
 
-In order to construct an orthographic projection transformation, we need to define a set 
-of coordinate systems and construct the transformations between them to get from projected view 
-space to normalized device coordinates. 
+The view coordinate system, projected coordinate system, clip coordinate system, and normalized device 
+coordinate system induce coordinate charts via {math}`\varphi_{view}(\tilde{P}) = \tilde{P} - \tilde{O}_{view}`, 
+{math}`\varphi_{proj}(\tilde{P}) = \tilde{P} - \tilde{O}_{proj}`, 
+{math}`\varphi_{clip}(\tilde{P}) = \tilde{P} - \tilde{O}_{clip}`, 
+and {math}`\varphi_{ndc}(\tilde{P}) = \tilde{P} - \tilde{O}_{ndc}`, respectively.
 
-The coordinate system **clip coordinates** defined by the orthonormal 
-frame {math}`(\tilde{O}_{clip}, B_{clip})` on {math}`\mathbb{RP}^{3}` with the following properties:
+The projection transformations are parametrized by two set of parameters. The first one is the view volume 
+parameters {math}`l`, {math}`r`, {math}`b`, {math}`t`, {math}`n`, {math}`f` where {math}`l > 0`, {math}`r > 0`, 
+{math}`b > 0`, {math}`t > 0`, and {math}`f > n > 0` such that the view volume is parametrized by 
+{math}`[-l, r] \times [-b, t] \times [n, f]`. The second one is the canonical view volume parametrized by
+{math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
+where {math}`\alpha_{max} > \alpha_{min}`, {math}`\beta_{max} > \beta_{min}`, and 
+{math}`\gamma_{max} > \gamma_{min}`.
 
-* The **origin** of the orthonormal frame is the point {math}`\tilde{O}_{clip} \in \mathbb{E}^{3}`. In 
-  {math}`\mathbb{R}^{3}`, this is the vector {math}`O_{clip} = \tilde{O}_{clip} - \tilde{O}_{view}`. 
-  In {math}`\mathbb{RP}^{3}`, this is the homogeneous point {math}`[(O^{T}_{clip}, 1)^{T}]`.
-* The **basis** of the orthonormal frame is
-  {math}`B_{clip} = (\mathbf{\hat{u}}_{clip,h}, \mathbf{\hat{u}}_{clip,v}, \mathbf{\hat{u}}_{clip,d})` where
-  the basis vector {math}`\mathbf{\hat{u}}_{clip,h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{clip,v}`
-  points up, and the basis vector {math}`\mathbf{\hat{u}}_{clip,d}` points into the view volume.
-* The viewing volume is parametrized by {math}`[-l, r] \times [-b, t] \times [n, f]`.
-  We call this viewing volume the **orthographic viewing volume**.
+## The Canonical Projection Matrices
 
-The coordinate system **normalized device coordinates** defined by the orthonormal
-frame {math}`(\tilde{O}_{ndc}, B_{ndc})` on {math}`\mathbb{RP}^{3}` with the following properties:
+In this section, we construct the canonical projection matrices. We call them canonical because each of the 
+projections has the same output coordinate system as the input coordinate system. So it is particularly 
+convenient to work with.
 
-* The **origin** of the orthonormal frame is the point {math}`\tilde{O}_{ndc} \in \mathbb{E}^{3}`. In
-  {math}`\mathbb{R}^{3}`, this is the vector {math}`O_{ndc} = \tilde{O}_{ndc} - \tilde{O}_{view}`.
-  In {math}`\mathbb{RP}^{3}`, this is the homogeneous point {math}`[(O^{T}_{ndc}, 1)^{T}]`.
-* The **basis** of the orthonormal frame is
-  {math}`B_{ndc} = (\mathbf{\hat{u}}_{ndc,h}, \mathbf{\hat{u}}_{ndc,v}, \mathbf{\hat{u}}_{ndc,d})` where
-  The basis vector {math}`\mathbf{\hat{u}}_{ndc,h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{ndc,v}`
-  points up, and the basis vector {math}`\mathbf{\hat{u}}_{ndc,d}` points into the view volume.
-* The viewing volume canonical viewing volume is parametrized by 
-  {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
-  We call the viewing volume in this coordinate system the **canonical view volume**.
-
-## Coordinate Systems To Construct A Perspective Projection
-
-For a perspective projection transformation, we want to map the **perspective viewing volume**
-specified by the parameters {math}`l`, {math}`r`, {math}`b`, {math}`t`, {math}`n`, and {math}`f` to our 
-choice of **canonical view volume** specified by our normalized device coordinates parameters 
-{math}`\alpha_{min}`, {math}`\alpha_{max}`, {math}`\beta_{min}`, {math}`\beta_{max}`, {math}`\gamma_{min}`, 
-and {math}`\gamma_{max}`.
-
-The coordinate system **projected coordinates** is defined by the orthonormal 
-frame {math}`(\tilde{O}_{proj}, B_{proj})` on {math}`\mathbb{RP}^{3}` with the following properties:
-
-* The **origin** of the orthonormal frame is the point {math}`\tilde{O}_{proj} \in \mathbb{E}^{3}`. In
-  {math}`\mathbb{R}^{3}`, this is the vector {math}`O_{proj} = \tilde{O}_{proj} - \tilde{O}_{view}`.
-  In {math}`\mathbb{RP}^{3}`, this is the homogeneous point {math}`[(O^{T}_{proj}, 1)]^{T}`.
-* The **basis** of the orthonormal frame is
-  {math}`B_{proj} = (\mathbf{\hat{u}}_{proj,h}, \mathbf{\hat{u}}_{proj,v}, \mathbf{\hat{u}}_{proj,d})` where
-  the basis vector {math}`\mathbf{\hat{u}}_{proj,h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{proj,v}`
-  points up, and the basis vector {math}`\mathbf{\hat{u}}_{proj,d}` points into the view volume.
-* Projected points are scaled by their depth coordinate.
-
-The coordinate system **clip coordinates** defined by the orthonormal 
-frame {math}`(O_{clip}, B_{clip})` on {math}`\mathbb{RP}^{3}` with the following properties:
-
-* The **origin** of the orthonormal frame is the point {math}`O_{clip} \in \mathbb{E}^{3}`. In 
-  {math}`\mathbb{R}^{3}`, this is the vector {math}`O_{clip} = \tilde{O}_{clip} - \tilde{O}_{view}`. 
-  In {math}`\mathbb{RP}^{3}`, this is the homogeneous point {math}`[(O^{T}_{clip}, 1)^{T}]`.
-* The **basis** of the orthonormal frame is
-  {math}`B_{clip} = (\mathbf{\hat{u}}_{clip,h}, \mathbf{\hat{u}}_{clip,v}, \mathbf{\hat{u}}_{clip,d})` where
-  the basis vector {math}`\mathbf{\hat{u}}_{clip,h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{clip,v}`
-  points up, and the basis vector {math}`\mathbf{\hat{u}}_{clip,d}` points into the view volume.
-* The view volume is parametrized by {math}`[-l, r] \times [-b, t] \times [n, f]`.
-  We call this view volume the **orthographic view volume**.
-
-The coordinate system **normalized device coordinates** defined by the orthonormal
-frame {math}`(O_{ndc}, B_{ndc})` on {math}`\mathbb{RP}^{3}` with the following properties:
-
-* The **origin** of the orthonormal frame is the point {math}`O_{ndc} \in \mathbb{E}^{3}`. In
-  {math}`\mathbb{R}^{3}`, this is the vector {math}`O_{ndc} = \tilde{O}_{ndc} - \tilde{O}_{view}`.
-  In {math}`\mathbb{RP}^{3}`, this is the homogeneous point {math}`[(O^{T}_{ndc}, 1)^{T}]`.
-* The **basis** of the orthonormal frame is
-  {math}`B_{ndc} = (\mathbf{\hat{u}}_{ndc,h}, \mathbf{\hat{u}}_{ndc,v}, \mathbf{\hat{u}}_{ndc,d})` where
-  The basis vector {math}`\mathbf{\hat{u}}_{ndc,h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{ndc,v}`
-  points up, and the basis vector {math}`\mathbf{\hat{u}}_{ndc,d}` points into the view volume.
-* The view volume is parametrized by 
-  {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
-  We call the view volume in this coordinate system the **canonical view volume**.
-
-
-## The Canonical Coordinate Systems
+### The Canonical Coordinate System
 
 We choose a canonical set of coordinate systems to construct the canonical projective transformations
 that will be used to derive the projective transformations in specific settings.
 
 The **canonical view coordinates** is the view space coordinate system with orthnormal frame 
-{math}`(\tilde{O}_{view}, B_{view})` such that the depth frame vector {math}`\mathbf{\hat{u}}_{d}` points into 
-the view volume. This gives the 
-canonincal view space a left-handed orientation. The **canonical projected coordinates** coordinate system 
-is the projected coordinate system with the same orthonormal frame as canonical view space coordinates. The
-**canonical clip coordinates** coordinate system is the clip coordinates with the same orthonormal frame as 
-the canonical view space coordinates. The **canonical normalized device coordinates** coordinate system is
-the normalized device coordinate system with the same orthonormal frame as in canonical view coordinates. 
-In particular, each coordinate system uses the same orthonormal frame, and has a left-handed orientation.
+{math}`(\tilde{O}_{view}, \mathcal{B}_{view})` where 
+{math}`\mathcal{B}_{view} = (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d})` such that the depth 
+frame vector {math}`\mathbf{\hat{u}}_{d}` points into the view volume. This gives the canonincal view space a 
+left-handed orientation. The **canonical projected coordinates** coordinate system is the projected coordinate system 
+with the same orthonormal frame as the canonical view space coordinates. The **canonical clip coordinates** coordinate 
+system is the clip coordinates with the same orthonormal frame as the canonical view space coordinates. The 
+**canonical normalized device coordinates** coordinate system is the normalized device coordinate system with the same 
+orthonormal frame as in canonical view coordinates. In particular, each coordinate system uses the same orthonormal 
+frame, and has a left-handed orientation.
 
 It is not strictly required that each space have the same orthonormal frame, but using the same coordinate 
-system in each step makes it easier to see what is going on in the graphics pipeline, and since we are going 
-to derive each transformation between the spaces above, one can always transform any one of them with a
-combination of orthogonal transformations and changes of orientation to get the desired ones.
+system in each step makes it easier to see what is going on in the transformation pipeline. Since we derive 
+each transformation between the coordinate systems above, we can always transform any one of them with a
+combination of orthogonal transformations and changes of orientation to get the desired ones. It is also much 
+less error-prone with fewer pesky signs to deal with.
 
-## The Canonical Perspective Projection Matrix
+### The Canonical Perspective Projection Matrix
 
-With these considerations, we now proceed to construct the canonical perspective projection matrix for 
-the frame {math}`(O_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))` and 
+With these considerations, let us construct the canonical perspective projection matrix for 
+the frame {math}`(O_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))` with the 
+perspective view volume parametrized by {math}`[-l, r] \times [-b, t] \times [n, f]` and 
 the canonical view volume parametrized by 
 {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
 Let {math}`P \in \mathbb{R}^{3}` be a point given by 
-{math}`P = P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v} + P_{d} \mathbf{\hat{u}}_{d}`. We will now 
+{math}`P = P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v} + P_{d} \mathbf{\hat{u}}_{d}`. We 
 derive the perspective projected horizontal and vertical coordinates.
 
 Using similar triangles for the horizontal component, we have
 
 ```{math}
 \frac{P_{h}}{P_{d}} = \frac{P \cdot \mathbf{\hat{u}}_{h}}{P \cdot \mathbf{\hat{u}}_{d}} 
-                    = \frac{P_{proj} \cdot \mathbf{\hat{u}}_{h}}{n} 
-                    = \frac{P_{proj,h}}{n}
+                    = \frac{P^{\prime}_{proj} \cdot \mathbf{\hat{u}}_{h}}{n} 
+                    = \frac{P^{\prime}_{proj,h}}{n}
 ```
 
 which yields
 
 ```{math}
-P_{proj,h} = n P_{h} \left( \frac{1}{P_{d}} \right).
+P^{\prime}_{proj,h} = n P_{h} \left( \frac{1}{P_{d}} \right).
 ```
 
 Analagously for the vertical component, applying similar triangles gives us
@@ -791,267 +862,729 @@ Analagously for the vertical component, applying similar triangles gives us
 ```{math}
 \frac{P_{v}}{P_{d}} 
     = \frac{P \cdot \mathbf{\hat{u}}_{v}}{P \cdot \mathbf{\hat{u}}_{d}} 
-    = \frac{P_{proj} \cdot \mathbf{\hat{u}}_{v}}{n} 
-    = \frac{P_{proj,v}}{n}
+    = \frac{P^{\prime}_{proj} \cdot \mathbf{\hat{u}}_{v}}{n} 
+    = \frac{P^{\prime}_{proj,v}}{n}
 ```
 
 implying that
 
 ```{math}
-P_{proj,v} = n P_{v} \left( \frac{1}{P_{d}} \right).
+P^{\prime}_{proj,v} = n P_{v} \left( \frac{1}{P_{d}} \right).
 ```
 
-Now we must map from projected coordinates to normalized device coordinates. We deduce the 
-transformation from projected space to clip space indirectly by calculating the canonical view 
-volume components first. This is necessary since the mapping from projected coordinates to clip 
-space depends on the parametrization of the canonical view volume chosen. The resulting transformation
-is an orthographic transformation that maps the orthographic view volume {math}`[-l, r] \times [-b, t] \times [n, f]`
-to the canonical view volume {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
-The map from projected space to clip space is a linear map, so the coordinates must transform affinely.
-
-We need an affine map {math}`\phi_{h} : \mathbb{R} \rightarrow \mathbb{R}` such that
+Observe that the horizontal and vertical components transforms like a projective transformation. Indeed,
+the perspective projection transformation is a projective transformation where the affine function is
+given by {math}`P_{d}`. In other words, the perspective projection is dividing by depth. Using our reasoning
+about representing projective transformations in the previous section, we can deduce the lifted mapping
+from rearranging the perspective equations
 
 ```{math}
-:label: eq_phi_h_per
-P_{ndc,h} = \phi_{h}\left( P_{proj,h} \right) = A P_{proj,h} + B
+P_{d} P^{\prime}_{proj,h} = n P_{h} \\
+P_{d} P^{\prime}_{proj,v} = n P_{v} \\
 ```
 
-with constraints {math}`\phi_{h}\left( -l \right) = \alpha_{min}` and {math}`\phi_{h}\left( r \right) = \alpha_{max}`.
-
-Using the constraints, we have
+suggestively. The right hand side in both cases are affine transformations. This suggests to form
+of the transformation for the depth component. We define our projected coordinate components as follows.
+Let {math}`P_{proj,h} = P_{d} P^{\prime}_{proj,h}` and {math}`P_{proj,v} = P_{d} P^{\prime}_{proj,v}`.
+Due to the form of the perspective division, we immediately see that {math}`P_{proj,w} = P_{d}`. This leaves the
+depth component. The depth component does not participate directly in depth normalization, and
+we our coordinate system is orthogonal, so {math}`P_{proj,d}` cannot depend on {math}`P_{h}` or {math}`P_{v}`.
+This implies that {math}`P_{proj,d}` must be a function of {math}`P_{d}` and {math}`P_{w}`. Since the 
+transformation is projective, the depth component must transform affinely. Since {math}`P_{w} = 1`. This leaves
 
 ```{math}
-:label: constraints_phi_h_per
-\alpha_{max} &= A r + B \\
-\alpha_{min} &= A \left( -l \right) + B = -Al + B.
+P_{proj,d} = \theta \left( P_{d} \right) = A^{\prime} P_{d} + B^{\prime}.
 ```
 
-Subtracting {math}`\alpha_{max}` from {math}`\alpha_{min}` in {ref}`constraints_phi_h_per`
+Taken together, the projected coordinates components of the perspective transformation are
 
 ```{math}
-\alpha_{max} - \alpha_{min} 
-    = \left( A r + B \right) - \left( -Al + B \right) = A \left( r + l \right) 
-    = A \left( r - \left( -l \right) \right)
+:label: eq_persp_proj1
+P_{proj,h} &= n P_{h} \\
+P_{proj,v} &= n P_{v} \\
+P_{proj,d} &= \theta \left ( P_{d} \right) = A^{\prime} P_{d} + B^{\prime} \\
+P_{proj,w} &= P_{d} \\
 ```
 
-and solving for {math}`A`
+where we solve for the constants {math}`A^{\prime}` and {math}`B^{\prime}` later.
+
+After projection, we must map the projected coordinates to clip coordinates. To obtain the right
+clip coordinates, we need to consider normalized device coordinates. This is necessary since the 
+mapping from projected coordinates to clip coordinates depends on the choice of parametrization 
+of the canonical view volume. The resulting transformation is an orthographic transformation that 
+maps the orthographic view volume {math}`[-l, r] \times [-b, t] \times [n, f]` to the canonical view volume 
+{math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
+The map from projected coordinates to clip coordinates is a linear map in {math}`\mathbb{RP}^{3}`, so 
+the coordinates must transform affinely.
+
+We need a set of maps {math}`\phi_{h}, \phi_{v}, \phi_{d}, \phi_{w} : \mathbb{R}^{3} \rightarrow \mathbb{R}` such that
 
 ```{math}
-:label: constant_phi_h_per_a
+:label: eq_persp_ndc1
+P_{ndc,h} &= \frac{P_{clip,h}}{P_{clip,w}} 
+           = \left( H_{w} \circ \phi_{h} \right) \left( P_{proj} \right) 
+           = \phi_{h} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) 
+           \equiv \xi_{h} \left( P \right) \\
+P_{ndc,v} &= \frac{P_{clip,v}}{P_{clip,w}} 
+           = \left( H_{w} \circ \phi_{v} \right) \left( P_{proj} \right) 
+           = \phi_{v} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) 
+           \equiv \xi_{v} \left( P \right) \\
+P_{ndc,d} &= \frac{P_{clip,d}}{P_{clip,w}}
+           = \left( H_{w} \circ \phi_{d} \right) \left( P_{proj} \right) 
+           = \phi_{d} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right)
+           \equiv \xi_{d} \left( P \right) \\
+P_{ndc,w} &= \frac{P_{clip,w}}{P_{clip,w}} 
+           = 1 
+           = \phi_{w} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right)} \right) \\
+```
+
+where {math}`P_{proj}` denotes a point {math}`P \in \mathbb{R}^{3}` in projected coordinates,
+{math}`P_{clip,w} = \phi_{w}(P_{proj})` is an affine scalar function, and 
+{math}`H_{w} : \mathbb{R}^{4} \rightarrow \mathbb{R}^{4}` denotes homogenization by the {math}`w` component.
+In particular, observe that the functions {math}`\xi_{h}, \xi_{v}, \xi_{d} : \mathbb{R}^{3} \rightarrow \mathbb{R}`
+on the right-hand side of {ref}`eq_persp_ndc1` are projective functions of the view space point {math}`P`.
+This implies that the clip coordinates must be affine functions of {math}`P_{proj}`. In particular,
+
+```{math}
+P_{clip,h} &= \phi_{h} \left( P_{proj} \right) \\
+P_{clip,v} &= \phi_{v} \left( P_{proj} \right) \\
+P_{clip,d} &= \phi_{d} \left( P_{proj} \right) \\
+P_{clip,w} &= \phi_{w} \left( P_{proj} \right) \\
+```
+
+and since in perspective projection, the purpose of the {math}`w` coordinate is to do depth division, this
+implies that
+
+```{math}
+\phi_{w} \left( P_{proj} \right) = P_{d}
+```
+
+so that the equations in {ref}`eq_persp_ndc1` become
+
+```{math}
+:label: eq_persp_ndc2
+P_{ndc,h} &= \xi_{h} \left( P \right) = \phi_{h} \left( P_{proj} \right) \left( \frac{1}{ P_{d} } \right) \\
+P_{ndc,v} &= \xi_{v} \left( P \right) = \phi_{v} \left( P_{proj} \right) \left( \frac{1}{ P_{d} } \right) \\
+P_{ndc,d} &= \xi_{d} \left( P \right) = \phi_{d} \left( P_{proj} \right) \left( \frac{1}{ P_{d} } \right) \\
+```
+
+To derive the perspective projection matrix, we solve for the clip coordinate functions {math}`\phi_{h}, \phi_{v}, \phi_{d}`
+indirectly using the auxiliary functions {math}`\xi_{h}, \xi_{v}, \xi_{d}` in {ref}`eq_persp_ndc2`, and
+use the constraints of on the orthographic view volume to compute the functions. To establish constraints, we need
+to talk about some well chosen points. We need to construct the maps {math}`\xi_{h}, \xi_{v}, \xi_{d}` such that
+the parametrization of the orthographic view volume maps to the parametrization of the canonical view volume.
+That it, such that coordinates map as 
+{math}`-l \mapsto \alpha_{min}, r \mapsto \alpha_{max}, -b \mapsto beta_{min}, t \mapsto \beta_{max}, n \mapsto \gamma_{min}, f \mapsto \gamma_{max}`.
+Consider the points in view coordinates
+
+```{math}
+Q_{left}   &= -l \mathbf{\hat{u}}_{h} + n \mathbf{\hat{u}}_{d} \\
+Q_{right}  &=  r \mathbf{\hat{u}}_{h} + n \mathbf{\hat{u}}_{d} \\
+Q_{bottom} &= -b \mathbf{\hat{u}}_{v} + n \mathbf{\hat{u}}_{d} \\
+Q_{top}    &=  t \mathbf{\hat{u}}_{v} + n \mathbf{\hat{u}}_{d} \\
+Q_{near}   &=  n \mathbf{\hat{u}}_{d}                          \\
+Q_{far}    &=  f \mathbf{\hat{u}}_{d}                          \\
+```
+
+The points {math}`Q_{near}` and {math}`Q_{far}` are the points along the viewing axis
+that intersect the near plane and the far plane, respectively, of the perspective view volume. The 
+point {math}`Q_{left}` represents the point of intersection of the left plane, near plane, and the 
+horizontal-vertical plane of the view volume. The point {math}`Q_{right}` represents the point of 
+intersection of the right plane, near plane, and the horizontal-vertical plane of the view volume.
+The point {math}`Q_{bottom}` represents the point of intersection of the bottom plane, near plane, 
+and depth-vertical plane of the view volume. The point {math}`Q_{top}` represents the point of 
+intersection of the top plane, near plane, and the depth-vertical plane of the view volume. In short,
+the points {math}`Q_{near}` and {math}`Q_{far}` are the origins of the near and far planes, respectively.
+The other four points and points chosen along the edge of the viewport in the near plane that allow us
+to easily set up the boundary conditions to compute the functions {math}`\xi_{h}, \xi_{v}, \xi_{d}`.
+
+We now calculate the auxiliary functions. Consider the map {math}`\xi_{h}`, where
+
+```{math}
+\xi_{h} \left( P \right) 
+    &= \left( A P_{proj,h} + B P_{proj,v} + C^{\prime} P_{proj,d} + D^{\prime} \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + C^{\prime} \theta \left( P_{d} \right) + D^{\prime} \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + C^{\prime} \left( A^{\prime} P_{d} + B^{\prime} \right) + D^{\prime} \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + C^{\prime} A^{\prime} P_{d} + C^{\prime} B^{\prime} + D^{\prime} \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + \left( C^{\prime} A^{\prime} \right) P_{d} + \left( C^{\prime} B^{\prime} + D^{\prime} \right) \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + C P_{d} + D \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A n P_{h} + B n P_{v} + C P_{d} + D \right) \left( \frac{1}{P_{d}} \right) \\
+    &= A n P_{h} \left( \frac{1}{P_{d}} \right) + B n P_{v} \left( \frac{1}{P_{d}} \right) + C + D \left( \frac{1}{P_{d}} \right) \\
+```
+
+where {math}`C = C^{\prime} A^{\prime}` and {math}`D = C^{\prime} B^{\prime} + D^{\prime}`, so that
+
+```{math}
+:label: xi_h_persp_def
+\xi_{h} \left( P \right) = A n P_{h} \left( \frac{1}{P_{d}} \right) + B n P_{v} \left( \frac{1}{P_{d}} \right) + C + D \left( \frac{1}{P_{d}} \right).
+```
+
+Define the boundary conditions for our chosen points
+
+```{math}
+\xi_{h} \left( Q_{left} \right)   &= \alpha_{min} \\ 
+\xi_{h} \left( Q_{right} \right)  &= \alpha_{max} \\
+\xi_{h} \left( Q_{bottom} \right) &= 0 \\
+\xi_{h} \left( Q_{top} \right)    &= 0 \\
+\xi_{h} \left( Q_{near} \right)   &= 0 \\
+\xi_{h} \left( Q_{far} \right)    &= 0 \\
+```
+
+which we need to justify. The view space coordinates are orthogonal to each other, and the normalized device coordinates
+are also orthogonal to each other. This means that {math}`\xi_{h}` should only be a function of the horizontal component
+and not the vertical component. The points {math}`Q_{bottom}, Q_{top}, Q_{near}, Q_{far}` lie on the depth-vertical plane, which 
+have a zero horizontal component, so they should keep a zero horizontal component after transformation.
+
+Applying the boundary conditions, we have
+
+```{math}
+\xi_{h} \left( Q_{left} \right)
+    &= A n \cdot \left( -l \right) \cdot\left( \frac{1}{n} \right) + B n \cdot 0 \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= -A l + C + D \left( \frac{1}{n} \right) \\
+    &= \alpha_{min} \\
+\xi_{h} \left( Q_{right} \right) 
+    &= A n \cdot r \cdot \left( \frac{1}{n} \right) + B n \cdot 0 \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= A r + C + D \left( \frac{1}{n} \right) \\ 
+    &= \alpha_{max} \\
+\xi_{h} \left( Q_{bottom} \right) 
+    &= A n \cdot 0 \cdot \left( \frac{1}{n} \right) + B n \cdot \left( -b \right) \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= -B b + C + D \left( \frac{1}{n} \right) \\
+    &= 0 \\
+\xi_{h} \left( Q_{top} \right)
+    &= A n \cdot 0 \cdot \left( \frac{1}{n} \right) + B n \cdot t \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= B t + C + D \left( \frac{1}{n} \right) \\
+    &= 0 \\
+\xi_{h} \left( Q_{near} \right)
+    &= A n \cdot 0 \cdot \left( \frac{1}{n} \right) + B n \cdot 0 \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= C + D \left( \frac{1}{n} \right) \\
+    &= 0 \\
+\xi_{h} \left( Q_{far} \right)
+    &= A n \cdot 0 \cdot \left( \frac{1}{f} \right) + B n \cdot 0 \cdot \left( \frac{1}{f} \right) + C + D \left( \frac{1}{f} \right) \\
+    &= C + D \left( \frac{1}{f} \right) \\
+    &= 0 \\
+```
+
+so that
+
+```{math}
+:label: xi_h_persp_constraints
+\xi_{h} \left( Q_{left} \right)
+    &= -A l + C + D \left( \frac{1}{n} \right)
+    &&= \alpha_{min} \\
+\xi_{h} \left( Q_{right} \right) 
+    &= A r + C + D \left( \frac{1}{n} \right)
+    &&= \alpha_{max} \\
+\xi_{h} \left( Q_{bottom} \right) 
+    &= -B b + C + D \left( \frac{1}{n} \right)
+    &&= 0 \\
+\xi_{h} \left( Q_{top} \right)
+    &= B t + C + D \left( \frac{1}{n} \right)
+    &&= 0 \\
+\xi_{h} \left( Q_{near} \right)
+    &= C + D \left( \frac{1}{n} \right)
+    &&= 0 \\
+\xi_{h} \left( Q_{far} \right)
+    &= C + D \left( \frac{1}{f} \right)
+    &&= 0 \\
+```
+
+and now we compute the constants. Subtracting {math}`\xi_{h} \left( Q_{right} \right)` from 
+{math}`\xi_{h} \left( Q_{left} \right)` in {ref}`xi_h_persp_constraints` yields
+
+```{math}
+\xi_{h} \left( Q_{right} \right) - \xi_{h} \left( Q_{left} \right) 
+    &= \left[ A r + C + D \left( \frac{1}{n} \right) \right] - \left[ -A l + C + D \left( \frac{1}{n} \right) \right] \\
+    &= A r - \left( - A l \right) \\
+    &= A \left( r - \left( -l \right) \right) \\
+    &= \alpha_{max} - \alpha_{min}.
+```
+
+Solving for {math}`A`
+
+```{math}
+:label: xi_h_persp_constant_a
 A = \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)}.
 ```
 
-Substituting the expression for {math}`A` back into the constraint on {math}`\alpha_{max}` we have
+Subtracting {math}`\xi_{h} \left( Q_{top} \right)` from 
+{math}`\xi_{h} \left( Q_{bottom} \right)` in {ref}`xi_h_persp_constraints` yields
 
 ```{math}
-\alpha_{max} = \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) r + B.
+\xi_{h} \left( Q_{top} \right) - \xi_{h} \left( Q_{bottom} \right)
+    &= \left[ B t + C + D \left( \frac{1}{n} \right) \right] - \left[ -B b + C + D \left( \frac{1}{n} \right) \right] \\
+    &= B t - B \left( -b \right) \\
+    &= B \left( t - \left( -b \right) \right) \\
+    &= 0.
 ```
 
-Solving for {math}`B`
+Solving for {math}`B`, we see that 
 
 ```{math}
-B &= \alpha_{max} - \left( \frac{\alpha_{max} - \alpha_{min}}{r + l} \right) r \\
-  &= \frac{\alpha_{max} \left( r + l \right) + \left( \alpha_{max} - \alpha_{min} \right) r}{r + l} \\
-  &= \frac{\alpha_{max} r + \alpha_{max} l - \alpha_{max} r - \alpha_{min} r}{r + l} \\
+:label: xi_h_persp_constant_b
+B = 0
+```
+
+since {math}`t - (-b) = t + b \neq 0`. Subtracting {math}`\xi_{h} \left( Q_{far} \right)` from
+{math}`\xi_{h} \left( Q_{near} \right)` in {ref}`xi_h_persp_constraints` yields
+
+```{math}
+\xi_{h} \left( Q_{far} \right) - \xi_{h} \left( Q_{near} \right)
+    &= \left[ C + D \left( \frac{1}{f} \right) \right] - \left[ C + D \left( \frac{1}{n} \right) \right] \\
+    &= D \left( \frac{1}{f} - \frac{1}{n} \right) \\
+    &= 0.
+```
+
+Solving for {math}`D`, we see that
+
+```{math}
+:label: xi_h_persp_constant_d
+D = 0
+```
+
+since {math}`\frac{1}{f} - \frac{1}{n} \neq 0`. Substituting the constants {ref}`xi_h_persp_constant_a`,
+{ref}`xi_h_persp_constant_b`, and {ref}`xi_h_persp_constant_d` back into {math}`\xi_{h}(Q_{right})` in 
+{ref}`xi_h_persp_constraints` gives us
+
+```{math}
+\xi_{h} \left( Q_{right} \right) 
+    = A r + C + D \left( \frac{1}{n} \right)
+    = A r + C 
+    = \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) r + C
+    = \alpha_{max}.
+```
+
+Solving for {math}`C`
+
+```{math}
+C &= \alpha_{max} - \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) r \\
+  &= \alpha_{max} - \left( \frac{\alpha_{max} - \alpha_{min}}{r + l} \right) r \\
+  &= \frac{\alpha_{max} \left( r + l \right) - \left( \alpha_{max} - \alpha_{min} \right) r}{r + l} \\
+  &= \frac{\alpha_{max} r + \alpha_{max} l - \alpha_{max} r + \alpha_{min} r}{r + l} \\
+  &= \frac{\alpha_{max} r + \alpha_{max} l - \alpha_{max} r + \alpha_{min} r}{r + l} \\
   &= \frac{\alpha_{max} l + \alpha_{min} r}{r + l} \\
-  &= \frac{\alpha_{min} r + \alpha_{max} l}{r - \left( -l \right)} \\
   &= \frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)} \\
 ```
 
-which gives us
+we have
 
 ```{math}
-:label: constant_phi_h_per_b
-B = \frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)}.
+:label: xi_h_persp_constant_c
+C =  \frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)}.
 ```
 
-which is the constant for {math}`\phi_{h}`. Substituting the constants {ref}`constant_phi_h_per_a` and {ref}`constant_phi_h_per_b`
-back into the definition for {math}`\phi_{h}` in equation {ref}`eq_phi_h_per`
+Assembling the constants {ref}`xi_h_persp_constant_a`, {ref}`xi_h_persp_constant_b`, {ref}`xi_h_persp_constant_c`, 
+{ref}`xi_h_persp_constant_d` back into {ref}`xi_h_persp_def` we have the complete formula for the 
+auxiliary function {math}`\xi_{h}`
 
 ```{math}
-:label: eq_ndc_h_per
-P_{ndc,h} 
-    = \phi_{h} \left( P_{proj,h} \right) 
-    = \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) P_{proj,h} 
-    + \frac{\alpha_{min} r - \alpha_{min} \left( -l \right)}{r - \left( -l \right)}.
+:label: xi_h_persp_final
+\xi_{h} \left( P \right) 
+    = \left( \frac{ \left( \alpha_{max} - \alpha_{min} \right) n }{ r - \left( -l \right)} \right) P_{h} \left( \frac{1}{P_{d}} \right)
+    + \frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)}.
 ```
 
-This completes derivation of the formula for {math}`P_{ndc,h}`.
-
-We need an affine map {math}`\phi_{v} : \mathbb{R} \rightarrow \mathbb{R}` such that
+Consider the map {math}`\xi_{v}`, where
 
 ```{math}
-:label: eq_phi_v_per
-P_{ndc,v} = \phi_{v}\left( P_{proj,v} \right) = A P_{proj,v} + B
+\xi_{v} \left( P \right) 
+    &= \left( A P_{proj,h} + B P_{proj,v} + C^{\prime} P_{proj,d} + D^{\prime} \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + C^{\prime} \theta \left( P_{d} \right) + D^{\prime} \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + C^{\prime} \left( A^{\prime} P_{d} + B^{\prime} \right) + D^{\prime} \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + C^{\prime} A^{\prime} P_{d} + C^{\prime} B^{\prime} + D^{\prime} \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + \left( C^{\prime} A^{\prime} \right) P_{d} + \left( C^{\prime} B^{\prime} + D^{\prime} \right) \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + C P_{d} + D \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A n P_{h} + B n P_{v} + C P_{d} + D \right) \left( \frac{1}{P_{d}} \right) \\
+    &= A n P_{h} \left( \frac{1}{P_{d}} \right) + B n P_{v} \left( \frac{1}{P_{d}} \right) + C + D \left( \frac{1}{P_{d}} \right) \\
 ```
 
-with constraints {math}`\phi_{v}\left( -b \right) = \beta_{min}` and {math}`\phi_{v}\left( t \right) = \beta_{max}`.
-
-Using the constraints, we have
+where {math}`C = C^{\prime} A^{\prime}` and {math}`D = C^{\prime} B^{\prime} + D^{\prime}`, so that
 
 ```{math}
-:label: constraints_phi_v_per
-\beta_{max} &= A t + B \\
-\beta_{min} &= A \left( -b \right) + B = -Ab + B.
+:label: xi_v_persp_def
+\xi_{v} \left( P \right) = A n P_{h} \left( \frac{1}{P_{d}} \right) + B n P_{v} \left( \frac{1}{P_{d}} \right) + C + D \left( \frac{1}{P_{d}} \right).
 ```
 
-Subtracting {math}`\beta_{max}` from {math}`\beta_{min}` in {ref}`constraints_phi_v_per`
+Define the boundary conditions for our chosen points
 
 ```{math}
-\beta_{max} - \beta_{min} 
-    = \left( A t + B \right) - \left( -A b + B \right) 
-    = A \left( t + b \right) = A \left( t - \left( -b \right) \right)
+\xi_{v} \left( Q_{left} \right)   &= 0 \\ 
+\xi_{v} \left( Q_{right} \right)  &= 0 \\
+\xi_{v} \left( Q_{bottom} \right) &= \beta_{min} \\
+\xi_{v} \left( Q_{top} \right)    &= \beta_{max} \\
+\xi_{v} \left( Q_{near} \right)   &= 0 \\
+\xi_{v} \left( Q_{far} \right)    &= 0 \\
 ```
 
-and solving for {math}`A`
+which we need to justify. The view space coordinates are orthogonal to each other, and the normalized device coordinates
+are also orthogonal to each other. This means that {math}`\xi_{v}` should only be a function of the vertical component
+and not the horizontal component. The points {math}`Q_{left}, Q_{right}, Q_{near}, Q_{far}` lie on the depth-horizontal plane, which 
+have a zero vertical component, so they should keep a zero vertical component after transformation.
+
+Applying the boundary conditions, we have
 
 ```{math}
-:label: constant_phi_v_per_a
-A = \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)}.
+\xi_{v} \left( Q_{left} \right)
+    &= A n \cdot \left( -l \right) \cdot\left( \frac{1}{n} \right) + B n \cdot 0 \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= -A l + C + D \left( \frac{1}{n} \right) \\
+    &= 0 \\
+\xi_{v} \left( Q_{right} \right) 
+    &= A n \cdot r \cdot \left( \frac{1}{n} \right) + B n \cdot 0 \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= A r + C + D \left( \frac{1}{n} \right) \\ 
+    &= 0 \\
+\xi_{v} \left( Q_{bottom} \right) 
+    &= A n \cdot 0 \cdot \left( \frac{1}{n} \right) + B n \cdot \left( -b \right) \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= -B b + C + D \left( \frac{1}{n} \right) \\
+    &= \beta_{min} \\
+\xi_{v} \left( Q_{top} \right)
+    &= A n \cdot 0 \cdot \left( \frac{1}{n} \right) + B n \cdot t \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= B t + C + D \left( \frac{1}{n} \right) \\
+    &= \beta_{max} \\
+\xi_{v} \left( Q_{near} \right)
+    &= A n \cdot 0 \cdot \left( \frac{1}{n} \right) + B n \cdot 0 \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= C + D \left( \frac{1}{n} \right) \\
+    &= 0 \\
+\xi_{v} \left( Q_{far} \right)
+    &= A n \cdot 0 \cdot \left( \frac{1}{f} \right) + B n \cdot 0 \cdot \left( \frac{1}{f} \right) + C + D \left( \frac{1}{f} \right) \\
+    &= C + D \left( \frac{1}{f} \right) \\
+    &= 0 \\
 ```
 
-Substituting the expression for {math}`A` back into the constraint on {math}`\beta_{max}` we have
+so that
 
 ```{math}
-\beta_{max} = \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) t + B.
+:label: xi_v_persp_constraints
+\xi_{v} \left( Q_{left} \right)
+    &= -A l + C + D \left( \frac{1}{n} \right)
+    &&= 0 \\
+\xi_{v} \left( Q_{right} \right) 
+    &= A r + C + D \left( \frac{1}{n} \right)
+    &&= 0 \\
+\xi_{v} \left( Q_{bottom} \right) 
+    &= -B b + C + D \left( \frac{1}{n} \right)
+    &&= \beta_{min} \\
+\xi_{v} \left( Q_{top} \right)
+    &= B t + C + D \left( \frac{1}{n} \right)
+    &&= \beta_{max} \\
+\xi_{v} \left( Q_{near} \right)
+    &= C + D \left( \frac{1}{n} \right)
+    &&= 0 \\
+\xi_{v} \left( Q_{far} \right)
+    &= C + D \left( \frac{1}{f} \right)
+    &&= 0 \\
 ```
 
-Solving for {math}`B`
+and now we compute the constants.  Subtracting {math}`\xi_{v} \left( Q_{right} \right)` from 
+{math}`\xi_{v} \left( Q_{left} \right)` in {ref}`xi_v_persp_constraints` yields
 
 ```{math}
-B &= \beta_{max} - \left( \frac{\beta_{max} - \beta_{min}}{t + b} \right) t \\
-  &= \frac{\beta_{max} \left( t + b \right) + \left( \beta_{max} - \beta_{min} \right) t}{t + b} \\
-  &= \frac{\beta_{max} t + \beta_{max} b - \beta_{max} b - \beta_{min} t}{t + b} \\
+\xi_{v} \left( Q_{right} \right) - \xi_{v} \left( Q_{left} \right) 
+    &= \left[ A r + C + D \left( \frac{1}{n} \right) \right] - \left[ -A l + C + D \left( \frac{1}{n} \right) \right] \\
+    &= A r - \left( - A l \right) \\
+    &= A \left( r - \left( -l \right) \right) \\
+    &= 0.
+```
+
+Solving for {math}`A`, we see that
+
+```{math}
+:label: xi_v_persp_constant_a
+A = 0
+```
+
+since {math}`r - (-l) = r + l \neq 0`. Subtracting {math}`\xi_{v} \left( Q_{top} \right)` from 
+{math}`\xi_{v} \left( Q_{bottom} \right)` in {ref}`xi_v_persp_constraints` yields
+
+```{math}
+\xi_{v} \left( Q_{top} \right) - \xi_{v} \left( Q_{bottom} \right)
+    &= \left[ B t + C + D \left( \frac{1}{n} \right) \right] - \left[ -B b + C + D \left( \frac{1}{n} \right) \right] \\
+    &= B t - B \left( -b \right) \\
+    &= B \left( t - \left( -b \right) \right) \\
+    &= \beta_{max} - \beta_{min}.
+```
+
+Solving for {math}`B`, we have
+
+```{math}
+:label: xi_v_persp_constant_b
+B = \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)}.
+```
+
+Subtracting {math}`\xi_{v} \left( Q_{far} \right)` from
+{math}`\xi_{v} \left( Q_{near} \right)` in {ref}`xi_v_persp_constraints` yields
+
+```{math}
+\xi_{v} \left( Q_{far} \right) - \xi_{v} \left( Q_{near} \right)
+    &= \left[ C + D \left( \frac{1}{f} \right) \right] - \left[ C + D \left( \frac{1}{n} \right) \right] \\
+    &= D \left( \frac{1}{f} - \frac{1}{n} \right) \\
+    &= 0.
+```
+
+Solving for {math}`D`, we see that
+
+```{math}
+:label: xi_v_persp_constant_d
+D = 0
+```
+
+since {math}`\frac{1}{f} - \frac{1}{n} \neq 0`. Substituting the constants {ref}`xi_v_persp_constant_a`,
+{ref}`xi_v_persp_constant_b`, and {ref}`xi_v_persp_constant_d` back into {math}`\xi_{v}(Q_{right})` in 
+{ref}`xi_v_persp_constraints` gives us
+
+```{math}
+\xi_{v} \left( Q_{top} \right) 
+    = B t + C + D \left( \frac{1}{n} \right)
+    = B t + C 
+    = \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) t + C
+    = \beta_{max}.
+```
+
+Solving for {math}`C`
+
+```{math}
+C &= \beta_{max} - \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) t \\
+  &= \beta_{max} - \left( \frac{\beta_{max} - \beta_{min}}{t + b} \right) t \\
+  &= \frac{\beta_{max} \left( t + b \right) - \left( \beta_{max} - \beta_{min} \right) t}{t + b} \\
+  &= \frac{\beta_{max} t + \beta_{max} b - \beta_{max} t + \beta_{min} t}{t + b} \\
+  &= \frac{\beta_{max} t + \beta_{max} b - \beta_{max} t + \beta_{min} t}{t + b} \\
   &= \frac{\beta_{max} b + \beta_{min} t}{t + b} \\
-  &= \frac{\beta_{min} t + \beta_{max} b}{t - \left( -b \right)} \\
   &= \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)} \\
 ```
 
-which gives us
+we have
 
 ```{math}
-:label: constant_phi_v_per_b
-B = \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)}
+:label: xi_v_persp_constant_c
+C =  \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)}.
 ```
 
-which is the constant for {math}`\phi_{v}`. Substituting the constants {ref}`constant_phi_v_per_a` and {ref}`constant_phi_v_per_b`
-back into the definition for {math}`\phi_{v}` in equation {ref}`eq_phi_v_per`
+Assembling the constants {ref}`xi_v_persp_constant_a`, {ref}`xi_v_persp_constant_b`, {ref}`xi_v_persp_constant_c`, 
+{ref}`xi_v_persp_constant_d` back into {ref}`xi_v_persp_def` we have the complete formula for the 
+auxiliary function {math}`\xi_{v}`
 
 ```{math}
-:label: eq_ndc_v_per
-P_{ndc,v} 
-    = \phi_{v} \left( P_{proj,v} \right) 
-    = \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) P_{proj,v} 
-    + \frac{\beta_{min} t - \beta_{min} \left( -b \right)}{t - \left( -b \right)}.
+:label: xi_v_persp_final
+\xi_{v} \left( P \right) 
+    = \left( \frac{ \left( \beta_{max} - \beta_{min} \right) n }{ t - \left( -b \right)} \right) P_{v} \left( \frac{1}{P_{d}} \right)
+    + \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)}.
 ```
 
-This completes the derivation of the formula for {math}`P_{ndc,v}`.
-
-For the depth component, since the horizontal, vertical, and depth components are orthogonal in
-projected view coordinates, they must be orthogonal in normalized device coordinates too. Thus the 
-normalized devivce coordinate depth component can only depend on the projected view space depth components
-and the {math}`w` component. We need an affine map {math}`\phi_{d} : \mathbb{R} \rightarrow \mathbb{R}` 
-such that
+Consider the map {math}`\xi_{d}`, where
 
 ```{math}
-:label: eq_ndc_d_per
-P_{ndc,d} = \left( A P_{d} + B P_{w} \right) \left( \frac{1}{P_{d}} \right)
-          = \left( A P_{d} + B \right) \left( \frac{1}{P_{d}} \right)
-          = \phi_{d} \left( P_{d} \right) \left( \frac{1}{P_{d}} \right) 
+\xi_{d} \left( P \right) 
+    &= \left( A P_{proj,h} + B P_{proj,v} + C^{\prime} P_{proj,d} + D^{\prime} \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + C^{\prime} \theta \left( P_{d} \right) + D^{\prime} \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + C^{\prime} \left( A^{\prime} P_{d} + B^{\prime} \right) + D^{\prime} \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + C^{\prime} A^{\prime} P_{d} + C^{\prime} B^{\prime} + D^{\prime} \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + \left( C^{\prime} A^{\prime} \right) P_{d} + \left( C^{\prime} B^{\prime} + D^{\prime} \right) \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A P_{proj,h} + B P_{proj,v} + C P_{d} + D \right) \left( \frac{1}{P_{d}} \right) \\
+    &= \left( A n P_{h} + B n P_{v} + C P_{d} + D \right) \left( \frac{1}{P_{d}} \right) \\
+    &= A n P_{h} \left( \frac{1}{P_{d}} \right) + B n P_{v} \left( \frac{1}{P_{d}} \right) + C + D \left( \frac{1}{P_{d}} \right) \\
 ```
 
-where the second equality follows because {math}`P_{w} = 1` in projected view space. The 
-last equality in {ref}`eq_ndc_d_per` above yields
+where {math}`C = C^{\prime} A^{\prime}` and {math}`D = C^{\prime} B^{\prime} + D^{\prime}`, so that
 
 ```{math}
-:label: eq_phi_d_per
-\phi_{d} \left( P_{d} \right) = A P_{d} + B
+:label: xi_d_persp_def
+\xi_{d} \left( P \right) = A n P_{h} \left( \frac{1}{P_{d}} \right) + B n P_{v} \left( \frac{1}{P_{d}} \right) + C + D \left( \frac{1}{P_{d}} \right).
 ```
 
-The map {math}`\phi_{d}` must satisfy the constraints {math}`\phi_{d}\left( n \right) \cdot \frac{1}{n} = \gamma_{min}` 
-and {math}`\phi_{d}\left( f \right) \cdot \frac{1}{f} = \gamma_{max}` or equivalently
-{math}`\phi_{d}\left( n \right) = \gamma_{min} n` and {math}`\phi_{d}\left( f \right) = \gamma_{max} f`.
-Now we need to determine {math}`A` and {math}`B`. Using the constraints on {math}`\phi_{d}` we see that
+Define the boundary conditions for our chosen points
 
 ```{math}
-\phi_{d}(f) - \phi_{d}(n) 
-    = \left( A f + B \right) - \left( A n + B \right) 
-    = A \left( f - n \right)
-    = \gamma_{max} f - \gamma_{min} n
+\xi_{d} \left( Q_{left} \right)   &= 0 \\ 
+\xi_{d} \left( Q_{right} \right)  &= 0 \\
+\xi_{d} \left( Q_{bottom} \right) &= 0 \\
+\xi_{d} \left( Q_{top} \right)    &= 0 \\
+\xi_{d} \left( Q_{near} \right)   &= \gamma_{min} \\
+\xi_{d} \left( Q_{far} \right)    &= \gamma_{max} \\
 ```
 
-therefore 
+which we need to justify. The view space coordinates are orthogonal to each other, and the normalized device coordinates
+are also orthogonal to each other. This means that {math}`\xi_{d}` should only be a function of the depth component
+and not the horizontal or vertical components. The points {math}`Q_{left}, Q_{right}, Q_{bottom}, Q_{top}` lie on the near plane, which 
+have a depth component of {math}`n`. Since perspective projection projects depth components onto the near plane,
+points already on the near plane should stay there. Moreover, points on the far plane should stay on the far
+plane to satisfy to transform the perspective view volume into the orthographic view volume correctly. Consequently, the depth component should have no dependence on the horizontal or vertical components, only
+a depth term and an affine translation term.
+
+Applying the boundary conditions, we have
 
 ```{math}
-:label: constant_phi_d_per_a
-A = \frac{\gamma_{max} f - \gamma_{min} n}{f - n}.
+\xi_{d} \left( Q_{left} \right)
+    &= A n \cdot \left( -l \right) \cdot\left( \frac{1}{n} \right) + B n \cdot 0 \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= -A l + C + D \left( \frac{1}{n} \right) \\
+    &= 0 \\
+\xi_{d} \left( Q_{right} \right) 
+    &= A n \cdot r \cdot \left( \frac{1}{n} \right) + B n \cdot 0 \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= A r + C + D \left( \frac{1}{n} \right) \\ 
+    &= 0 \\
+\xi_{d} \left( Q_{bottom} \right) 
+    &= A n \cdot 0 \cdot \left( \frac{1}{n} \right) + B n \cdot \left( -b \right) \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= -B b + C + D \left( \frac{1}{n} \right) \\
+    &= 0 \\
+\xi_{d} \left( Q_{top} \right)
+    &= A n \cdot 0 \cdot \left( \frac{1}{n} \right) + B n \cdot t \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= B t + C + D \left( \frac{1}{n} \right) \\
+    &= 0 \\
+\xi_{d} \left( Q_{near} \right)
+    &= A n \cdot 0 \cdot \left( \frac{1}{n} \right) + B n \cdot 0 \cdot \left( \frac{1}{n} \right) + C + D \left( \frac{1}{n} \right) \\
+    &= C + D \left( \frac{1}{n} \right) \\
+    &= \gamma_{min} \\
+\xi_{d} \left( Q_{far} \right)
+    &= A n \cdot 0 \cdot \left( \frac{1}{f} \right) + B n \cdot 0 \cdot \left( \frac{1}{f} \right) + C + D \left( \frac{1}{f} \right) \\
+    &= C + D \left( \frac{1}{f} \right) \\
+    &= \gamma_{max} \\
 ```
 
-Using the expression for {math}`A` and the constraints on {math}`\phi_{d}` again, we have
+so that
 
 ```{math}
-\phi_{d}\left( f \right) 
-    = A f + B 
-    = \left(  \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) f + B 
-    = \gamma_{max} f.
+:label: xi_d_persp_constraints
+\xi_{d} \left( Q_{left} \right)
+    &= -A l + C + D \left( \frac{1}{n} \right)
+    &&= \gamma_{min} \\
+\xi_{d} \left( Q_{right} \right) 
+    &= A r + C + D \left( \frac{1}{n} \right)
+    &&= \gamma_{min} \\
+\xi_{d} \left( Q_{bottom} \right) 
+    &= -B b + C + D \left( \frac{1}{n} \right)
+    &&= \gamma_{min} \\
+\xi_{d} \left( Q_{top} \right)
+    &= B t + C + D \left( \frac{1}{n} \right)
+    &&= \gamma_{min} \\
+\xi_{d} \left( Q_{near} \right)
+    &= C + D \left( \frac{1}{n} \right)
+    &&= \gamma_{min} \\
+\xi_{d} \left( Q_{far} \right)
+    &= C + D \left( \frac{1}{f} \right)
+    &&= \gamma_{max} \\
 ```
 
-Solving for {math}`B`
+and now we compute the constants. and now we compute the constants. Subtracting {math}`\xi_{d} \left( Q_{right} \right)` from 
+{math}`\xi_{d} \left( Q_{left} \right)` in {ref}`xi_d_persp_constraints` yields
 
 ```{math}
-B &= \gamma_{max} f - \left(  \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) f \\
-  &= \frac{\gamma_{max} f \left( f - n \right) - \left( \gamma_{max} f - \gamma_{min} n \right) f}{ f - n } \\
-  &= \frac{\gamma_{max} f^{2} - \gamma_{max} f n - \gamma_{max} f^{2} - \gamma_{min} f n}{ f - n } \\
-  &= - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
+\xi_{d} \left( Q_{right} \right) - \xi_{d} \left( Q_{left} \right) 
+    &= \left[ A r + C + D \left( \frac{1}{n} \right) \right] - \left[ -A l + C + D \left( \frac{1}{n} \right) \right] \\
+    &= A r - \left( - A l \right) \\
+    &= A \left( r - \left( -l \right) \right) \\
+    &= \gamma_{min} -  \gamma_{min} \\
+    &= 0.
 ```
 
-therefore
+Solving for {math}`A`, we see that
 
 ```{math}
-:label: constant_phi_d_per_b
-B = - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }.
+:label: xi_d_persp_constant_a
+A = 0
 ```
 
-Substituting results {ref}`constant_phi_d_per_a` and {ref}`constant_phi_d_per_b` back into {ref}`eq_phi_d_per`, we get the desired
-result for {math}`\phi_{d}`
+since {math}`r - (-l) = r + l \neq 0`. Subtracting {math}`\xi_{d} \left( Q_{top} \right)` from 
+{math}`\xi_{d} \left( Q_{bottom} \right)` in {ref}`xi_h_persp_constraints` yields
 
 ```{math}
-\phi_{d}\left( P_{proj,d} \right) = 
-    \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{proj,d} - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
+\xi_{d} \left( Q_{top} \right) - \xi_{d} \left( Q_{bottom} \right)
+    &= \left[ B t + C + D \left( \frac{1}{n} \right) \right] - \left[ -B b + C + D \left( \frac{1}{n} \right) \right] \\
+    &= B t - B \left( -b \right) \\
+    &= B \left( t - \left( -b \right) \right) \\
+    &= \gamma_{min} - \gamma_{min} \\
+    &= 0.
 ```
 
-and the final result for {math}`P_{ndc,d}` from {ref}`eq_ndc_d` becomes
+Solving for {math}`B`, we see that 
 
 ```{math}
-:label: eq_ndc_d
-P_{ndc,d} = 
-    \left[
-        \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{proj,d} 
-        - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
-    \right]
-    \left( \frac{1}{P_{d}} \right).
+:label: xi_d_persp_constant_b
+B = 0
 ```
 
-This completes the derivation of the formula for {math}`P_{ndc,d}`. After depth normalization, the {math}`w` component 
-of a homogeneous vector is {math}`1`. Moreover, we require that the projected view coordinates to clip coordinates 
-transformations carries the depth coordinate information to clip space. This leads the the {math}`w` component 
-having the form
+since {math}`t - (-b) = t + b \neq 0`. Subtracting {math}`\xi_{d} \left( Q_{far} \right)` from
+{math}`\xi_{d} \left( Q_{near} \right)` in {ref}`xi_d_persp_constraints` yields
 
 ```{math}
-:label: eq_ndc_w
-P_{ndc,w} = 1 = P_{d} \left( \frac{1}{P_{d}} \right).
+\xi_{d} \left( Q_{far} \right) - \xi_{d} \left( Q_{near} \right)
+    &= \left[ C + D \left( \frac{1}{f} \right) \right] - \left[ C + D \left( \frac{1}{n} \right) \right] \\
+    &= D \left( \frac{1}{f} - \frac{1}{n} \right) \\
+    &= D \left( \frac{n - f}{f n} \right) \\
+    &= D \left( -\frac{f - n}{f n} \right) \\
+    &= \gamma_{max} - \gamma_{min}.
 ```
 
-where depth normalization is visible in the equation. This completes the derivation of the components 
-for mapping a point {math}`\tilde{P}` from view space to normalized device coordinates. Using the results 
-for mapping to normalized device coordinates, it is straightforward to infer the clip space components 
-for the point {math}`\tilde{P}`.
-
-From {ref}`eq_ndc_h_per`
+Solving for {math}`D`, we see that
 
 ```{math}
-P_{ndc,h} &\equiv \frac{P_{clip,h}}{P_{clip,w}} \\
-    &= \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) P_{proj,h} 
+:label: xi_d_persp_constant_d
+D = -\frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{f - n}
+```
+
+Substituting the constants {ref}`xi_d_persp_constant_a`,
+{ref}`xi_d_persp_constant_b`, and {ref}`xi_d_persp_constant_d` back into {math}`\xi_{d}(Q_{far})` in 
+{ref}`xi_d_persp_constraints` gives us
+
+```{math}
+\xi_{d} \left( Q_{far} \right) 
+    &= C + D \left( \frac{1}{f} \right) \\
+    &= C + \left( -\frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{f - n} \right) \left( \frac{1}{f} \right) \\
+    &= C + \left( -\frac{ \left( \gamma_{max} - \gamma_{min} \right) n }{f - n} \right) \\
+    &= \gamma_{max}.
+```
+
+Solving for {math}`C`
+
+```{math}
+C &= \gamma_{max} + \left( \frac{ \left( \gamma_{max} - \gamma_{min} \right) n }{f - n} \right) \\
+  &= \frac{\gamma_{max} \left( f - n \right) + \left( \gamma_{max} - \gamma_{min} \right) n}{f - n} \\
+  &= \frac{\gamma_{max} f - \gamma_{max} n + \gamma_{max} n - \gamma_{min} n}{f - n} \\
+  &= \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \\
+```
+
+we have
+
+```{math}
+:label: xi_d_persp_constant_c
+C = \frac{\gamma_{max} f - \gamma_{min} n}{f - n}.
+```
+
+Assembling the constants {ref}`xi_d_persp_constant_a`, {ref}`xi_d_persp_constant_b`, {ref}`xi_d_persp_constant_c`, 
+{ref}`xi_d_persp_constant_d` back into {ref}`xi_d_persp_def` we have the complete formula for the 
+auxiliary function {math}`\xi_{d}`
+
+```{math}
+:label: xi_d_persp_final
+\xi_{d} \left( P \right)
+    = \frac{\gamma_{max} f - \gamma_{min} n}{f - n} 
+    - \left( \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{f - n} \right) \left( \frac{1}{P_{d}} \right).
+```
+
+Now we return to the definitions for the clip space functions. Recall from {ref}`eq_persp_ndc1`
+that 
+
+```{math}
+:label: eq_persp_ndc2
+P_{ndc,h} \equiv \xi_{h} \left( P \right) &\equiv \phi_{h} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) = \frac{P_{clip,h}}{P_{clip,w}} \\
+P_{ndc,v} \equiv \xi_{v} \left( P \right) &\equiv \phi_{v} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) = \frac{P_{clip,v}}{P_{clip,w}} \\
+P_{ndc,d} \equiv \xi_{d} \left( P \right) &\equiv \phi_{d} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) = \frac{P_{clip,d}}{P_{clip,w}} \\
+```
+
+where {math}`P_{proj}` denotes a point {math}`P \in \mathbb{R}^{3}` in projected coordinates, and
+{math}`P_{clip,w} = \phi_{w}(P_{proj}) = P_{d}` is an affine scalar function. We now derive the clip 
+coordinate functions {math}`\phi_{h}, \phi_{v}, \phi_{d}` given by
+
+```{math}
+:label: eq_persp_ndc3
+P_{clip,h} &= \phi_{h} \left( P_{proj} \right) \\
+P_{clip,v} &= \phi_{v} \left( P_{proj} \right) \\
+P_{clip,d} &= \phi_{d} \left( P_{proj} \right) \\
+```
+
+by comparing the equations in {ref}`eq_persp_ndc2` with {ref}`xi_h_persp_final`, {ref}`xi_v_persp_final`, and {ref}`xi_d_persp_final`. Consider the affine map {math}`\phi_{h}`. Rearranging terms in {ref}`xi_h_persp_final`,
+we have
+
+```{math}
+:label: eq_persp_ndc4
+P_{ndc,h}
+    &= \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) P_{proj,h}
     + \frac{\alpha_{min} r - \alpha_{min} \left( -l \right)}{r - \left( -l \right)} \\
     &= \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) n P_{h} \left( \frac{1}{P_{d}} \right) 
     + \frac{\alpha_{min} r - \alpha_{min} \left( -l \right)}{r - \left( -l \right)} \\
@@ -1060,22 +1593,22 @@ P_{ndc,h} &\equiv \frac{P_{clip,h}}{P_{clip,w}} \\
     &= \left( \frac{ \left( \alpha_{max} - \alpha_{min} \right) n }{r - \left( -l \right)} \right) P_{h} \left( \frac{1}{P_{d}} \right) 
     + \left( \frac{ \alpha_{min} r - \alpha_{min} \left( -l \right) }{r - \left( -l \right)} \right) P_{d} \left( \frac{1}{P_{d}} \right) \\
     &= \left[ \left( \frac{ \left( \alpha_{max} - \alpha_{min} \right) n }{r - \left( -l \right)} \right) P_{h} 
-    + \left( \frac{ \alpha_{min} r - \alpha_{min} \left( -l \right) }{r - \left( -l \right)} \right) P_{d} \right] \left( \frac{1}{P_{d}} \right) \\
+    + \left( \frac{ \alpha_{min} r - \alpha_{min} \left( -l \right) }{r - \left( -l \right)} \right) P_{d} \right] \left( \frac{1}{P_{d}} \right).
 ```
 
-therefore
+Comparing {ref}`eq_persp_ndc4` with {ref}`eq_persp_ndc2`, we see that
 
 ```{math}
-P_{clip,h} = \left( \frac{ \left( \alpha_{max} - \alpha_{min} \right) n }{r - \left( -l \right)} \right) P_{h} 
-           + \left( \frac{ \alpha_{min} r - \alpha_{min} \left( -l \right) }{r - \left( -l \right)} \right) P_{d}
+:label: phi_h_persp_final
+P_{clip,h} = \phi_{h} \left( P_{proj} \right) = \left( \frac{ \left( \alpha_{max} - \alpha_{min} \right) n }{r - \left( -l \right)} \right) P_{h} 
+           + \left( \frac{ \alpha_{min} r - \alpha_{min} \left( -l \right) }{r - \left( -l \right)} \right) P_{d}.
 ```
 
-is the desired clip space horizontal component.
-
-From {ref}`eq_ndc_v_per`
+Consider the affine map {math}`\phi_{v}`. Rearranging terms in {ref}`xi_v_persp_final` we have
 
 ```{math}
-P_{ndc,v} &\equiv \frac{P_{clip,v}}{P_{clip,w}} \\
+:label: eq_persp_ndc5
+P_{ndc,v}
     &= \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) P_{proj,v} 
     + \frac{\beta_{min} t - \beta_{min} \left( -b \right)}{t - \left( -b \right)} \\
     &= \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) n P_{v} \left( \frac{1}{P_{d}} \right) 
@@ -1085,28 +1618,23 @@ P_{ndc,v} &\equiv \frac{P_{clip,v}}{P_{clip,w}} \\
     &= \left( \frac{ \left( \beta_{max} - \beta_{min} \right) n }{t - \left( -b \right)} \right) P_{v} \left( \frac{1}{P_{d}} \right) 
     + \left( \frac{ \beta_{min} t - \beta_{min} \left( -b \right) }{t - \left( -b \right)} \right) P_{d} \left( \frac{1}{P_{d}} \right) \\
     &= \left[ \left( \frac{ \left( \beta_{max} - \beta_{min} \right) n }{t - \left( -b \right)} \right) P_{v} 
-    + \left( \frac{ \beta_{min} t - \beta_{min} \left( -b \right) }{t - \left( -b \right)} \right) P_{d} \right] \left( \frac{1}{P_{d}} \right) \\
+    + \left( \frac{ \beta_{min} t - \beta_{min} \left( -b \right) }{t - \left( -b \right)} \right) P_{d} \right] \left( \frac{1}{P_{d}} \right).
 ```
 
-therefore
+Comparing {ref}`eq_persp_ndc5` with {ref}`eq_persp_ndc2` we see that
 
 ```{math}
-P_{clip,v} = \left( \frac{ \left( \beta_{max} - \beta_{min} \right) n }{t - \left( -b \right)} \right) P_{v} 
-           + \left( \frac{ \beta_{min} t - \beta_{min} \left( -b \right) }{t - \left( -b \right)} \right) P_{d}
+P_{clip,v} = \phi_{v} \left( P_{proj} \right) = \left( \frac{ \left( \beta_{max} - \beta_{min} \right) n }{t - \left( -b \right)} \right) P_{v} 
+           + \left( \frac{ \beta_{min} t - \beta_{min} \left( -b \right) }{t - \left( -b \right)} \right) P_{d}.
 ```
 
-is the desired clip space vertical component.
-
-From {ref}`eq_ndc_d`
+Finally, consider the affine map {math}`\phi_{d}`. Rearranging terms in {ref}`xi_d_persp_final` we have
 
 ```{math}
-P_{ndc,d} \equiv \frac{P_{clip,d}}{P_{clip,w}} 
-    &= \left[
-            \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{proj,d} 
-            - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
-        \right] 
-        \left( \frac{1}{P_{d}} \right)
-        \\
+:label: eq_persp_ndc6
+P_{ndc,d}
+    &= \frac{\gamma_{max} f - \gamma_{min} n}{f - n} 
+    - \left( \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{f - n} \right) \left( \frac{1}{P_{d}} \right) \\
     &= \left[
             \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{d} 
             - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
@@ -1115,31 +1643,22 @@ P_{ndc,d} \equiv \frac{P_{clip,d}}{P_{clip,w}}
         \\
 ```
 
-therefore
+Comparing {ref}`eq_persp_ndc6` with {ref}`eq_persp_ndc2` we see that
 
 ```{math}
-P_{clip,d} = 
-    \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{d} 
-    - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
+:label: phi_d_persp_final
+P_{clip,d} 
+    = \phi_{d} \left( P_{proj} \right)
+    = \left( \frac{\gamma_{max} f - \gamma_{min} n}{f - n} \right) P_{d} 
+    - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }.
 ```
 
-is the desired clip space depth component.
+Since {math}`phi_{h}`, {math}`\phi_{v}`, and {math}`\phi_{d}` are the components of
+an affine transformation, and normalized device coordinates are a projective function
+of the view coordinates with {math}`\phi_{w}(P_{proj}) = P_{d}` as the denominator, the 
+perspective projection transformation has the form of the matrix in {ref}`matrix_repr_projective` lifted into 
+{math}`\mathbb{RP}^{3}`. The resulting matrix equation for the matrix representation is then
 
-From {ref}`eq_ndc_w`
-
-```{math}
-P_{ndc,w} \equiv \frac{P_{clip,w}}{P_{clip,w}} = 1 = P_{d} \left( \frac{1}{P_{d}} \right)
-```
-
-and therefore
-
-```{math}
-P_{clip,w} = P_{d}
-```
-
-is the desired clip space {math}`w` component.
-
-Assembling the clip space components together into the resulting matrix equation
 
 ```{math}
 \begin{bmatrix} 
@@ -1176,19 +1695,10 @@ Assembling the clip space components together into the resulting matrix equation
     P_{v} \\ 
     P_{d} \\ 
     P_{w} \\
-\end{bmatrix}
-= 
-M^{C}_{per} 
-\begin{bmatrix} 
-    P_{h} \\ 
-    P_{v} \\ 
-    P_{d} \\ 
-    P_{w} \\
-\end{bmatrix}
-.
+\end{bmatrix}.
 ```
 
-This yields the first major result, the canonical perspective projection matrix.
+This yields the first major result, the canonical perspective projection matrix {math}`M^{C}_{per}`.
 
 ```{admonition} Perspective Projection Matrix
 ```{math}
@@ -1218,7 +1728,9 @@ M^{C}_{per} =
     \end{bmatrix}
 ```
 
-## The Canonical Orthographic Projection Matrix
+This completes the derivation of the perspective projection matrix.
+
+### The Canonical Orthographic Projection Matrix
 
 We now construct the canonical orthographic projection matrix for the frame 
 {math}`(O_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))` and 
@@ -1515,7 +2027,7 @@ M^{C}_{orth} =
 \end{bmatrix}
 ```
 
-## The Canonical Perspective Matrix
+### The Canonical Perspective Matrix
 
 Now that we have the canonical perspective projection matrix and the canonical orthographic projection matrix,
 we can work out the canonical perspective matrix. The canonical perspective matrix maps from view space to projected
@@ -1629,116 +2141,7 @@ M^{C}_{per} = M^{C}_{orth} P^{C}.
 Notice that the perspective matrix passes along the input depth coordinate undistorted via the 
 {math}`w` component, but nonlinearly distorts the output depth component.
 
-## Every Other Matrix
-
-For any given projected view coordinate system and clip coordinate system, there exists a perspective 
-projection matrix that can be expressed as {math}`M_{per} = T^{-1}_{clip} M^{C}_{per} T_{view}` where 
-{math}`M^{C}_{per}` is the canonical perspective projection matrix. Let {math}`[\mathbf{x}]` be a homogeneous 
-point in {math}`\mathbb{RP}^3`. Let {math}`\mathbf{x}_{view}` be a representive of {math}`[\mathbf{x}]` in 
-projected view coordinates, {math}`\mathbf{x}_{clip}` be a representative of {math}`[\mathbf{x}]` in clip 
-coordinates, {math}`\mathbf{x}^{C}_{view}` be a representive of {math}`[\mathbf{x}]` in the canonically 
-chosen view space coordinate system, {math}`\mathbf{x}^{C}_{clip}` be a representive of {math}`[\mathbf{x}]` 
-in the canonically chosen clip coordinates, such that
-
-```{math}
-:label: eq_view_to_clip_can1
-\mathbf{x}^{C}_{clip} = M^{C}_{per} \mathbf{x}^{C}_{view}.
-```
-
-That is, {math}`\mathbf{x}^{C}_{clip}` represents the perspective projected point {math}`\mathbf{x}`. 
-Let {math}`T_{view} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` denote the coordinate transformation 
-from projected view coordinates to the canonical projected view coordinates. Let 
-{math}`T_{clip} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` denote the coordinate transformation 
-from clip coordinates to canonical clip coordinates. The coordinate relations are given by 
-{math}`\mathbf{x}^{C}_{view} = T_{view} \mathbf{x}^{C}_{view}` and 
-{math}`\mathbf{x}^{C}_{clip} = T_{clip} \mathbf{x}^{C}_{clip}`. Applying these relationships in
-{ref}`eq_view_to_clip_can1`
-
-```{math}
-T_{clip} \mathbf{x}_{clip} = M^{C}_{per} T_{view} \mathbf{x}_{view}
-```
-
-or equivalently
-
-```{math}
-\mathbf{x}_{clip} 
-    = T^{-1}_{clip} M^{C}_{per} T_{view} \mathbf{x}_{view} 
-    = \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) \mathbf{x}_{view}
-```
-
-therefore we can identify 
-
-```{math}
-:label: eq_view_to_clip_can2
-M_{per} = T^{-1}_{clip} M^{C}_{per} T_{view}.
-```
-
-This proves the existence of a perspective projection for any source projected view space 
-coordinate system, and any target clip coordinate system. To show uniqueness, suppose that 
-{math}`M^{\prime}_{per}` is another transformation that maps view coordinates to clip 
-coordinates, such that {math}`\mathbf{x}_{clip} = M^{\prime}_{per} \mathbf{x}_{view}`. Using the 
-coordinate transformations again, we can write {math}`\mathbf{x}^{C}_{clip} = T_{clip} \mathbf{x}_{clip}`
-and {math}`\mathbf{x}^{C}_{view} = T_{view} \mathbf{x}_{view}`. Inverting these relations, we get
-{math}`\mathbf{x}^{C}_{view} = T^{-1}_{view} \mathbf{x}_{view}` and
-{math}`\mathbf{x}^{C}_{clip} = T^{-1}_{clip} \mathbf{x}_{clip}`. Using the relation for 
-{math}`M^{\prime}_{per}` in equation {ref}`eq_view_to_clip_can2` implies
-
-```{math}
-T^{-1}_{clip} \mathbf{x}^{C}_{clip} = M^{\prime}_{per} T^{-1}_{view} \mathbf{x}^{C}_{view}
-```
-
-or equivalently
-
-```{math}
-\mathbf{x}^{C}_{clip} 
-    = T_{clip} M^{\prime}_{per} T^{-1}_{view} \mathbf{x}^{C}_{view}
-    = \left( T_{clip} M^{\prime}_{per} T^{-1}_{view} \right) \mathbf{x}^{C}_{view}.
-```
-
-Applying the relation for the canonical perspective projection matrix
-
-```{math}
-\mathbf{x}^{C}_{clip} 
-    = M^{C}_{per} \mathbf{x}^{C}_{view} 
-    = \left( T_{clip} M^{\prime}_{per} T^{-1}_{view} \right) \mathbf{x}^{C}_{view}
-```
-
-which imples that
-
-```{math}
-M^{C}_{per} = T_{clip} M^{\prime}_{per} T^{-1}_{view}
-```
-
-or equivalently
-
-```{math}
-:label: eq_view_to_clip_can3
-M^{\prime}_{per} = T^{-1}_{clip} M^{C}_{per} T_{view} = M_{per}
-```
-
-where the last equality in {ref}`eq_view_to_clip_can3` follows from {ref}`eq_view_to_clip_can2`.
-This proves uniqueness for the perspective projection matrix.
-
-To show that any perspective projection is well-defined, let {math}`[\mathbf{x}] \in \mathbb{RP}^{3}` be 
-a point and let {math}`\mathbf{x}_{1} \sim \mathbf{x_{2}}` be representatives of {math}`[\mathbf{x}]`.
-Then there exists {math}`\lambda \in \mathbb{R} - \{ 0 \}` such that {math}`\mathbf{x}_{2} = \lambda \mathbf{x_{1}}`.
-By linearity of the canonical perspective projection, 
-{math}`\lambda M^{C}_{per} \mathbf{x}_{1} = M^{C}_{per} ( \lambda \mathbf{x}_{1} ) = M^{C}_{per} \mathbf{x}_{2}`
-which shows that {math}`M^{C}_{per}` is well-defined. By the linearity of homogeneous orthogonal transformations 
-
-```{math}
-\lambda M_{per} \mathbf{x}_{1}
-    &= \lambda T^{-1}_{clip} M^{C}_{per} T_{view} \mathbf{x}_{1} \\
-    &= \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) \left( \lambda \mathbf{x}_{1} \right) \\
-    &= \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) \mathbf{x}_{2} \\
-    &= M_{per} \mathbf{x}_{2} \\
-    &= M_{per} \left( \lambda \mathbf{x}_{1} \right) \\
-```
-
-which shows that {math}`M_{per}` is well-defined.
-
-
-## The Canonical Symmetric Vertical Field Of View Perspective Matrix
+### The Canonical Symmetric Vertical Field Of View Perspective Matrix
 
 In the symmetric case, {math}`r = l` and {math}`t = b`. The **width** of the viewport is 
 {math}`\text{width} = r - (-l) = r + l`. The **height** of the viewport is 
@@ -1856,6 +2259,114 @@ M^{C}_{per, vfov} =
         \\
     \end{bmatrix}
 ```
+
+## Every Other Matrix
+
+For any given projected view coordinate system and clip coordinate system, there exists a perspective 
+projection matrix that can be expressed as {math}`M_{per} = T^{-1}_{clip} M^{C}_{per} T_{view}` where 
+{math}`M^{C}_{per}` is the canonical perspective projection matrix. Let {math}`[\mathbf{x}]` be a homogeneous 
+point in {math}`\mathbb{RP}^3`. Let {math}`\mathbf{x}_{view}` be a representive of {math}`[\mathbf{x}]` in 
+projected view coordinates, {math}`\mathbf{x}_{clip}` be a representative of {math}`[\mathbf{x}]` in clip 
+coordinates, {math}`\mathbf{x}^{C}_{view}` be a representive of {math}`[\mathbf{x}]` in the canonically 
+chosen view space coordinate system, {math}`\mathbf{x}^{C}_{clip}` be a representive of {math}`[\mathbf{x}]` 
+in the canonically chosen clip coordinates, such that
+
+```{math}
+:label: eq_view_to_clip_can1
+\mathbf{x}^{C}_{clip} = M^{C}_{per} \mathbf{x}^{C}_{view}.
+```
+
+That is, {math}`\mathbf{x}^{C}_{clip}` represents the perspective projected point {math}`\mathbf{x}`. 
+Let {math}`T_{view} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` denote the coordinate transformation 
+from projected view coordinates to the canonical projected view coordinates. Let 
+{math}`T_{clip} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` denote the coordinate transformation 
+from clip coordinates to canonical clip coordinates. The coordinate relations are given by 
+{math}`\mathbf{x}^{C}_{view} = T_{view} \mathbf{x}^{C}_{view}` and 
+{math}`\mathbf{x}^{C}_{clip} = T_{clip} \mathbf{x}^{C}_{clip}`. Applying these relationships in
+{ref}`eq_view_to_clip_can1`
+
+```{math}
+T_{clip} \mathbf{x}_{clip} = M^{C}_{per} T_{view} \mathbf{x}_{view}
+```
+
+or equivalently
+
+```{math}
+\mathbf{x}_{clip} 
+    = T^{-1}_{clip} M^{C}_{per} T_{view} \mathbf{x}_{view} 
+    = \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) \mathbf{x}_{view}
+```
+
+therefore we can identify 
+
+```{math}
+:label: eq_view_to_clip_can2
+M_{per} = T^{-1}_{clip} M^{C}_{per} T_{view}.
+```
+
+This proves the existence of a perspective projection for any source projected view space 
+coordinate system, and any target clip coordinate system. To show uniqueness, suppose that 
+{math}`M^{\prime}_{per}` is another transformation that maps view coordinates to clip 
+coordinates, such that {math}`\mathbf{x}_{clip} = M^{\prime}_{per} \mathbf{x}_{view}`. Using the 
+coordinate transformations again, we can write {math}`\mathbf{x}^{C}_{clip} = T_{clip} \mathbf{x}_{clip}`
+and {math}`\mathbf{x}^{C}_{view} = T_{view} \mathbf{x}_{view}`. Inverting these relations, we get
+{math}`\mathbf{x}^{C}_{view} = T^{-1}_{view} \mathbf{x}_{view}` and
+{math}`\mathbf{x}^{C}_{clip} = T^{-1}_{clip} \mathbf{x}_{clip}`. Using the relation for 
+{math}`M^{\prime}_{per}` in equation {ref}`eq_view_to_clip_can2` implies
+
+```{math}
+T^{-1}_{clip} \mathbf{x}^{C}_{clip} = M^{\prime}_{per} T^{-1}_{view} \mathbf{x}^{C}_{view}
+```
+
+or equivalently
+
+```{math}
+\mathbf{x}^{C}_{clip} 
+    = T_{clip} M^{\prime}_{per} T^{-1}_{view} \mathbf{x}^{C}_{view}
+    = \left( T_{clip} M^{\prime}_{per} T^{-1}_{view} \right) \mathbf{x}^{C}_{view}.
+```
+
+Applying the relation for the canonical perspective projection matrix
+
+```{math}
+\mathbf{x}^{C}_{clip} 
+    = M^{C}_{per} \mathbf{x}^{C}_{view} 
+    = \left( T_{clip} M^{\prime}_{per} T^{-1}_{view} \right) \mathbf{x}^{C}_{view}
+```
+
+which imples that
+
+```{math}
+M^{C}_{per} = T_{clip} M^{\prime}_{per} T^{-1}_{view}
+```
+
+or equivalently
+
+```{math}
+:label: eq_view_to_clip_can3
+M^{\prime}_{per} = T^{-1}_{clip} M^{C}_{per} T_{view} = M_{per}
+```
+
+where the last equality in {ref}`eq_view_to_clip_can3` follows from {ref}`eq_view_to_clip_can2`.
+This proves uniqueness for the perspective projection matrix.
+
+To show that any perspective projection is well-defined, let {math}`[\mathbf{x}] \in \mathbb{RP}^{3}` be 
+a point and let {math}`\mathbf{x}_{1} \sim \mathbf{x_{2}}` be representatives of {math}`[\mathbf{x}]`.
+Then there exists {math}`\lambda \in \mathbb{R} - \{ 0 \}` such that {math}`\mathbf{x}_{2} = \lambda \mathbf{x_{1}}`.
+By linearity of the canonical perspective projection, 
+{math}`\lambda M^{C}_{per} \mathbf{x}_{1} = M^{C}_{per} ( \lambda \mathbf{x}_{1} ) = M^{C}_{per} \mathbf{x}_{2}`
+which shows that {math}`M^{C}_{per}` is well-defined. By the linearity of homogeneous orthogonal transformations 
+
+```{math}
+\lambda M_{per} \mathbf{x}_{1}
+    &= \lambda T^{-1}_{clip} M^{C}_{per} T_{view} \mathbf{x}_{1} \\
+    &= \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) \left( \lambda \mathbf{x}_{1} \right) \\
+    &= \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) \mathbf{x}_{2} \\
+    &= M_{per} \mathbf{x}_{2} \\
+    &= M_{per} \left( \lambda \mathbf{x}_{1} \right) \\
+```
+
+which shows that {math}`M_{per}` is well-defined.
 
 ## Summary
 
