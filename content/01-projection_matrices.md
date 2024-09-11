@@ -834,14 +834,14 @@ less error-prone with fewer pesky signs to deal with.
 
 ### The Canonical Perspective Projection Matrix
 
-With these considerations, let us construct the canonical perspective projection matrix for 
-the frame {math}`(O_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))` with the 
+With these considerations, we construct the canonical perspective projection matrix for 
+the frame {math}`(\tilde{O}_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))` with the 
 perspective view volume parametrized by {math}`[-l, r] \times [-b, t] \times [n, f]` and 
 the canonical view volume parametrized by 
 {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
 Let {math}`P \in \mathbb{R}^{3}` be a point given by 
 {math}`P = P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v} + P_{d} \mathbf{\hat{u}}_{d}`. We 
-derive the perspective projected horizontal and vertical coordinates.
+derive the perspective projected horizontal and vertical components.
 
 Using similar triangles for the horizontal component, we have
 
@@ -875,8 +875,8 @@ P^{\prime}_{proj,v} = n P_{v} \left( \frac{1}{P_{d}} \right).
 Observe that the horizontal and vertical components transforms like a projective transformation. Indeed,
 the perspective projection transformation is a projective transformation where the affine function is
 given by {math}`P_{d}`. In other words, the perspective projection is dividing by depth. Using our reasoning
-about representing projective transformations in the previous section, we can deduce the lifted mapping
-from rearranging the perspective equations
+about representing projective transformations that lead to the matrix representation {ref}`matrix_repr_projective`, we 
+can deduce the lifted mapping from rearranging the perspective equations
 
 ```{math}
 P_{d} P^{\prime}_{proj,h} = n P_{h} \\
@@ -884,10 +884,10 @@ P_{d} P^{\prime}_{proj,v} = n P_{v} \\
 ```
 
 suggestively. The right hand side in both cases are affine transformations. This suggests to form
-of the transformation for the depth component. We define our projected coordinate components as follows.
+of the transformation for the depth component. We define our projected coordinate system components as follows.
 Let {math}`P_{proj,h} = P_{d} P^{\prime}_{proj,h}` and {math}`P_{proj,v} = P_{d} P^{\prime}_{proj,v}`.
-Due to the form of the perspective division, we immediately see that {math}`P_{proj,w} = P_{d}`. This leaves the
-depth component. The depth component does not participate directly in depth normalization, and
+Since the affine scalar function is perspective division, we immediately see that {math}`P_{proj,w} = P_{d}`. This leaves the
+depth component. The depth component does not directly participate in depth normalization, and
 we our coordinate system is orthogonal, so {math}`P_{proj,d}` cannot depend on {math}`P_{h}` or {math}`P_{v}`.
 This implies that {math}`P_{proj,d}` must be a function of {math}`P_{d}` and {math}`P_{w}`. Since the 
 transformation is projective, the depth component must transform affinely. Since {math}`P_{w} = 1`. This leaves
@@ -922,26 +922,27 @@ We need a set of maps {math}`\phi_{h}, \phi_{v}, \phi_{d}, \phi_{w} : \mathbb{R}
 ```{math}
 :label: eq_persp_ndc1
 P_{ndc,h} &= \frac{P_{clip,h}}{P_{clip,w}} 
-           = \left( H_{w} \circ \phi_{h} \right) \left( P_{proj} \right) 
-           = \phi_{h} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) 
-           \equiv \xi_{h} \left( P \right) \\
+          &&= \left( H_{w} \circ \phi_{h} \right) \left( P_{proj} \right) 
+          &&= \phi_{h} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) 
+          &&\equiv \xi_{h} \left( P \right) \\
 P_{ndc,v} &= \frac{P_{clip,v}}{P_{clip,w}} 
-           = \left( H_{w} \circ \phi_{v} \right) \left( P_{proj} \right) 
-           = \phi_{v} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) 
-           \equiv \xi_{v} \left( P \right) \\
+          &&= \left( H_{w} \circ \phi_{v} \right) \left( P_{proj} \right) 
+          &&= \phi_{v} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) 
+          &&\equiv \xi_{v} \left( P \right) \\
 P_{ndc,d} &= \frac{P_{clip,d}}{P_{clip,w}}
-           = \left( H_{w} \circ \phi_{d} \right) \left( P_{proj} \right) 
-           = \phi_{d} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right)
-           \equiv \xi_{d} \left( P \right) \\
-P_{ndc,w} &= \frac{P_{clip,w}}{P_{clip,w}} 
-           = 1 
-           = \phi_{w} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right)} \right) \\
+          &&= \left( H_{w} \circ \phi_{d} \right) \left( P_{proj} \right) 
+          &&= \phi_{d} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right)
+          &&\equiv \xi_{d} \left( P \right) \\
+P_{ndc,w} &= \frac{P_{clip,w}}{P_{clip,w}}
+          &&= \left( H_{w} \circ \phi_{w} \right) \left( P_{proj} \right)
+          &&= \phi_{w} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right)} \right) 
+          &&= 1 \\
 ```
 
 where {math}`P_{proj}` denotes a point {math}`P \in \mathbb{R}^{3}` in projected coordinates,
 {math}`P_{clip,w} = \phi_{w}(P_{proj})` is an affine scalar function, and 
 {math}`H_{w} : \mathbb{R}^{4} \rightarrow \mathbb{R}^{4}` denotes homogenization by the {math}`w` component.
-In particular, observe that the functions {math}`\xi_{h}, \xi_{v}, \xi_{d} : \mathbb{R}^{3} \rightarrow \mathbb{R}`
+Observe that the functions {math}`\xi_{h}, \xi_{v}, \xi_{d} : \mathbb{R}^{3} \rightarrow \mathbb{R}`
 on the right-hand side of {ref}`eq_persp_ndc1` are projective functions of the view space point {math}`P`.
 This implies that the clip coordinates must be affine functions of {math}`P_{proj}`. In particular,
 
@@ -949,11 +950,11 @@ This implies that the clip coordinates must be affine functions of {math}`P_{pro
 P_{clip,h} &= \phi_{h} \left( P_{proj} \right) \\
 P_{clip,v} &= \phi_{v} \left( P_{proj} \right) \\
 P_{clip,d} &= \phi_{d} \left( P_{proj} \right) \\
-P_{clip,w} &= \phi_{w} \left( P_{proj} \right) \\
+P_{clip,w} &= \phi_{w} \left( P_{proj} \right)
 ```
 
-and since in perspective projection, the purpose of the {math}`w` coordinate is to do depth division, this
-implies that
+is the form of the clip components. Since the purpose of the {math}`w` coordinate is to perform perspective 
+division, this implies that
 
 ```{math}
 \phi_{w} \left( P_{proj} \right) = P_{d}
@@ -970,7 +971,7 @@ P_{ndc,d} &= \xi_{d} \left( P \right) = \phi_{d} \left( P_{proj} \right) \left( 
 
 To derive the perspective projection matrix, we solve for the clip coordinate functions {math}`\phi_{h}, \phi_{v}, \phi_{d}`
 indirectly using the auxiliary functions {math}`\xi_{h}, \xi_{v}, \xi_{d}` in {ref}`eq_persp_ndc2`, and
-use the constraints of on the orthographic view volume to compute the functions. To establish constraints, we need
+use the constraints on the orthographic view volume to compute the auxiliary functions. To establish constraints, we need
 to talk about some well chosen points. We need to construct the maps {math}`\xi_{h}, \xi_{v}, \xi_{d}` such that
 the parametrization of the orthographic view volume maps to the parametrization of the canonical view volume.
 That it, such that coordinates map as 
@@ -1099,7 +1100,7 @@ and now we compute the constants. Subtracting {math}`\xi_{h} \left( Q_{right} \r
     &= \alpha_{max} - \alpha_{min}.
 ```
 
-Solving for {math}`A`
+Solving for {math}`A`, we see that
 
 ```{math}
 :label: xi_h_persp_constant_a
@@ -1153,7 +1154,7 @@ since {math}`\frac{1}{f} - \frac{1}{n} \neq 0`. Substituting the constants {ref}
     = \alpha_{max}.
 ```
 
-Solving for {math}`C`
+Solving for {math}`C`, we see that
 
 ```{math}
 C &= \alpha_{max} - \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) r \\
@@ -1165,7 +1166,7 @@ C &= \alpha_{max} - \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \rig
   &= \frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)} \\
 ```
 
-we have
+therefore
 
 ```{math}
 :label: xi_h_persp_constant_c
@@ -1338,7 +1339,7 @@ since {math}`\frac{1}{f} - \frac{1}{n} \neq 0`. Substituting the constants {ref}
     = \beta_{max}.
 ```
 
-Solving for {math}`C`
+Solving for {math}`C`, we see that
 
 ```{math}
 C &= \beta_{max} - \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) t \\
@@ -1350,7 +1351,7 @@ C &= \beta_{max} - \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)
   &= \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)} \\
 ```
 
-we have
+therefore
 
 ```{math}
 :label: xi_v_persp_constant_c
@@ -1515,7 +1516,7 @@ Solving for {math}`D`, we see that
 
 ```{math}
 :label: xi_d_persp_constant_d
-D = -\frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{f - n}
+D = -\frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{f - n}.
 ```
 
 Substituting the constants {ref}`xi_d_persp_constant_a`,
@@ -1653,7 +1654,7 @@ P_{clip,d}
     - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }.
 ```
 
-Since {math}`phi_{h}`, {math}`\phi_{v}`, and {math}`\phi_{d}` are the components of
+Since {math}`\phi_{h}`, {math}`\phi_{v}`, and {math}`\phi_{d}` are the components of
 an affine transformation, and normalized device coordinates are a projective function
 of the view coordinates with {math}`\phi_{w}(P_{proj}) = P_{d}` as the denominator, the 
 perspective projection transformation has the form of the matrix in {ref}`matrix_repr_projective` lifted into 
@@ -1732,220 +1733,651 @@ This completes the derivation of the perspective projection matrix.
 
 ### The Canonical Orthographic Projection Matrix
 
-We now construct the canonical orthographic projection matrix for the frame 
-{math}`(O_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))` and 
+We now construct the canonical orthographic projection matrix for 
+the frame {math}`(\tilde{O}_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))` with the 
+orthographic view volume parametrized by {math}`[-l, r] \times [-b, t] \times [n, f]` and 
 the canonical view volume parametrized by 
 {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
-Let {math}`P \in \mathbb{R}^{3}` be a point given by 
-{math}`P = P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v} + P_{d} \mathbf{\hat{u}}_{d}`.
 
-There is no intermediate projected coordinates for an orthographic projection matrix, because depth
-normalization does not apply to an orthographic projection. Thus we map directly to clip coordinates 
-from projected view coordinates.
-
-We need an affine map {math}`\phi_{h} : \mathbb{R} \rightarrow \mathbb{R}` such that
+An orthographic projection works by removing the component parallel to the direction normal
+to the plane of projection in three dimensions. Orthographic projections preserve 
+the lengths of lines parallel to the projection plane. It produces the component of a geometric 
+figure that is parallel to the plane of projection. Unlike perspective projection, there 
+is no depth distortion. In terms of our orthonormal frame, an orthographic projection removes the
+depth component from a vector. Let {math}`\tilde{P} \in \mathbb{E}^{3}` be a point. The orthographic projection 
+is a map {math}`T^{\prime}_{orth} : \mathbb{E}^{3} \rightarrow \mathbb{E}^{3}` given by
 
 ```{math}
-:label: eq_phi_h_orth
-P_{ndc,h} = \phi_{h}\left( P_{h} \right) = A P_{h} + B
+T^{\prime}_{orth} \left( \tilde{P} \right) = \tilde{P} - \left( \left( \tilde{P} - \tilde{O}_{view} \right) \cdot \mathbf{\hat{n}} \right) \mathbf{\hat{n}}.
 ```
 
-with constraints {math}`\phi_{h}\left( -l \right) = \alpha_{min}` and {math}`\phi_{h}\left( r \right) = \alpha_{max}`.
-
-Using the constraints, we have
+In the coordinate frame 
+{math}`(\tilde{O}_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))`
+let {math}`P = \tilde{P} - \tilde{O}_{view}` be a representation of the point {math}`P`
+given by {math}`P = P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v} + P_{d} \mathbf{\hat{u}}_{d}`.
+The orthographic projection has the form
 
 ```{math}
-:label: constraints_phi_h_orth
-\alpha_{max} &= A r + B \\
-\alpha_{min} &= A \left( -l \right) + B = -A l + B.
+T^{\prime}_{orth} \left( P \right) 
+    = P - \left( P \cdot \mathbf{\hat{u}}_{d} \right) \mathbf{\hat{u}}_{d}
+    = P - P_{d} \mathbf{\hat{u}}_{d}
+    = P_{h} \mathbf{\hat{u}}_{h} + P_{v} \mathbf{\hat{u}}_{v}
 ```
 
-Subtracting {math}`\alpha_{max}` from {math}`\alpha_{min}` in {ref}`constraints_phi_h_orth`
+so that {math}`T^{\prime}_{orth}` indeed projects out the depth component as claimed. This is the
+usual defintion of orthographic projection. The problem is that we still need depth information for 
+rendering, so this information must be preserved in our true projection. Since orthographic projection 
+does not distort depth in any way, and indeed has no denominator, it is an affine transformation. Thus the 
+orthographic projection needs to carry depth information. We need to add the depth information 
+along the normal vector to the projection plane into the transformation to get our projected coordinates. 
+Let {math}`T_{orth} : \mathbb{E}^{3} \rightarrow \mathbb{E}^{3}` be the transformation given by
 
 ```{math}
-\alpha_{max} - \alpha_{min} = \left( A r + B \right) - \left( -A l + B \right) = A \left(r - \left( -l \right) \right)
+T_{orth} \left( \tilde{P} \right) 
+    = T^{\prime}_{orth} \left( \tilde{P} \right) 
+    + \left( \left( \tilde{P} - \tilde{O}_{view} \right) \cdot \mathbf{\hat{n}} \right) \mathbf{\hat{n}}.
 ```
 
-and solving for {math}`A`
+Expanding out the definition
 
 ```{math}
-:label: constant_phi_h_orth_a
+T_{orth} \left( \tilde{P} \right)
+    = \tilde{P} 
+    - \left( \left( \tilde{P} - \tilde{O}_{view} \right) \cdot \mathbf{\hat{n}} \right) \mathbf{\hat{n}}
+    + \left( \left( \tilde{P} - \tilde{O}_{view} \right) \cdot \mathbf{\hat{n}} \right) \mathbf{\hat{n}}
+    = \tilde{P}
+    = I \left( P \right)
+```
+
+where {math}`I` denotes the identity map {math}`I : \mathbb{E}^{3} \rightarrow \mathbb{E}^{3}`. We see
+that the orthographic projection is simply the identity map when the depth information if factored
+back in. In components,
+
+```{math}
+T_{orth} \left( P \right) = I \left( P \right) = P
+```
+
+so that our projected coordinates become
+
+```{math}
+P_{proj,h} &= P_{h} \\
+P_{proj,v} &= P_{v} \\
+P_{proj,d} &= P_{d} \\
+P_{proj,w} &= 1     \\
+```
+
+Thus we map directly to clip coordinates from view coordinates. To complete the orthographic projection 
+transformation, we need an affine transformation that maps the orthographic view volume to the canonical 
+view volume in normalized device coordinates. Just like the perspective projection earlier, we infer
+the orthographic projection matrix indirectly using constraints on how the orthographic view volume
+transforms into the canonical view volume. We require affine maps 
+{math}`\phi_{h}, \phi_{v}, \phi_{d}, \phi_{w} : \mathbb{R^{3}} \rightarrow \mathbb{R}` such that
+
+```{math}
+:label: eq_orth_clip1
+P_{clip,h} &= \phi_{h} \left( P_{proj} \right) \\
+P_{clip,v} &= \phi_{v} \left( P_{proj} \right) \\
+P_{clip,d} &= \phi_{d} \left( P_{proj} \right) \\
+P_{clip,w} &= \phi_{w} \left( P_{proj} \right) \\
+```
+
+where we get {math}`\phi_{w}` immediately because orthographic projections are affine maps.
+That is
+
+```{math}
+:label: phi_w_orth_final
+\phi_{w} \left( P \right) = 1.
+```
+
+where we use the fact that {math}`P_{proj} = P`. Since affine transformations do not perform depth 
+normalization, we see that
+
+```{math}
+P_{ndc,h} &= P_{clip,h} \\
+P_{ndc,v} &= P_{clip,v} \\
+P_{ndc,d} &= P_{clip,d} \\
+P_{ndc,w} &= P_{clip,w} \\
+```
+
+therefore
+
+```{math}
+:label: eq_orth_ndc1
+P_{ndc,h} &= \phi_{h} \left( P_{proj} \right) &= \phi_{h} \left( P \right) \\
+P_{ndc,v} &= \phi_{v} \left( P_{proj} \right) &= \phi_{v} \left( P \right) \\
+P_{ndc,d} &= \phi_{d} \left( P_{proj} \right) &= \phi_{d} \left( P \right) \\
+```
+
+are the equations we need to solve for. As with the perspective projection transformation, we 
+use the constraints on the orthographic view volume to compute the functions. To establish constraints, we 
+need to talk about some well chosen points. We need to construct the maps {math}`\phi_{h}, \phi_{v}, \phi_{d}` such that the 
+parametrization of the orthographic view volume maps to the parametrization of the canonical view volume. That it, such that 
+coordinates map as 
+{math}`-l \mapsto \alpha_{min}, r \mapsto \alpha_{max}, -b \mapsto beta_{min}, t \mapsto \beta_{max}, n \mapsto \gamma_{min}, f \mapsto \gamma_{max}`.
+Consider the points in view coordinates
+
+```{math}
+Q_{left}   &= -l \mathbf{\hat{u}}_{h} + n \mathbf{\hat{u}}_{d} \\
+Q_{right}  &=  r \mathbf{\hat{u}}_{h} + n \mathbf{\hat{u}}_{d} \\
+Q_{bottom} &= -b \mathbf{\hat{u}}_{v} + n \mathbf{\hat{u}}_{d} \\
+Q_{top}    &=  t \mathbf{\hat{u}}_{v} + n \mathbf{\hat{u}}_{d} \\
+Q_{near}   &=  n \mathbf{\hat{u}}_{d}                          \\
+Q_{far}    &=  f \mathbf{\hat{u}}_{d}                          \\
+```
+
+The points {math}`Q_{near}` and {math}`Q_{far}` are the points along the viewing axis
+that intersect the near plane and the far plane, respectively, of the perspective view volume. The 
+point {math}`Q_{left}` represents the point of intersection of the left plane, near plane, and the 
+horizontal-vertical plane of the view volume. The point {math}`Q_{right}` represents the point of 
+intersection of the right plane, near plane, and the horizontal-vertical plane of the view volume.
+The point {math}`Q_{bottom}` represents the point of intersection of the bottom plane, near plane, 
+and depth-vertical plane of the view volume. The point {math}`Q_{top}` represents the point of 
+intersection of the top plane, near plane, and the depth-vertical plane of the view volume. In short,
+the points {math}`Q_{near}` and {math}`Q_{far}` are the origins of the near and far planes, respectively.
+The other four points and points chosen along the edge of the viewport in the near plane that allow us
+to easily set up the boundary conditions to compute the functions {math}`\phi_{h}, \phi_{v}, \phi_{d}`.
+
+Consider the map {math}`\phi_{h}`, where
+
+```{math}
+:label: phi_h_orth_def
+\phi_{h} \left( P \right) = A P_{h} + B P_{v} + C P_{d} + D
+```
+
+Define the boundary conditions for our chosen points
+
+```{math}
+\phi_{h} \left( Q_{left} \right)   &= \alpha_{min} \\ 
+\phi_{h} \left( Q_{right} \right)  &= \alpha_{max} \\
+\phi_{h} \left( Q_{bottom} \right) &= 0 \\
+\phi_{h} \left( Q_{top} \right)    &= 0 \\
+\phi_{h} \left( Q_{near} \right)   &= 0 \\
+\phi_{h} \left( Q_{far} \right)    &= 0 \\
+```
+
+which we need to justify. The view space coordinates are orthogonal to each other, and the normalized device coordinates
+are also orthogonal to each other. This means that {math}`\phi_{h}` should only be a function of the horizontal component
+and not the vertical component. The points {math}`Q_{bottom}, Q_{top}, Q_{near}, Q_{far}` lie on the depth-vertical plane, which 
+have a zero horizontal component, so they should keep a zero horizontal component after transformation.
+
+Applying the boundary conditions, we have
+
+```{math}
+\phi_{h} \left( Q_{left} \right)
+    &= A \cdot \left( -l \right) + B \cdot 0 + C n + D
+    &&= -A l + C n + D
+    &&= \alpha_{min} \\
+\phi_{h} \left( Q_{right} \right) 
+    &= A \cdot r + B \cdot 0 + C n + D
+    &&= A r + C n + D
+    &&= \alpha_{max} \\
+\phi_{h} \left( Q_{bottom} \right) 
+    &= A \cdot 0 + B \cdot \left( -b \right) + C n + D
+    &&= -B b + C n + D
+    &&= 0 \\
+\phi_{h} \left( Q_{top} \right)
+    &= A \cdot 0 + B \cdot t + C n + D
+    &&= B t + C n + D
+    &&= 0 \\
+\phi_{h} \left( Q_{near} \right)
+    &= A \cdot 0 + B \cdot 0 + C n + D
+    &&= C n + D
+    &&= 0 \\
+\phi_{h} \left( Q_{far} \right)
+    &= A \cdot 0 + B \cdot 0 + C f + D
+    &&= C f + D 
+    &&= 0 \\
+```
+
+so that
+
+```{math}
+:label: phi_h_orth_constraints
+\phi_{h} \left( Q_{left} \right)   &= -A l + C n + D &&= \alpha_{min} \\
+\phi_{h} \left( Q_{right} \right)  &= A r + C n + D  &&= \alpha_{max} \\
+\phi_{h} \left( Q_{bottom} \right) &= -B b + C n + D &&= 0 \\
+\phi_{h} \left( Q_{top} \right)    &= B t + C n + D  &&= 0 \\
+\phi_{h} \left( Q_{near} \right)   &= C n + D        &&= 0 \\
+\phi_{h} \left( Q_{far} \right)    &= C f + D        &&= 0 \\
+```
+
+and now we compute the constants. Subtracting {math}`\phi_{h} \left( Q_{right} \right)` from 
+{math}`\phi_{h} \left( Q_{left} \right)` in {ref}`phi_h_orth_constraints` yields
+
+```{math}
+\phi_{h} \left( Q_{right} \right) - \phi_{h} \left( Q_{left} \right) 
+    &= \left[ A r + C n + D \right] - \left[ -A l + C n + D \right] \\
+    &= A r - \left( - A l \right) \\
+    &= A \left( r - \left( -l \right) \right) \\
+    &= \alpha_{max} - \alpha_{min}.
+```
+
+Solving for {math}`A`, we see that
+
+```{math}
+:label: phi_h_orth_constant_a
 A = \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)}.
 ```
 
-Substituting the expression for {math}`A` back into the constraint on {math}`\alpha_{max}` we have
+Subtracting {math}`\phi_{h} \left( Q_{top} \right)` from 
+{math}`\phi_{h} \left( Q_{bottom} \right)` in {ref}`phi_h_orth_constraints` yields
 
 ```{math}
-\alpha_{max} = \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) r + B
+\phi_{h} \left( Q_{top} \right) - \phi_{h} \left( Q_{bottom} \right)
+    &= \left[ B t + C n + D \right] - \left[ -B b + C n + D \right] \\
+    &= B t - B \left( -b \right) \\
+    &= B \left( t - \left( -b \right) \right) \\
+    &= 0.
 ```
 
-Solving for {math}`B`
+Solving for {math}`B`, we see that 
 
 ```{math}
-B &= \alpha_{max} - \left( \frac{\alpha_{max} - \alpha_{min}}{r + l} \right) r \\
-  &= \frac{\alpha_{max} \left( r + l \right) + \left( \alpha_{max} - \alpha_{min} \right) r}{r + l} \\
-  &= \frac{\alpha_{max} r + \alpha_{max} l - \alpha_{max} r - \alpha_{min} r}{r + l} \\
+:label: phi_h_orth_constant_b
+B = 0
+```
+
+since {math}`t - (-b) = t + b \neq 0`. Subtracting {math}`\phi_{h} \left( Q_{far} \right)` from
+{math}`\phi_{h} \left( Q_{near} \right)` in {ref}`phi_h_orth_constraints` yields
+
+```{math}
+\phi_{h} \left( Q_{far} \right) - \phi_{h} \left( Q_{near} \right)
+    &= \left[ C f + D \right] - \left[ C n + D \right] \\
+    &= C f - C n \\
+    &= C \left( f - n \right) \\
+    &= 0.
+```
+
+Solving for {math}`C`, we see that
+
+```{math}
+:label: phi_h_orth_constant_c
+C = 0
+```
+
+since {math}`f - n \neq 0`. Substituting the constants {ref}`phi_h_orth_constant_a`,
+{ref}`phi_h_orth_constant_b`, and {ref}`phi_h_orth_constant_c` back into {math}`\phi_{h}(Q_{right})` in 
+{ref}`phi_h_orth_constraints` gives us
+
+```{math}
+\phi_{h} \left( Q_{right} \right) 
+    = A r + C n + D
+    = A r + D
+    = \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) r + D
+    = \alpha_{max}.
+```
+
+Solving for {math}`D`
+
+```{math}
+D &= \alpha_{max} - \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) r \\
+  &= \alpha_{max} - \left( \frac{\alpha_{max} - \alpha_{min}}{r + l} \right) r \\
+  &= \frac{\alpha_{max} \left( r + l \right) - \left( \alpha_{max} - \alpha_{min} \right) r}{r + l} \\
+  &= \frac{\alpha_{max} r + \alpha_{max} l - \alpha_{max} r + \alpha_{min} r}{r + l} \\
+  &= \frac{\alpha_{max} r + \alpha_{max} l - \alpha_{max} r + \alpha_{min} r}{r + l} \\
   &= \frac{\alpha_{max} l + \alpha_{min} r}{r + l} \\
-  &= \frac{\alpha_{min} r + \alpha_{max} l}{r - \left( -l \right)} \\
   &= \frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)} \\
 ```
 
-which gives us
+we have
 
 ```{math}
-:label: constant_phi_h_orth_b
-B = \frac{\alpha_{min} r - \alpha_{max} \left( -l \right) }{r - \left( -l \right)}.
+:label: phi_h_orth_constant_d
+D =  \frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)}.
 ```
 
-which is the constant for {math}`\phi_{h}`. Substituting the constants {ref}`constant_phi_h_orth_a` 
-and {ref}`constant_phi_h_orth_b` back into the definition for {math}`\phi_{h}` in equation 
-{ref}`eq_phi_h_orth`
+Assembling the constants {ref}`phi_h_orth_constant_a`, {ref}`phi_h_orth_constant_b`, {ref}`phi_h_orth_constant_c`, 
+{ref}`phi_h_orth_constant_d` back into {ref}`phi_h_orth_def` we have the complete formula for the 
+function {math}`\phi_{h}`
 
 ```{math}
-P_{ndc,h} = \phi_{h}\left( P_{h} \right) 
-          = \left( \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)} \right) P_{h}
-          + \frac{\alpha_{min} r - \alpha_{max} \left( -l \right) }{r - \left( -l \right)}.
+:label: phi_h_orth_final
+\phi_{h} \left( P \right) 
+    = \left( \frac{ \alpha_{max} - \alpha_{min} }{ r - \left( -l \right)} \right) P_{h}
+    + \frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)}.
 ```
 
-We need an affine map {math}`\phi_{v} : \mathbb{R} \rightarrow \mathbb{R}` such that
+Consider the map {math}`\phi_{v}`, where
 
 ```{math}
-:label: eq_phi_v_orth
-P_{ndc,v} = \phi_{v}\left( P_{v} \right) = A P_{v} + B
+:label: phi_v_orth_def
+\phi_{v} \left( P \right) = A P_{h} + B P_{v} + C P_{d} + D
 ```
 
-with constraints {math}`\phi_{v}\left( -b \right) = \beta_{min}` and {math}`\phi_{v}\left( r \right) = \beta_{max}`.
-
-Using the constraints, we have 
+Define the boundary conditions for our chosen points
 
 ```{math}
-:label: constraints_phi_v_orth
-\beta_{max} &= A t + B \\
-\beta_{min} &= A \left( -b \right) + B = -A b + B.
+\phi_{v} \left( Q_{left} \right)   &= 0 \\ 
+\phi_{v} \left( Q_{right} \right)  &= 0 \\
+\phi_{v} \left( Q_{bottom} \right) &= beta_{min} \\
+\phi_{v} \left( Q_{top} \right)    &= beta_{max} \\
+\phi_{v} \left( Q_{near} \right)   &= 0 \\
+\phi_{v} \left( Q_{far} \right)    &= 0 \\
 ```
 
-Subtracting {math}`\beta_{max}` from {math}`\beta_{min}` in {ref}`constraints_phi_v_orth`
+which we need to justify. The view space coordinates are orthogonal to each other, and the normalized device coordinates
+are also orthogonal to each other. This means that {math}`\phi_{v}` should only be a function of the vertical component
+and not the horizontal component. The points {math}`Q_{left}, Q_{right}, Q_{near}, Q_{far}` lie on the depth-horizontal plane, which 
+have a zero vertical component, so they should keep a zero vertical component after transformation.
+
+Applying the boundary conditions, we have
 
 ```{math}
-\beta_{max} - \beta_{min} = \left( A t + B \right) - \left( A \left( -b \right) + B \right) = A \left( t - \left( -b \right) \right)
+\phi_{v} \left( Q_{left} \right)
+    &= A \cdot \left( -l \right) + B \cdot 0 + C n + D
+    &&= -A l + C n + D
+    &&= 0 \\
+\phi_{v} \left( Q_{right} \right) 
+    &= A \cdot r + B \cdot 0 + C n + D
+    &&= A r + C n + D
+    &&= 0 \\
+\phi_{v} \left( Q_{bottom} \right) 
+    &= A \cdot 0 + B \cdot \left( -b \right) + C n + D
+    &&= -B b + C n + D
+    &&= \beta_{min} \\
+\phi_{v} \left( Q_{top} \right)
+    &= A \cdot 0 + B \cdot t + C n + D
+    &&= B t + C n + D
+    &&= \beta_{max} \\
+\phi_{v} \left( Q_{near} \right)
+    &= A \cdot 0 + B \cdot 0 + C n + D
+    &&= C n + D
+    &&= 0 \\
+\phi_{v} \left( Q_{far} \right)
+    &= A \cdot 0 + B \cdot 0 + C f + D
+    &&= C f + D 
+    &&= 0 \\
 ```
 
-and solving for {math}`A`
+so that
 
 ```{math}
-:label: constant_phi_v_orth_a
-A = \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)}
+:label: phi_v_orth_constraints
+\phi_{v} \left( Q_{left} \right)   &= -A l + C n + D &&= 0 \\
+\phi_{v} \left( Q_{right} \right)  &= A r + C n + D  &&= 0 \\
+\phi_{v} \left( Q_{bottom} \right) &= -B b + C n + D &&= \beta_{min} \\
+\phi_{v} \left( Q_{top} \right)    &= B t + C n + D  &&= \beta_{max} \\
+\phi_{v} \left( Q_{near} \right)   &= C n + D        &&= 0 \\
+\phi_{v} \left( Q_{far} \right)    &= C f + D        &&= 0 \\
 ```
 
-Substituting the expression for {math}`A` back into the constraint for {math}`\beta_{max}` we have
+and now we compute the constants. Subtracting {math}`\phi_{v} \left( Q_{right} \right)` from 
+{math}`\phi_{v} \left( Q_{left} \right)` in {ref}`phi_v_orth_constraints` yields
 
 ```{math}
-\beta_{max} = \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) t + B
+\phi_{v} \left( Q_{right} \right) - \phi_{v} \left( Q_{left} \right) 
+    &= \left[ A r + C n + D \right] - \left[ -A l + C n + D \right] \\
+    &= A r - \left( - A l \right) \\
+    &= A \left( r - \left( -l \right) \right) \\
+    &= 0.
 ```
 
-Solving for {math}`B`
+Solving for {math}`A`, we see that
 
 ```{math}
-B &= \beta_{max} - \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) t \\
-  &= \frac{ \beta_{max} \left( t + b \right) + \left( \beta_{max} b - \beta_{min} t \right) }{t + b} \\
+:label: phi_v_orth_constant_a
+A = 0
+```
+
+since {math}`r - (-l) = r + l \neq 0`. Subtracting {math}`\phi_{v} \left( Q_{top} \right)` from 
+{math}`\phi_{v} \left( Q_{bottom} \right)` in {ref}`phi_v_orth_constraints` yields
+
+```{math}
+\phi_{v} \left( Q_{top} \right) - \phi_{v} \left( Q_{bottom} \right)
+    &= \left[ B t + C n + D \right] - \left[ -B b + C n + D \right] \\
+    &= B t - B \left( -b \right) \\
+    &= B \left( t - \left( -b \right) \right) \\
+    &= \beta_{max} - \beta_{min}.
+```
+
+Solving for {math}`B`, we see that 
+
+```{math}
+:label: phi_v_orth_constant_b
+B = \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)}.
+```
+
+Subtracting {math}`\phi_{v} \left( Q_{far} \right)` from {math}`\phi_{v} \left( Q_{near} \right)` in 
+{ref}`phi_v_orth_constraints` yields
+
+```{math}
+\phi_{v} \left( Q_{far} \right) - \phi_{v} \left( Q_{near} \right)
+    &= \left[ C f + D \right] - \left[ C n + D \right] \\
+    &= C f - C n \\
+    &= C \left( f - n \right) \\
+    &= 0.
+```
+
+Solving for {math}`C`, we see that
+
+```{math}
+:label: phi_v_orth_constant_c
+C = 0
+```
+
+since {math}`f - n \neq 0`. Substituting the constants {ref}`phi_v_orth_constant_a`,
+{ref}`phi_v_orth_constant_b`, and {ref}`phi_v_orth_constant_c` back into {math}`\phi_{v}(Q_{top})` in 
+{ref}`phi_v_orth_constraints` gives us
+
+```{math}
+\phi_{v} \left( Q_{top} \right) 
+    = B t + C n + D
+    = B t + D
+    = \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) t + D
+    = \beta_{max}.
+```
+
+Solving for {math}`D`
+
+```{math}
+D &= \beta_{max} - \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) t \\
+  &= \beta_{max} - \left( \frac{\beta_{max} - \beta_{min}}{t + b} \right) t \\
+  &= \frac{\beta_{max} \left( t + b \right) - \left( \beta_{max} - \beta_{min} \right) t}{t + b} \\
   &= \frac{\beta_{max} t + \beta_{max} b - \beta_{max} t + \beta_{min} t}{t + b} \\
-  &= \frac{\beta_{min} t + \beta_{max} b}{t + b} \\
-  &= \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t + b} \\
+  &= \frac{\beta_{max} t + \beta_{max} b - \beta_{max} t + \beta_{min} t}{t + b} \\
+  &= \frac{\beta_{max} b + \beta_{min} t}{t + b} \\
   &= \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)} \\
 ```
 
-which gives us
+we have
 
 ```{math}
-:label: constant_phi_v_orth_b
-B = \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)}
+:label: phi_v_orth_constant_d
+D =  \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)}.
 ```
 
-which is the constant for {math}`\phi_{v}`. Substituting the constants {ref}`constant_phi_v_orth_a` and {ref}`constant_phi_v_orth_b`
-back into the definition of {math}`\phi_{v}` in equation {ref}`eq_phi_v_orth`
+Assembling the constants {ref}`phi_v_orth_constant_a`, {ref}`phi_v_orth_constant_b`, {ref}`phi_v_orth_constant_c`, 
+{ref}`phi_v_orth_constant_d` back into {ref}`phi_v_orth_def` we have the complete formula for the 
+function {math}`\phi_{v}`
 
 ```{math}
-P_{ndc,v} = \phi_{v}\left( P_{v} \right)
-          = \left( \frac{\beta_{max} - \beta_{min}}{t - \left( -b \right)} \right) P_{v}
-          + \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)}
+:label: phi_v_orth_final
+\phi_{v} \left( P \right) 
+    = \left( \frac{ \beta_{max} - \beta_{min} }{ t - \left( -b \right)} \right) P_{v}
+    + \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)}.
 ```
 
-For the depth component, since the horizontal, vertical, and depth components are orthogonal in
-projected view coordinates, they must be orthogonal in normalized device coordinates too. Thus the 
-normalized devivce coordinate depth component can only depend on the projected view space depth components
-and the {math}`w` component. We need an affine map {math}`\phi_{d} : \mathbb{R} \rightarrow \mathbb{R}` such 
-that
+Consider the map {math}`\phi_{d}`, where
 
 ```{math}
-:label: eq_phi_d_orth
-P_{ndc,d} = \phi_{d}\left( P_{d} \right) = A P_{d} + B
+:label: phi_d_orth_def
+\phi_{d} \left( P \right) = A P_{h} + B P_{v} + C P_{d} + D
 ```
 
-with constraints {math}`\phi_{d}\left( n \right) = \gamma_{min}` and {math}`\phi_{d}\left( f \right) = \gamma_{max}`.
-
-Using the constraints, we have
+Define the boundary conditions for our chosen points
 
 ```{math}
-:label: constraints_phi_d_orth
-\gamma_{max} = A f + B \\
-\gamma_{min} = A n + B.
+\phi_{d} \left( Q_{left} \right)   &= \gamma_{min} \\ 
+\phi_{d} \left( Q_{right} \right)  &= \gamma_{min} \\
+\phi_{d} \left( Q_{bottom} \right) &= \gamma_{min} \\
+\phi_{d} \left( Q_{top} \right)    &= \gamma_{min} \\
+\phi_{d} \left( Q_{near} \right)   &= \gamma_{min} \\
+\phi_{d} \left( Q_{far} \right)    &= \gamma_{max} \\
 ```
 
-Subtracting {math}`\gamma_{max}` from {math}`\gamma_{min}` in {ref}`constraints_phi_d_orth`
+which we need to justify. The view space coordinates are orthogonal to each other, and the normalized device coordinates
+are also orthogonal to each other. This means that {math}`\phi_{d}` should only be a function of the depth component
+and not the horizontal or vertical components. The points {math}`Q_{left}, Q_{right}, Q_{bottom}, Q_{top}` lie on the 
+near plane, which have a depth component of {math}`n`. Since orthographic projection is just the identity, 
+points already on the near plane should stay there. Moreover, points on the far plane should stay on the far
+plane to transform the orthographic view volume into the canonical view volume correctly. Consequently, the 
+depth component should have no dependence on the horizontal or vertical components, only a depth term and an affine 
+translation term.
+
+Applying the boundary conditions, we have
 
 ```{math}
-\gamma_{max} - \gamma_{min} = \left( A f + B \right) - \left( A n + B \right) = A \left( f - n \right)
+\phi_{d} \left( Q_{left} \right)
+    &= A \cdot \left( -l \right) + B \cdot 0 + C n + D
+    &&= -A l + C n + D
+    &&= \gamma_{min} \\
+\phi_{d} \left( Q_{right} \right) 
+    &= A \cdot r + B \cdot 0 + C n + D
+    &&= A r + C n + D
+    &&= \gamma_{min} \\
+\phi_{d} \left( Q_{bottom} \right) 
+    &= A \cdot 0 + B \cdot \left( -b \right) + C n + D
+    &&= -B b + C n + D
+    &&= 0 \\
+\phi_{d} \left( Q_{top} \right)
+    &= A \cdot 0 + B \cdot t + C n + D
+    &&= B t + C n + D
+    &&= 0 \\
+\phi_{d} \left( Q_{near} \right)
+    &= A \cdot 0 + B \cdot 0 + C n + D 
+    &&= C n + D
+    &&= \gamma_{min} \\
+\phi_{d} \left( Q_{far} \right)
+    &= A \cdot 0 + B \cdot 0 + C f + D
+    &&= C f + D
+    &&= \gamma_{max} \\
 ```
 
-and solving for {math}`A`
+so that
 
 ```{math}
-:label: constant_phi_d_orth_a
-A = \frac{\gamma_{max} - \gamma_{min}}{f - n}.
+:label: phi_d_orth_constraints
+\phi_{d} \left( Q_{left} \right)   &= -A l + C n + D &&= \gamma_{min} \\
+\phi_{d} \left( Q_{right} \right)  &= A r + C n + D  &&= \gamma_{min} \\
+\phi_{d} \left( Q_{bottom} \right) &= -B b + C n + D &&= \gamma_{min} \\
+\phi_{d} \left( Q_{top} \right)    &= B t + C n + D  &&= \gamma_{min} \\
+\phi_{d} \left( Q_{near} \right)   &= C n + D        &&= \gamma_{min} \\
+\phi_{d} \left( Q_{far} \right)    &= C f + D        &&= \gamma_{max} \\
 ```
 
-Substituting the expression for {math}`A` back into the constraint for {math}`\gamma_{max}` we have
+and now we compute the constants. Subtracting {math}`\phi_{d} \left( Q_{right} \right)` from 
+{math}`\phi_{d} \left( Q_{left} \right)` in {ref}`phi_d_orth_constraints` yields
 
 ```{math}
-\gamma_{max} = \left( \frac{\gamma_{max} - \gamma_{min}}{f - n} \right) f + B
+\phi_{d} \left( Q_{right} \right) - \phi_{d} \left( Q_{left} \right) 
+    &= \left[ A r + C n + D \right] - \left[ -A l + C n + D \right] \\
+    &= A r - \left( - A l \right) \\
+    &= A \left( r - \left( -l \right) \right) \\
+    &= \gamma_{min} -  \gamma_{min} \\
+    &= 0.
 ```
 
-Solving for {math}`B`
+Solving for {math}`A`, we see that
 
 ```{math}
-B &= \gamma_{max} - \left( \frac{\gamma_{max} - \gamma_{min}}{f - n} \right) f \\
+:label: phi_d_orth_constant_a
+A = 0
+```
+
+since {math}`r - (-l) = r + l \neq 0`. Subtracting {math}`\phi_{d} \left( Q_{top} \right)` from 
+{math}`\phi_{d} \left( Q_{bottom} \right)` in {ref}`phi_d_orth_constraints` yields
+
+```{math}
+\phi_{d} \left( Q_{top} \right) - \phi_{d} \left( Q_{bottom} \right)
+    &= \left[ B t + C n + D \right] - \left[ -B b + C n + D \right] \\
+    &= B t - B \left( -b \right) \\
+    &= B \left( t - \left( -b \right) \right) \\
+    &= \gamma_{min} - \gamma_{min} \\
+    &= 0.
+```
+
+Solving for {math}`B`, we see that 
+
+```{math}
+:label: phi_d_orth_constant_b
+B = 0
+```
+
+since {math}`t - (-b) = t + b \neq 0`. Subtracting {math}`\phi_{d} \left( Q_{far} \right)` from
+{math}`\phi_{d} \left( Q_{near} \right)` in {ref}`phi_d_orth_constraints` yields
+
+```{math}
+\phi_{d} \left( Q_{far} \right) - \phi_{d} \left( Q_{near} \right)
+    &= \left[ C f + D \right] - \left[ C n + D \right] \\
+    &= C f - C n \\
+    &= C \left( f - n \right) \\
+    &= \gamma_{max} - \gamma_{min}.
+```
+
+Solving for {math}`C`, we see that
+
+```{math}
+:label: phi_d_orth_constant_c
+C = \frac{ \gamma_{max} - \gamma_{min} }{f - n}
+```
+
+Substituting the constants {ref}`phi_d_orth_constant_a`,
+{ref}`phi_d_orth_constant_b`, and {ref}`phi_d_orth_constant_c` back into {math}`\phi_{d}(Q_{far})` in 
+{ref}`phi_d_orth_constraints` gives us
+
+```{math}
+\phi_{d} \left( Q_{far} \right) 
+    &= C f + D 
+    &= \left( \frac{\gamma_{max} - \gamma_{min}}{f - n} \right) f + D 
+    &= \gamma_{max}.
+```
+
+Solving for {math}`D`
+
+```{math}
+D &= \gamma_{max} - \left( \frac{\gamma_{max} - \gamma_{min}}{f - n} \right) f \\
   &= \frac{\gamma_{max} \left( f - n \right) - \left( \gamma_{max} - \gamma_{min} \right) f}{f - n} \\
-  &= \frac{\gamma_{max} f - \gamma_{max} n - \gamma_{max} f + \gamma_{min} f}{f - n} \\
-  &= \frac{\gamma_{min} f - \gamma_{max} n}{f - n}
+  &= \frac{\gamma_{max} f - \gamma_{max} n - \gamma_{max} f + \gamma_{min}f}{f - n} \\
+  &= \frac{\gamma_{min} f - \gamma_{max} n}{f - n} \\
 ```
 
-which gives us
+we have
 
 ```{math}
-:label: constant_phi_d_orth_b
-B = \frac{\gamma_{min} f - \gamma_{max} n}{f - n}
+:label: phi_d_orth_constant_d
+D = \frac{\gamma_{min} f - \gamma_{max} n}{f - n}.
 ```
 
-which is the constant for {math}`\phi_{d}`. Substituting the constants {ref}`constant_phi_d_orth_a` 
-and {ref}`constant_phi_d_orth_b` back into the definition of {math}`\phi_{d}` in equation 
-{ref}`eq_phi_d_orth`
+Assembling the constants {ref}`phi_d_orth_constant_a`, {ref}`phi_d_orth_constant_b`, {ref}`phi_d_orth_constant_c`, 
+{ref}`phi_d_orth_constant_d` back into {ref}`phi_d_orth_def` we have the complete formula for the 
+function {math}`\phi_{d}`
 
 ```{math}
-P_{ndc,d} = \phi_{d}\left( P_{d} \right)
-          = \left( \frac{\gamma_{max} - \gamma_{min}}{f - n} \right) P_{d} + \frac{\gamma_{min} f - \gamma_{max} n}{f - n}
+:label: phi_d_orth_final
+\phi_{d} \left( P \right)
+    = \left( \frac{\gamma_{max} - \gamma_{min}}{f - n} \right) P_{d}
+    + \frac{ \gamma_{min} f - \gamma_{max} n }{f - n}.
 ```
 
-Since we do not apply depth normalization in orthographic projections, and the view space {math}`w` component is {math}`1`
+Finally, we substitute {ref}`phi_h_orth_final`, {ref}`phi_v_orth_final`, and {ref}`phi_d_orth_final`
+back into {ref}`eq_orth_clip1` to get
 
 ```{math}
-P_{ndc,w} = P_{w} = 1
-```
-
-Finally, since we do not perform depth normalization with orthographic projections, the clip space 
-coordinates are identical to the canonical view volume ones. That is 
-
-```{math}
-P_{ndc,h} = P_{clip,h}, \hspace{4 pt} P_{ndc,v} = P_{clip,v}, \hspace{4 pt} P_{ndc,d} = P_{clip,d}, \hspace{4 pt} P_{ndc,w} = P_{clip,w}. 
+P_{clip,h} 
+    &= \phi_{h} \left( P \right)
+    &&= \left( \frac{ \alpha_{max} - \alpha_{min} }{ r - \left( -l \right)} \right) P_{h}
+    + \frac{\alpha_{min} r - \alpha_{max} \left( -l \right)}{r - \left( -l \right)} \\
+P_{clip,v}
+    &= \phi_{v} \left( P \right) 
+    &&= \left( \frac{ \beta_{max} - \beta_{min} }{ t - \left( -b \right)} \right) P_{v}
+    + \frac{\beta_{min} t - \beta_{max} \left( -b \right)}{t - \left( -b \right)} \\
+P_{clip,d} 
+    &= \phi_{d} \left( P \right)
+    &&= \left( \frac{\gamma_{max} - \gamma_{min}}{f - n} \right) P_{d} 
+    + \frac{ \gamma_{min} f - \gamma_{max} n }{f - n}  \\
+P_{clip,w} 
+    &= \phi_{w} \left( P \right) 
+    &&= 1 \\
 ```
 
 Assembling the clip space components into the resulting matrix equation, we have
@@ -1985,19 +2417,10 @@ Assembling the clip space components into the resulting matrix equation, we have
     P_{v} \\ 
     P_{d} \\ 
     P_{w} \\
-\end{bmatrix}
-= 
-M^{C}_{orth}
-\begin{bmatrix} 
-    P_{h} \\ 
-    P_{v} \\ 
-    P_{d} \\ 
-    P_{w} \\
-\end{bmatrix}
-.
+\end{bmatrix}.
 ```
 
-This yields the second major result, the canonical orthographic projection matrix.
+This yields the second major result, the canonical orthographic projection matrix {math}`M^{C}_{orth}`.
 
 ```{admonition} Orthographic Projection Matrix
 ```{math}
@@ -2026,6 +2449,8 @@ M^{C}_{orth} =
     \\
 \end{bmatrix}
 ```
+
+This completes the derivation of the canonical orthographic projection matrix.
 
 ### The Canonical Perspective Matrix
 
