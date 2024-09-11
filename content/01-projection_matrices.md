@@ -1,55 +1,70 @@
 ---
-title: Perspective Projection And Orthographic Projection Matrices For Computer Graphics
+title: A Comprehensive Guide To Projection Matrices In Computer Graphics
+subtitle: 
+    Constructing Projection Matrices In Computer Graphics Using Matrix 
+    Representations Of Projective Transformations In Real Projective Space 
 authors:
   - name: Lambda Xymox
   - email: lambdaxymox@gmail.com
+  - github: https://github.com/lambdaxymox
 license: CC-BY-4.0
-keywords: computer-graphics, computer-science, linear-algebra
-abstract: We derive a general formula for perspective and orthographic projection matrices in {math}`\mathbb{RP}^{3}`, and then
-apply them to deriving the corresponding matrices for specific platform APIs.
+keywords: 
+    computer-graphics, computer-science, linear-algebra, rendering, computer-vision, 
+    geometric-modeling, projective-geometry, applied-computing
+abstract: 
+    We derive perspective projection and orthographic projection matrices from first principles 
+    using projective geometry. After establishing the topological manifold structure of real 
+    projective space, we find matrix representations for linear, affine, and projective 
+    transformations in real projective space. We then formulate the projection specifications in a
+    coordinate-independent manner, leading to general formulas for perspective and orthographic 
+    projection matrices. Finally, we apply these results to succinctly calculate the projection 
+    matrices for OpenGL, Vulkan, Metal, and DirectX. This process illustrates why real projective 
+    space is a convenient setting for solving computer graphics problems.
 ---
 
 ## Introduction
 
 We construct the perspective and orthographic projection matrices common to computer graphics in a 
 very general way. The usual parametrizations are defined with respect to specific coordinate system 
-and a specific canonincal view volume, such that the view volume parameters define the frustum 
+and a specific canonical view volume, such that the view volume parameters define the view volume
 planes directly in terms of coordinates. This is how most computer graphics books construct the 
 projection transformations.
 
-Rendering is done in the manifold {math}`\mathbb{RP}^{3}` (i.e. homogeneous coordinates) for several
-reasons: (1) affine transformations become linear transformations one dimension higher, so translations
-can be treated like any other linear transformations; (2) transformations in {math}`\mathbb{RP}^{3}` 
-are well-defined under changes in scale, so we can handle projective transformations in a unified fashion;
-(3) we can treat projective transformations in the same setting as affine transformations;
-(4) Coordinate systems and scales become equivalent, allowing spatial simulation problems to be 
-expressed directly in a coordinate independent way; (5) we can change coordinate systems to whatever 
-makes coordinate system makes the simulation problem at hand convenient to work with; (6) for very 
-practical reasons, we can express the problem in a coordinate system that affords the best numerical 
-precision possible on the hardware. 
+Rendering is done in the manifold {math}`\mathbb{RP}^{3}` in homogeneous coordinates for multiple reasons:
 
-Regarding the last point, a platform such as OpenGL, Vulkan, DirectX, Metal, or WebGPU typically defines
-its normalized device coordinate system as one that is a numerically favorable coordinate system. Any 
-spatial computing domain whose problems are done in Euclidean space can take advantage of the 
-manifold {math}`\mathbb{RP}^{3}`, including computer graphics, computer vision, geometric modeling, and 
+1. Affine transformations become linear transformations one dimension higher, so translations
+   can be treated like any other linear transformations.
+2. Transformations in {math}`\mathbb{RP}^{3}` are well-defined under changes in scale, so we can handle 
+   projective transformations in a unified fashion with affine transformations.
+3. Coordinate systems and scales become equivalent, allowing spatial simulation problems to be 
+   expressed directly in a coordinate independent way.
+4. We can change coordinate systems to whatever coordinate system makes the problem at hand convenient to 
+   work with.
+5. For very practical reasons, we can express the problem in a coordinate system that affords the best 
+   numerical precision possible on the hardware. 
+
+A platform such as OpenGL, Vulkan, DirectX, Metal, or WebGPU typically defines its normalized device 
+coordinate system as one that is a numerically favorable coordinate system. Any spatial computing 
+domain whose problems are formulated in Euclidean space can take advantage of the manifold 
+{math}`\mathbb{RP}^{3}`. Such domains include computer graphics, computer vision, geometric modeling, and 
 robotics. In the context of computer graphics, the platform coordinate system is whichever one maps 
 the view volume in the viewing space to the canonical view volume defined by the platform interface. 
 In particular, the canonical view volume tends to be parametrized by either
 {math}`[-1, 1] \times [-1, 1] \times [-1, 1]` or {math}`[-1, 1] \times \ [-1, 1] \times [0, 1]`. In 
 either case, transforming the problem to a unit interval adds one free bit of extra precision when 
 working with floating point numbers. This maximizes the accuracy of floating point computations on 
-the GPU, including tasks such as intersection testing, depth testing, sampling, and clipping.
+the GPU, including tasks such as intersection testing, depth testing, texture sampling, and clipping 
+algorithms.
 
-We parameterize the view space viewing frustum in a slightly different way than the usual one to 
-make the perspective view volume specification coordinate invariant. This allows us to construct the 
-matrices for any specific source view space coordinate system, source perspective view volume, source 
-orthographic view volume, target normalized device coordinate system, and target canonical view volume. 
-We define a canonical set of transformations where the view space with a left-handed orthonormal frame 
-where the vertical axis points up, the horizontal axis points right, and the depth axis points into the 
-viewing volume, and a clip coordinate system with a left-handed orthonormal frame where the vertical axis 
-points up, the horizontal axis points right, and the depth axis points into the viewing volume. We show 
-how to construct a general perspective projection or orthographic projection from any source view coordinate 
-system to any targe clip coordinate system, and that the resulting transformation is coordinate invariant.
+We parametrize the view space view volume in a slightly different way than the usual one to 
+make the perspective view volume specification coordinate independent. This allows us to construct the 
+matrices for any specific view space coordinate system, perspective view volume, orthographic view volume, 
+normalized device coordinate system, and canonical view volume. We define a canonical set of transformations 
+where the view space is a left-handed orthonormal frame where the horizontal axis points right, the vertical 
+axis points up, and the depth axis points into the view volume, and a clip coordinate system with a 
+left-handed orthonormal frame where the horizontal axis points right, the vertical axis points up, and the 
+depth axis points into the view volume. We show how to construct a general perspective projection or 
+orthographic projection from any source view coordinate system to any target clip coordinate system.
 
 ## The Topological Manifold Structure Of Real Projective Space
 
@@ -204,11 +219,13 @@ We show that the set {math}`X^{\prime}` is open in {math}`\mathbb{R}^{4} - \{ \m
 Suppose that {math}`\mathbf{q} \in (\mathbb{R}^{4} - \{ \mathbf{0} \}) - U_{i}`. We can find a radius {math}`r > 0`
 such that {math}`B_{r}(\mathbf{q})` does not intersect {math}`U_{i}` such that {math}`B_{r}(\mathbf{q}) \cap U_{i} = \emptyset`.
 Indeed, we can choose {math}`r` to be less than the distance to the nearest point where the {math}`i^{th}` coordinate 
-is zero, i.e. {math}`r < |q_{i}|`. With the chosen {math}`r`, we have
+is zero, i.e. {math}`r < |q_{i}|`. Choose {math}`r = |q_{i}| / 2` for concreteness. With the chosen {math}`r`, we have
 {math}`B_{r}(\mathbf{q}) \subset \mathbb{R}^{4} - \{ \mathbf{0} \} - U_{i}` for each 
-{math}`\mathbf{q} \in \mathbb{R}^{4} - \{ \mathbf{0} \} - U_{i}`. This shows that {math}`\mathbb{R}^{4} - \{ \mathbf{0} \} - U_{i}` is open in {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`. Since {math}`X^{\prime}` is the union of two open sets, it is also open.
-The set {math}`X^{\prime}` is open and saturated with respect to {math}`\pi`, so that image {math}`\pi(X^{\prime})` 
-is open in {math}`\mathbb{RP}^{3}` because {math}`\pi` is a quotient map. We have 
+{math}`\mathbf{q} \in \mathbb{R}^{4} - \{ \mathbf{0} \} - U_{i}`. This shows that 
+{math}`\mathbb{R}^{4} - \{ \mathbf{0} \} - U_{i}` is open in {math}`\mathbb{R}^{4} - \{ \mathbf{0} \}`. 
+Since {math}`X^{\prime}` is the union of two open sets, it is also open. The set {math}`X^{\prime}` is open and 
+saturated with respect to {math}`\pi`, so that image {math}`\pi(X^{\prime})` is open in {math}`\mathbb{RP}^{3}` because 
+{math}`\pi` is a quotient map. We have 
 
 ```{math}
 W = \pi_{i}(\pi^{-1}_{i}\left( W \right)) = \pi_{i}\left( X \cap U_{i} \right) = \pi\left( X^{\prime} \right) \cap V_{i}.
@@ -347,7 +364,7 @@ written out as
 The map {math}`\varphi_{i}` is continuous by the universal property of product spaces applied to {math}`\mathbb{R}^{4}`. 
 Since the map {math}`\varphi_{i}` is continuous, the universal property of quotient maps implies that the map 
 {math}`\psi_{i}` is continuous. We must show that {math}`\psi_{i}` is bijective. Let's prove surjectivity: let 
-{math}`\begin{pmatrix} P_{0} \ P_{1} \ \dots \ P_{i-1} \ P_{i+1} \dots \ P_{3}  \end{pmatrix}^{T} \in \mathbb{R}^{3}`,
+{math}`\begin{pmatrix} P_{0} \ P_{1} \ \dots \ P_{i-1} \ P_{i+1} \ \dots & P_{3} \end{pmatrix}^{T} \in \mathbb{R}^{3}`,
 let
 {math}`\begin{bmatrix} \begin{pmatrix} P_{0} \ P_{1} \ \dots \ P_{i-1} \ 1 \ P_{i+1} \dots \ P_{3} \end{pmatrix} \end{bmatrix}^{T} \in V_{i}`,
 From the definition of {math}`\psi_{i}`, we see that
@@ -548,6 +565,16 @@ Hausdorff and locally Euclidean. Therefore {math}`\mathbb{RP}^{3}` is a topologi
 (or we just say that it is a {math}`3`-manifold, or a manifold). Finally, {math}`\mathbb{RP}^{3}` is 
 compact, so it is a nice setting to work with topologically.
 
+:::{important} The Manifold Structure Of Real Projective Space
+
+The real projective space {math}`\mathbb{RP}^{3}` is a compact topological manifold
+{math}`\mathbb{RP}^{3} = (\mathbb{R}^{4} - \{ \mathbf{0} \}) / \sim` where the topology
+is the quotient topology induced by the canonical surjection 
+{math}`\pi : \mathbb{R}^{3} \rightarrow \mathbb{RP}^{3}` given by {math}`\pi(P) = [P]`, and the atlas consists of charts which 
+normalize along one of the coordinates.
+
+:::
+
 ## Representing Transformations In Real Projective Space
 
 Any orthonormal frame {math}`(\tilde{O}_{frame}, \left( \mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d} \right))` 
@@ -720,26 +747,54 @@ we can work with linear, affine, and projective transformations in a unified set
 going one dimension higher in our representation from {math}`T : \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}`
 to its lifted counterpart {math}`\hat{T} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}`.
 
-The punchline is that we can lift the Euclidean space {math}`\mathbb{E}^{3}` into real projective space, in such a way that
-each point in {math}`\mathbb{E}^{3}` has a corresponding unique point in the affine subspace of {math}`\mathbb{RP}^{3}`
-under any coordinate chart. This lift allows us to construct our projections between different coordinate systems 
-in real-projective space in a coherent and well-defined manner. Via the embedding {math}`\pi \circ \rho`, the manifold 
-structure of {math}`\mathbb{RP}^{3}` allows us to scale our coordinates in any way we like, because in projective 
-coordinates we don't care about scaling. We can also lift transformations from {math}`\mathbb{E}^{3}` 
-to {math}`\mathbb{RP}^{3}` as a consequence of the embedding {math}`\pi \circ \rho` too. This setting makes it 
-convenient to construct perspective and orthographic projections, because at the end, we are back in the affine 
-portion of {math}`\mathbb{RP}^{3}` after normalization, so we can map back out of {math}`\mathbb{RP}^{3}` again by choosing 
-a chart on {math}`\mathbb{RP}^{3}` and applying it.
+The punchline is that we can lift the Euclidean space {math}`\mathbb{E}^{3}` into real projective space, in such 
+a way that each point in {math}`\mathbb{E}^{3}` has a corresponding unique point in the affine subspace of 
+{math}`\mathbb{RP}^{3}` under any coordinate chart. This lift allows us to construct our projections between 
+different coordinate systems in real projective space in a coherent and well-defined manner. Via the embedding 
+{math}`\pi \circ \rho`, the manifold structure of {math}`\mathbb{RP}^{3}` allows us to scale our coordinates in 
+any way we like, because in projective coordinates we don't care about scaling. We can also lift transformations 
+from {math}`\mathbb{E}^{3}` to {math}`\mathbb{RP}^{3}` as a consequence of the embedding {math}`\pi \circ \rho` too. 
+This setting makes it convenient to construct perspective and orthographic projections, because at the end, we are 
+back in the affine portion of {math}`\mathbb{RP}^{3}` after normalization, so we can map back out of 
+{math}`\mathbb{RP}^{3}` again by choosing a chart on {math}`\mathbb{RP}^{3}` and applying it.
 
 We have shown how to map Euclidean space to real projective space, and how to represent linear, affine, 
 and projective transformations as linear transformations in linear projective space. It remains to apply
 these developments to our primary goal: constructing orthographic and perspective projection matrices 
 in homogeneous coordinates.
 
+:::{important} Matrix Representations Of Projective Transformations
+
+A linear transformation {math}`L : \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}` lifted over to 
+{math}`\mathbb{RP}^{3}` is a linear map {math}`\hat{L} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` with
+the matrix representation
+
+```{math}
+\hat{L} = \begin{bmatrix} L & \mathbf{0} \\ \mathbf{0}^{T} & 1 \\ \end{bmatrix}.
+```
+
+An affine transformation {math}`A : \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}` lifted over to 
+{math}`\mathbb{RP}^{3}` is a linear map {math}`\hat{A} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` with 
+the matrix representation
+
+```{math}
+\hat{A} = \begin{bmatrix} L & \mathbf{t} \\ \mathbf{0}^{T} & 1 \\ \end{bmatrix}.
+```
+
+A projective transformation {math}`T : \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}` lifted over to 
+{math}`\mathbb{RP}^{3}` is a linear map {math}`\hat{T} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` with
+the matrix representation
+
+```{math}
+\hat{T} = \begin{bmatrix} L & \mathbf{t} \\ \mathbf{c}^{T} & h \\ \end{bmatrix}.
+```
+
+:::
+
 ## Specifying Projection Matrices
 
 To define a projection matrix, we need two coordinate systems: the view coordinate system, and the 
-normalized device coordinate system. The view coordinte system is where the view volume is defined.
+normalized device coordinate system. The view coordinate system is where the view volume is defined.
 The normalized device coordinate system is where the canonical view volume is defined. The task of
 the projection transformation is to map the view volume to the canonical view volume.
 
@@ -751,18 +806,18 @@ in which to render computer graphics. The convenient coordinate system we choose
 from platform to platform. The other coordinates systems exist to articulate a clear path from projective 
 view coordinates to normalized device coordinates. First we must define the view space and the view coordinates. 
 
-The **view coordinate system** for Euclidean space {math}`\mathbb{E}^{3}` is given by the 
+The **view coordinate** system for Euclidean space {math}`\mathbb{E}^{3}` is given by the 
 orthonormal frame {math}`(\tilde{O}_{view}, \mathcal{B}_{view})` where (1) the **origin** of the orthonormal frame is 
-the point {math}`\tilde{O}_{view} \in \mathbb{E}^{3}`; (2) The **basis** of the orthonormal frame is 
+the point {math}`\tilde{O}_{view} \in \mathbb{E}^{3}`; (2) the **basis** of the orthonormal frame is 
 {math}`\mathcal{B}_{view} = (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d})` where
 the basis vector {math}`\mathbf{\hat{u}}_{h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{v}`
 points up, and the basis vector {math}`\mathbf{\hat{u}}_{d}` points into the view volume or out of the 
 view volume, depending on the choice of orientation; (3) the view volume in this coordinate system is 
 called the **view volume** (or in the case of perspective projection, the **perspective view volume**).
 
-The **projected coordinate system** for Euclidean space {math}`\mathbb{E}^{3}` is given by the 
+The **projected coordinate** system for Euclidean space {math}`\mathbb{E}^{3}` is given by the 
 orthonormal frame {math}`(\tilde{O}_{proj}, \mathcal{B}_{proj})` where (1) the **origin** of the orthonormal frame is 
-the point {math}`\tilde{O}_{proj} \in \mathbb{E}^{3}`; (2) The **basis** of the orthonormal frame is 
+the point {math}`\tilde{O}_{proj} \in \mathbb{E}^{3}`; (2) the **basis** of the orthonormal frame is 
 {math}`\mathcal{B}_{proj} = (\mathbf{\hat{u}}_{proj,h}, \mathbf{\hat{u}}_{proj,v}, \mathbf{\hat{u}}_{proj,d})` where
 the basis vector {math}`\mathbf{\hat{u}}_{proj,h}` points to the right, the basis vector {math}`\mathbf{\hat{u}}_{proj,v}`
 points up, and the basis vector {math}`\mathbf{\hat{u}}_{proj,d}` points into the view volume or out of the 
@@ -770,19 +825,19 @@ view volume, depending on the choice of orientation; (3) the view volume in this
 called the **projected view volume** (or in the case of perspective projection, the 
 **perspective projected view volume**).
 
-The **clip coordinate system** for Euclidean space {math}`\mathbb{E}^{3}` is given by the orthonormal frame 
-{math}`(\tilde{O}_{clip}, \mathcal{B}_{clip})` defined on {math}`\mathbb{E}^{3}` where (1) The **origin** of 
+The **clip coordinate** system for Euclidean space {math}`\mathbb{E}^{3}` is given by the orthonormal frame 
+{math}`(\tilde{O}_{clip}, \mathcal{B}_{clip})` defined on {math}`\mathbb{E}^{3}` where (1) the **origin** of 
 the orthonormal frame {math}`(\tilde{O}_{clip}, \mathcal{B}_{clip})` is the point {math}`\tilde{O}_{clip} \in \mathbb{E}^{3}`; 
-(2) The **basis** of the orthonormal frame is 
+(2) the **basis** of the orthonormal frame is 
 {math}`\mathcal{B}_{clip} = (\mathbf{\hat{u}}_{clip,h}, \mathbf{\hat{u}}_{clip,v}, \mathbf{\hat{u}}_{clip,d})` 
 where the basis vector {math}`\mathbf{\hat{u}}_{clip,h}` points to the right, the basis vector 
 {math}`\mathbf{\hat{u}}_{clip,v}` points up, and the basis vector {math}`\mathbf{\hat{u}}_{clip,d}` points into the 
-view volume, or out of the view volume depending on the choice or orientation; (3) The view volume in this
+view volume, or out of the view volume depending on the choice or orientation; (3) the view volume in this
 coordinate system is called the **orthographic view volume**.
 
-The **normalized device coordinate system** for Euclidean space {math}`\mathbb{E}^{3}` is given by the 
+The **normalized device coordinate** system for Euclidean space {math}`\mathbb{E}^{3}` is given by the 
 orthonormal frame {math}`(\tilde{O}_{ndc}, \mathcal{B}_{ndc})` defined on {math}`\mathbb{E}^{3}` where 
-(1) The **origin** of the orthonormal {math}`(\tilde{O}_{ndc}, \mathcal{B}_{ndc})` frame is the point 
+(1) The **origin** of the orthonormal frame {math}`(\tilde{O}_{ndc}, \mathcal{B}_{ndc})` is the point 
 {math}`\tilde{O}_{ndc} \in \mathbb{E}^{3}`; (2) The **basis** of the orthonormal frame is 
 {math}`\mathcal{B}_{ndc} = (\mathbf{\hat{u}}_{ndc,h}, \mathbf{\hat{u}}_{ndc,v}, \mathbf{\hat{u}}_{ndc,d})` 
 where the basis vector {math}`\mathbf{\hat{u}}_{ndc,h}` points to the right, the basis vector 
@@ -804,6 +859,28 @@ parameters {math}`l`, {math}`r`, {math}`b`, {math}`t`, {math}`n`, {math}`f` wher
 where {math}`\alpha_{max} > \alpha_{min}`, {math}`\beta_{max} > \beta_{min}`, and 
 {math}`\gamma_{max} > \gamma_{min}`.
 
+:::{important} Projection Matrix Specification
+
+A projection matrix is a projective transformation {math}`T : \mathbb{E}^{3} \rightarrow \mathbb{E}^{3}` 
+lifted over to {math}`\mathbb{RP}^{3}` as {math}`\hat{T} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` specified 
+by the following data:
+
+* The **view coordinate** system, defined by an orthonormal frame 
+  {math}`\mathcal{F}_{view} = (\tilde{O}_{view}, \mathcal{B}_{view})`.
+* The **clip coordinate** system, defined by an orthonormal frame
+  {math}`\mathcal{F}_{clip} = (\tilde{O}_{clip}, \mathcal{B}_{clip})`.
+* The **normalized device coordinate** system, defined by an orthonormal frame
+  {math}`\mathcal{F}_{ndc} = (\tilde{O}_{ndc}, \mathcal{B}_{ndc})`.
+* The **view volume**, parametrized by {math}`[-l, r] \times [-b, r] \times [n, f]` where
+  {math}`l > 0`, {math}`r > 0`, {math}`b > 0`, {math}`t > 0`, and {math}`f > n > 0`.
+* The **canonical view volume**, parametrized by 
+  {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`
+  where {math}`\alpha_{max} > \alpha_{min}`, {math}`\beta_{max} > \beta_{min}`, and {math}`\gamma_{max} > \gamma_{min}`.
+
+The projection matrix maps the view volume to the canonical view volume.
+
+:::
+
 ## The Canonical Projection Matrices
 
 In this section, we construct the canonical projection matrices. We call them canonical because each of the 
@@ -815,13 +892,13 @@ convenient to work with.
 We choose a canonical set of coordinate systems to construct the canonical projective transformations
 that will be used to derive the projective transformations in specific settings.
 
-The **canonical view coordinates** is the view space coordinate system with orthnormal frame 
+The **canonical view coordinates** is the view space coordinate system with orthonormal frame 
 {math}`(\tilde{O}_{view}, \mathcal{B}_{view})` where 
 {math}`\mathcal{B}_{view} = (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d})` such that the depth 
-frame vector {math}`\mathbf{\hat{u}}_{d}` points into the view volume. This gives the canonincal view space a 
+frame vector {math}`\mathbf{\hat{u}}_{d}` points into the view volume. This gives the canonical view space a 
 left-handed orientation. The **canonical projected coordinates** coordinate system is the projected coordinate system 
-with the same orthonormal frame as the canonical view space coordinates. The **canonical clip coordinates** coordinate 
-system is the clip coordinates with the same orthonormal frame as the canonical view space coordinates. The 
+with the same orthonormal frame as the canonical view coordinates. The **canonical clip coordinates** coordinate 
+system is the clip coordinate system with the same orthonormal frame as the canonical view coordinate system. The 
 **canonical normalized device coordinates** coordinate system is the normalized device coordinate system with the same 
 orthonormal frame as in canonical view coordinates. In particular, each coordinate system uses the same orthonormal 
 frame, and has a left-handed orientation.
@@ -872,11 +949,11 @@ implying that
 P^{\prime}_{proj,v} = n P_{v} \left( \frac{1}{P_{d}} \right).
 ```
 
-Observe that the horizontal and vertical components transforms like a projective transformation. Indeed,
+Observe that the horizontal and vertical components both transform as projective transformations. Indeed,
 the perspective projection transformation is a projective transformation where the affine function is
 given by {math}`P_{d}`. In other words, the perspective projection is dividing by depth. Using our reasoning
 about representing projective transformations that lead to the matrix representation {ref}`matrix_repr_projective`, we 
-can deduce the lifted mapping from rearranging the perspective equations
+can deduce the lifted mapping by rearranging the perspective equations
 
 ```{math}
 P_{d} P^{\prime}_{proj,h} = n P_{h} \\
@@ -886,9 +963,9 @@ P_{d} P^{\prime}_{proj,v} = n P_{v} \\
 suggestively. The right hand side in both cases are affine transformations. This suggests to form
 of the transformation for the depth component. We define our projected coordinate system components as follows.
 Let {math}`P_{proj,h} = P_{d} P^{\prime}_{proj,h}` and {math}`P_{proj,v} = P_{d} P^{\prime}_{proj,v}`.
-Since the affine scalar function is perspective division, we immediately see that {math}`P_{proj,w} = P_{d}`. This leaves the
-depth component. The depth component does not directly participate in depth normalization, and
-we our coordinate system is orthogonal, so {math}`P_{proj,d}` cannot depend on {math}`P_{h}` or {math}`P_{v}`.
+Since the affine scalar function is perspective division, we immediately see that {math}`P_{proj,w} = P_{d}`. This 
+leaves the depth component. The depth component does not directly participate in depth normalization, and
+since our coordinate system is orthogonal, so {math}`P_{proj,d}` cannot depend on {math}`P_{h}` or {math}`P_{v}`.
 This implies that {math}`P_{proj,d}` must be a function of {math}`P_{d}` and {math}`P_{w}`. Since the 
 transformation is projective, the depth component must transform affinely. Since {math}`P_{w} = 1`. This leaves
 
@@ -950,7 +1027,7 @@ This implies that the clip coordinates must be affine functions of {math}`P_{pro
 P_{clip,h} &= \phi_{h} \left( P_{proj} \right) \\
 P_{clip,v} &= \phi_{v} \left( P_{proj} \right) \\
 P_{clip,d} &= \phi_{d} \left( P_{proj} \right) \\
-P_{clip,w} &= \phi_{w} \left( P_{proj} \right)
+P_{clip,w} &= \phi_{w} \left( P_{proj} \right) \\
 ```
 
 is the form of the clip components. Since the purpose of the {math}`w` coordinate is to perform perspective 
@@ -971,8 +1048,8 @@ P_{ndc,d} &= \xi_{d} \left( P \right) = \phi_{d} \left( P_{proj} \right) \left( 
 
 To derive the perspective projection matrix, we solve for the clip coordinate functions {math}`\phi_{h}, \phi_{v}, \phi_{d}`
 indirectly using the auxiliary functions {math}`\xi_{h}, \xi_{v}, \xi_{d}` in {ref}`eq_persp_ndc2`, and
-use the constraints on the orthographic view volume to compute the auxiliary functions. To establish constraints, we need
-to talk about some well chosen points. We need to construct the maps {math}`\xi_{h}, \xi_{v}, \xi_{d}` such that
+use the constraints on the orthographic view volume to compute the auxiliary functions. To establish constraints, we 
+need to talk about some well chosen points. We need to construct the maps {math}`\xi_{h}, \xi_{v}, \xi_{d}` such that
 the parametrization of the orthographic view volume maps to the parametrization of the canonical view volume.
 That it, such that coordinates map as 
 {math}`-l \mapsto \alpha_{min}, r \mapsto \alpha_{max}, -b \mapsto beta_{min}, t \mapsto \beta_{max}, n \mapsto \gamma_{min}, f \mapsto \gamma_{max}`.
@@ -1031,10 +1108,11 @@ Define the boundary conditions for our chosen points
 \xi_{h} \left( Q_{far} \right)    &= 0 \\
 ```
 
-which we need to justify. The view space coordinates are orthogonal to each other, and the normalized device coordinates
-are also orthogonal to each other. This means that {math}`\xi_{h}` should only be a function of the horizontal component
-and not the vertical component. The points {math}`Q_{bottom}, Q_{top}, Q_{near}, Q_{far}` lie on the depth-vertical plane, which 
-have a zero horizontal component, so they should keep a zero horizontal component after transformation.
+which we need to justify. The view coordinates are orthogonal to each other, and the normalized device 
+coordinates are also orthogonal to each other. This means that {math}`\xi_{h}` should only be a function 
+of the horizontal component and not the vertical component. The points 
+{math}`Q_{bottom}, Q_{top}, Q_{near}, Q_{far}` lie on the depth-vertical plane, which have a zero horizontal 
+component, so they should keep a zero horizontal component after transformation.
 
 Applying the boundary conditions, we have
 
@@ -1107,8 +1185,8 @@ Solving for {math}`A`, we see that
 A = \frac{\alpha_{max} - \alpha_{min}}{r - \left( -l \right)}.
 ```
 
-Subtracting {math}`\xi_{h} \left( Q_{top} \right)` from 
-{math}`\xi_{h} \left( Q_{bottom} \right)` in {ref}`xi_h_persp_constraints` yields
+Subtracting {math}`\xi_{h} \left( Q_{top} \right)` from {math}`\xi_{h} \left( Q_{bottom} \right)` 
+in {ref}`xi_h_persp_constraints` yields
 
 ```{math}
 \xi_{h} \left( Q_{top} \right) - \xi_{h} \left( Q_{bottom} \right)
@@ -1216,10 +1294,11 @@ Define the boundary conditions for our chosen points
 \xi_{v} \left( Q_{far} \right)    &= 0 \\
 ```
 
-which we need to justify. The view space coordinates are orthogonal to each other, and the normalized device coordinates
-are also orthogonal to each other. This means that {math}`\xi_{v}` should only be a function of the vertical component
-and not the horizontal component. The points {math}`Q_{left}, Q_{right}, Q_{near}, Q_{far}` lie on the depth-horizontal plane, which 
-have a zero vertical component, so they should keep a zero vertical component after transformation.
+which we need to justify. The view coordinates are orthogonal to each other, and the normalized device 
+coordinates are also orthogonal to each other. This means that {math}`\xi_{v}` should only be a function 
+of the vertical component and not the horizontal component. The points 
+{math}`Q_{left}, Q_{right}, Q_{near}, Q_{far}` lie on the depth-horizontal plane, which have a zero vertical 
+component, so they should keep a zero vertical component after transformation.
 
 Applying the boundary conditions, we have
 
@@ -1401,13 +1480,13 @@ Define the boundary conditions for our chosen points
 \xi_{d} \left( Q_{far} \right)    &= \gamma_{max} \\
 ```
 
-which we need to justify. The view space coordinates are orthogonal to each other, and the normalized device coordinates
+which we need to justify. The view coordinates are orthogonal to each other, and the normalized device coordinates
 are also orthogonal to each other. This means that {math}`\xi_{d}` should only be a function of the depth component
-and not the horizontal or vertical components. The points {math}`Q_{left}, Q_{right}, Q_{bottom}, Q_{top}` lie on the near plane, which 
-have a depth component of {math}`n`. Since perspective projection projects depth components onto the near plane,
-points already on the near plane should stay there. Moreover, points on the far plane should stay on the far
-plane to satisfy to transform the perspective view volume into the orthographic view volume correctly. Consequently, the depth component should have no dependence on the horizontal or vertical components, only
-a depth term and an affine translation term.
+and not the horizontal or vertical components. The points {math}`Q_{left}, Q_{right}, Q_{bottom}, Q_{top}` lie on 
+the near plane, which have a depth component of {math}`n`. Since perspective projection projects depth components 
+onto the near plane, points already on the near plane should stay on the near plane. Similarly, points on the far 
+plane should stay on the far plane. Consequently, the depth component should have no dependence on the horizontal 
+or vertical components, only a depth term and an affine translation term.
 
 Applying the boundary conditions, we have
 
@@ -1519,9 +1598,8 @@ Solving for {math}`D`, we see that
 D = -\frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{f - n}.
 ```
 
-Substituting the constants {ref}`xi_d_persp_constant_a`,
-{ref}`xi_d_persp_constant_b`, and {ref}`xi_d_persp_constant_d` back into {math}`\xi_{d}(Q_{far})` in 
-{ref}`xi_d_persp_constraints` gives us
+Substituting the constants {ref}`xi_d_persp_constant_a`, {ref}`xi_d_persp_constant_b`, and 
+{ref}`xi_d_persp_constant_d` back into {math}`\xi_{d}(Q_{far})` in {ref}`xi_d_persp_constraints` gives us
 
 ```{math}
 \xi_{d} \left( Q_{far} \right) 
@@ -1558,14 +1636,19 @@ auxiliary function {math}`\xi_{d}`
     - \left( \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{f - n} \right) \left( \frac{1}{P_{d}} \right).
 ```
 
-Now we return to the definitions for the clip space functions. Recall from {ref}`eq_persp_ndc1`
-that 
+Now we return to the definitions for the clip space functions. Recall from {ref}`eq_persp_ndc1` that 
 
 ```{math}
 :label: eq_persp_ndc2
-P_{ndc,h} \equiv \xi_{h} \left( P \right) &\equiv \phi_{h} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) = \frac{P_{clip,h}}{P_{clip,w}} \\
-P_{ndc,v} \equiv \xi_{v} \left( P \right) &\equiv \phi_{v} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) = \frac{P_{clip,v}}{P_{clip,w}} \\
-P_{ndc,d} \equiv \xi_{d} \left( P \right) &\equiv \phi_{d} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) = \frac{P_{clip,d}}{P_{clip,w}} \\
+P_{ndc,h} \equiv \xi_{h} \left( P \right) 
+    &\equiv \phi_{h} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) 
+    = \frac{P_{clip,h}}{P_{clip,w}} \\
+P_{ndc,v} \equiv \xi_{v} \left( P \right) 
+    &\equiv \phi_{v} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) 
+    = \frac{P_{clip,v}}{P_{clip,w}} \\
+P_{ndc,d} \equiv \xi_{d} \left( P \right) 
+    &\equiv \phi_{d} \left( P_{proj} \right) \left( \frac{1}{\phi_{w} \left( P_{proj} \right) } \right) 
+    = \frac{P_{clip,d}}{P_{clip,w}} \\
 ```
 
 where {math}`P_{proj}` denotes a point {math}`P \in \mathbb{R}^{3}` in projected coordinates, and
@@ -1579,7 +1662,8 @@ P_{clip,v} &= \phi_{v} \left( P_{proj} \right) \\
 P_{clip,d} &= \phi_{d} \left( P_{proj} \right) \\
 ```
 
-by comparing the equations in {ref}`eq_persp_ndc2` with {ref}`xi_h_persp_final`, {ref}`xi_v_persp_final`, and {ref}`xi_d_persp_final`. Consider the affine map {math}`\phi_{h}`. Rearranging terms in {ref}`xi_h_persp_final`,
+by comparing the equations in {ref}`eq_persp_ndc2` with {ref}`xi_h_persp_final`, {ref}`xi_v_persp_final`, and 
+{ref}`xi_d_persp_final`. Consider the affine map {math}`\phi_{h}`. Rearranging terms in {ref}`xi_h_persp_final`,
 we have
 
 ```{math}
@@ -1654,12 +1738,11 @@ P_{clip,d}
     - \frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }.
 ```
 
-Since {math}`\phi_{h}`, {math}`\phi_{v}`, and {math}`\phi_{d}` are the components of
-an affine transformation, and normalized device coordinates are a projective function
-of the view coordinates with {math}`\phi_{w}(P_{proj}) = P_{d}` as the denominator, the 
-perspective projection transformation has the form of the matrix in {ref}`matrix_repr_projective` lifted into 
-{math}`\mathbb{RP}^{3}`. The resulting matrix equation for the matrix representation is then
-
+Since {math}`\phi_{h}`, {math}`\phi_{v}`, and {math}`\phi_{d}` are the components of an affine 
+transformation, and normalized device coordinates are a projective function of the view coordinates 
+with {math}`\phi_{w}(P_{proj}) = P_{d}` as the denominator, the perspective projection transformation 
+has the form of the matrix in {ref}`matrix_repr_projective` lifted into {math}`\mathbb{RP}^{3}`. The 
+resulting matrix equation for the matrix representation is then
 
 ```{math}
 \begin{bmatrix} 
@@ -1701,7 +1784,13 @@ perspective projection transformation has the form of the matrix in {ref}`matrix
 
 This yields the first major result, the canonical perspective projection matrix {math}`M^{C}_{per}`.
 
-```{admonition} Perspective Projection Matrix
+:::{important} Perspective Projection Matrix
+
+Let {math}`\mathcal{F}_{can} = (\tilde{O}_{can}, \mathcal{B}_{can})` be a canonical coordinate frame on 
+{math}`\mathbb{E}^{3}`, where 
+{math}`\mathcal{B}_{can} = (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_v, \mathbf{\hat{u}}_{d})` is the basis 
+for the frame. The canonical perspective projection matrix for {math}`\mathcal{F}_{can}` is given by
+
 ```{math}
 :label: matrix_per_canonical
 M^{C}_{per} = 
@@ -1726,16 +1815,18 @@ M^{C}_{per} =
         & 1 
         & 0
         \\
-    \end{bmatrix}
+    \end{bmatrix}.
 ```
+
+:::
 
 This completes the derivation of the perspective projection matrix.
 
 ### The Canonical Orthographic Projection Matrix
 
 We now construct the canonical orthographic projection matrix for 
-the frame {math}`(\tilde{O}_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))` with the 
-orthographic view volume parametrized by {math}`[-l, r] \times [-b, t] \times [n, f]` and 
+the frame {math}`(\tilde{O}_{view}, (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_{v}, \mathbf{\hat{u}}_{d}))` with 
+the orthographic view volume parametrized by {math}`[-l, r] \times [-b, t] \times [n, f]` and 
 the canonical view volume parametrized by 
 {math}`[\alpha_{min}, \alpha_{max}] \times [\beta_{min}, \beta_{max}] \times [\gamma_{min}, \gamma_{max}]`.
 
@@ -1765,7 +1856,7 @@ T^{\prime}_{orth} \left( P \right)
 ```
 
 so that {math}`T^{\prime}_{orth}` indeed projects out the depth component as claimed. This is the
-usual defintion of orthographic projection. The problem is that we still need depth information for 
+usual definition of orthographic projection. The problem is that we still need depth information for 
 rendering, so this information must be preserved in our true projection. Since orthographic projection 
 does not distort depth in any way, and indeed has no denominator, it is an affine transformation. Thus the 
 orthographic projection needs to carry depth information. We need to add the depth information 
@@ -1797,7 +1888,7 @@ back in. In components,
 T_{orth} \left( P \right) = I \left( P \right) = P
 ```
 
-so that our projected coordinates become
+so that
 
 ```{math}
 P_{proj,h} &= P_{h} \\
@@ -1806,11 +1897,11 @@ P_{proj,d} &= P_{d} \\
 P_{proj,w} &= 1     \\
 ```
 
-Thus we map directly to clip coordinates from view coordinates. To complete the orthographic projection 
-transformation, we need an affine transformation that maps the orthographic view volume to the canonical 
-view volume in normalized device coordinates. Just like the perspective projection earlier, we infer
-the orthographic projection matrix indirectly using constraints on how the orthographic view volume
-transforms into the canonical view volume. We require affine maps 
+gives our projected coordinates. Thus we map directly to clip coordinates from view coordinates. To 
+complete the orthographic projection transformation, we need an affine transformation that maps the 
+orthographic view volume to the canonical view volume in normalized device coordinates. Just like the 
+perspective projection earlier, we infer the orthographic projection matrix indirectly using constraints 
+on how the orthographic view volume transforms into the canonical view volume. We require affine maps 
 {math}`\phi_{h}, \phi_{v}, \phi_{d}, \phi_{w} : \mathbb{R^{3}} \rightarrow \mathbb{R}` such that
 
 ```{math}
@@ -1821,8 +1912,7 @@ P_{clip,d} &= \phi_{d} \left( P_{proj} \right) \\
 P_{clip,w} &= \phi_{w} \left( P_{proj} \right) \\
 ```
 
-where we get {math}`\phi_{w}` immediately because orthographic projections are affine maps.
-That is
+where we get {math}`\phi_{w}` immediately because orthographic projections are affine maps. That is
 
 ```{math}
 :label: phi_w_orth_final
@@ -1850,11 +1940,12 @@ P_{ndc,d} &= \phi_{d} \left( P_{proj} \right) &= \phi_{d} \left( P \right) \\
 
 are the equations we need to solve for. As with the perspective projection transformation, we 
 use the constraints on the orthographic view volume to compute the functions. To establish constraints, we 
-need to talk about some well chosen points. We need to construct the maps {math}`\phi_{h}, \phi_{v}, \phi_{d}` such that the 
-parametrization of the orthographic view volume maps to the parametrization of the canonical view volume. That it, such that 
-coordinates map as 
-{math}`-l \mapsto \alpha_{min}, r \mapsto \alpha_{max}, -b \mapsto beta_{min}, t \mapsto \beta_{max}, n \mapsto \gamma_{min}, f \mapsto \gamma_{max}`.
-Consider the points in view coordinates
+need to talk about some well chosen points. We need to construct the maps 
+{math}`\phi_{h}, \phi_{v}, \phi_{d}` such that the parametrization of the orthographic view volume maps to 
+the parametrization of the canonical view volume. That it, such that coordinates map as 
+{math}`-l \mapsto \alpha_{min}`, {math}`r \mapsto \alpha_{max}`, {math}`-b \mapsto beta_{min}`, 
+{math}`t \mapsto \beta_{max}`, {math}`n \mapsto \gamma_{min}`, {math}`f \mapsto \gamma_{max}`. Consider the 
+points in view coordinates
 
 ```{math}
 Q_{left}   &= -l \mathbf{\hat{u}}_{h} + n \mathbf{\hat{u}}_{d} \\
@@ -1866,7 +1957,7 @@ Q_{far}    &=  f \mathbf{\hat{u}}_{d}                          \\
 ```
 
 The points {math}`Q_{near}` and {math}`Q_{far}` are the points along the viewing axis
-that intersect the near plane and the far plane, respectively, of the perspective view volume. The 
+that intersect the near plane and the far plane, respectively, of the orthographic view volume. The 
 point {math}`Q_{left}` represents the point of intersection of the left plane, near plane, and the 
 horizontal-vertical plane of the view volume. The point {math}`Q_{right}` represents the point of 
 intersection of the right plane, near plane, and the horizontal-vertical plane of the view volume.
@@ -1895,10 +1986,11 @@ Define the boundary conditions for our chosen points
 \phi_{h} \left( Q_{far} \right)    &= 0 \\
 ```
 
-which we need to justify. The view space coordinates are orthogonal to each other, and the normalized device coordinates
-are also orthogonal to each other. This means that {math}`\phi_{h}` should only be a function of the horizontal component
-and not the vertical component. The points {math}`Q_{bottom}, Q_{top}, Q_{near}, Q_{far}` lie on the depth-vertical plane, which 
-have a zero horizontal component, so they should keep a zero horizontal component after transformation.
+which we need to justify. The view coordinates are orthogonal to each other, and the normalized device 
+coordinates are also orthogonal to each other. This means that {math}`\phi_{h}` should only be a function 
+of the horizontal component and not the vertical component. The points 
+{math}`Q_{bottom}, Q_{top}, Q_{near}, Q_{far}` lie on the depth-vertical plane, which have a zero horizontal 
+component, so they should keep a zero horizontal component after transformation.
 
 Applying the boundary conditions, we have
 
@@ -2055,9 +2147,10 @@ Define the boundary conditions for our chosen points
 \phi_{v} \left( Q_{far} \right)    &= 0 \\
 ```
 
-which we need to justify. The view space coordinates are orthogonal to each other, and the normalized device coordinates
-are also orthogonal to each other. This means that {math}`\phi_{v}` should only be a function of the vertical component
-and not the horizontal component. The points {math}`Q_{left}, Q_{right}, Q_{near}, Q_{far}` lie on the depth-horizontal plane, which 
+which we need to justify. The view coordinates are orthogonal to each other, and the normalized 
+device coordinates are also orthogonal to each other. This means that {math}`\phi_{v}` should only 
+be a function of the vertical component and not the horizontal component. The points 
+{math}`Q_{left}, Q_{right}, Q_{near}, Q_{far}` lie on the depth-horizontal plane, which 
 have a zero vertical component, so they should keep a zero vertical component after transformation.
 
 Applying the boundary conditions, we have
@@ -2215,14 +2308,13 @@ Define the boundary conditions for our chosen points
 \phi_{d} \left( Q_{far} \right)    &= \gamma_{max} \\
 ```
 
-which we need to justify. The view space coordinates are orthogonal to each other, and the normalized device coordinates
+which we need to justify. The view coordinates are orthogonal to each other, and the normalized device coordinates
 are also orthogonal to each other. This means that {math}`\phi_{d}` should only be a function of the depth component
 and not the horizontal or vertical components. The points {math}`Q_{left}, Q_{right}, Q_{bottom}, Q_{top}` lie on the 
 near plane, which have a depth component of {math}`n`. Since orthographic projection is just the identity, 
-points already on the near plane should stay there. Moreover, points on the far plane should stay on the far
-plane to transform the orthographic view volume into the canonical view volume correctly. Consequently, the 
-depth component should have no dependence on the horizontal or vertical components, only a depth term and an affine 
-translation term.
+points already on the near plane should stay on the near plane. Similarly, points on the far plane should stay on the 
+far plane. Consequently, the depth component should have no dependence on the horizontal or vertical components, only 
+a depth term and an affine translation term.
 
 Applying the boundary conditions, we have
 
@@ -2422,7 +2514,13 @@ Assembling the clip space components into the resulting matrix equation, we have
 
 This yields the second major result, the canonical orthographic projection matrix {math}`M^{C}_{orth}`.
 
-```{admonition} Orthographic Projection Matrix
+:::{important} Orthographic Projection Matrix
+
+Let {math}`\mathcal{F}_{can} = (\tilde{O}_{can}, \mathcal{B}_{can})` be a canonical coordinate frame on 
+{math}`\mathbb{E}^{3}`, where 
+{math}`\mathcal{B}_{can} = (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_v, \mathbf{\hat{u}}_{d})` is the basis for 
+the frame. The canonical orthographic projection matrix for {math}`\mathcal{F}_{can}` is given by
+
 ```{math}
 :label: matrix_orth_canonical
 M^{C}_{orth} = 
@@ -2447,18 +2545,20 @@ M^{C}_{orth} =
     & 0 
     & 1
     \\
-\end{bmatrix}
+\end{bmatrix}.
 ```
+
+:::
 
 This completes the derivation of the canonical orthographic projection matrix.
 
 ### The Canonical Perspective Matrix
 
 Now that we have the canonical perspective projection matrix and the canonical orthographic projection matrix,
-we can work out the canonical perspective matrix. The canonical perspective matrix maps from view space to projected
-space. Since the perspective projection transformation consists of a projective transformation multiplied by an orthographic
-transformation, we can get the perspective matrix by premultiplying {ref}`matrix_per_canonical` by {math}`(M^{C}_{orth})^{-1}`
-given by
+we can work out the canonical perspective matrix. The canonical perspective matrix maps from view coordinates 
+to projected coordinates. We show that the perspective projection transformation consists of a perspective 
+transformation multiplied by an orthographic projection, we can get the perspective matrix by premultiplying 
+{ref}`matrix_per_canonical` by {math}`(M^{C}_{orth})^{-1}` given by
 
 ```{math}
 \left(M^{C}_{orth}\right)^{-1} =
@@ -2489,7 +2589,7 @@ given by
 Premultiplying {math}`M^{C}_{per}` by {math}`(M^{C}_{orth})^{-1}` gives
 
 ```{math}
-P^{C} &= \left(M^{C}_{orth}\right)^{-1} M^{C}_{per} \\ 
+M^{C}_{proj} &= \left(M^{C}_{orth}\right)^{-1} M^{C}_{per} \\ 
     &= \begin{bmatrix}
             \frac{r + l}{\alpha_{max} - \alpha_{min}} 
             &  0 
@@ -2535,6 +2635,51 @@ P^{C} &= \left(M^{C}_{orth}\right)^{-1} M^{C}_{per} \\
             \\
         \end{bmatrix}
         \\
+    &= \begin{bmatrix}
+            \frac{r + l}{\alpha_{max} - \alpha_{min}} 
+            &  0 
+            &  0 
+            & -\frac{ \alpha_{min} r + \alpha_{max} l }{ \alpha_{max} - \alpha_{min} }
+            \\
+            0 
+            &  \frac{t + b}{\beta_{max} - \beta_{min}}
+            &  0 
+            & -\frac{ \beta_{min} t + \beta_{max} b }{ \beta_{max} - \beta_{min} }
+            \\
+            0 
+            &  0 
+            &  \frac{ f - n }{ \gamma_{max} - \gamma_{min} } 
+            & -\frac{ \gamma_{min} f - \gamma_{max} n }{ \gamma_{max} - \gamma_{min} }
+            \\
+            0 
+            & 0 
+            & 0 
+            & 1
+            \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            \frac{ \left( \alpha_{max} - \alpha_{min} \right) n }{ r + l } 
+            & 0 
+            & \frac{ \alpha_{min} r + \alpha_{max} l }{ r + l } 
+            & 0 
+            \\
+            0 
+            & \frac{ \left( \beta_{max} - \beta_{min} \right) n }{ t + b } 
+            & \frac{ \beta_{min} t + \beta_{max} b }{ t + b } 
+            & 0
+            \\
+            0 
+            & 0 
+            & \frac{ \gamma_{max} f - \gamma_{min} n }{ f - n } 
+            & -\frac{ \left( \gamma_{max} - \gamma_{min} \right) f n }{ f - n }
+            \\
+            0 
+            & 0 
+            & 1 
+            & 0
+            \\
+        \end{bmatrix}
+        \\
     &=  \begin{bmatrix}
             n & 0 & 0     &  0   \\
             0 & n & 0     &  0   \\
@@ -2543,34 +2688,58 @@ P^{C} &= \left(M^{C}_{orth}\right)^{-1} M^{C}_{per} \\
         \end{bmatrix}
 ```
 
-which gives us the desired perspective matrix
+which yields the third major result, the perspective matrix.
 
-```{admonition} Perspective Matrix
+:::{important} Canonical Perspective Matrix
+
+Let {math}`\mathcal{F}_{can} = (\tilde{O}_{can}, \mathcal{B}_{can})` be a canonical coordinate frame on 
+{math}`\mathbb{E}^{3}`, where 
+{math}`\mathcal{B}_{can} = (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_v, \mathbf{\hat{u}}_{d})` is the basis 
+for the frame. The canonical perspective matrix for {math}`\mathcal{F}_{can}` is given by
+
 ```{math}
-P^{C} = 
+:label: matrix_proj_canonical
+M^{C}_{proj} = 
     \begin{bmatrix}
         n & 0 & 0     &  0   \\
         0 & n & 0     &  0   \\
         0 & 0 & f + n & -f n \\
         0 & 0 & 1     &  0   \\
-    \end{bmatrix}
+    \end{bmatrix}.
 ```
+
+:::
 
 This shows that the perspective projection matrix {math}`M^{C}_{per}` is indeed the product of 
 a projective transformation and an orthographic transformation
 
 ```{math}
-M^{C}_{per} = M^{C}_{orth} P^{C}.
+M^{C}_{per} = M^{C}_{orth} M^{C}_{proj}.
 ```
 
 Notice that the perspective matrix passes along the input depth coordinate undistorted via the 
-{math}`w` component, but nonlinearly distorts the output depth component.
+{math}`w` component, but nonlinearly distorts the output depth component. Finally, recall the equation
+{ref}`eq_persp_proj1` for the perspective projection matrix where we deduced that the depth component was an 
+affine transformation. We see from the {ref}`matrix_proj_canonical` that 
+{math}`\theta(P_{d}) = A^{\prime} P_{d} + B^{\prime} = (f + n) P_{d} - f n` so that the projected coordinate 
+components from {ref}`eq_persp_proj1` become
+
+```{math}
+:label: eq_persp_proj2
+P_{proj,h} &= n P_{h} \\
+P_{proj,v} &= n P_{v} \\
+P_{proj,d} &= \left ( f + n \right) P_{d} - f n \\
+P_{proj,w} &= P_{d} \\
+```
+
+which completes the derivation of the unknown constants {math}`A^{\prime}` and {math}`B^{\prime}` as promised. 
+This completes the derivation of the perspective matrix.
 
 ### The Canonical Symmetric Vertical Field Of View Perspective Matrix
 
 In the symmetric case, {math}`r = l` and {math}`t = b`. The **width** of the viewport is 
 {math}`\text{width} = r - (-l) = r + l`. The **height** of the viewport is 
-{math}`\text{height} = t - (-b) = t + b`. The aspect ratio {math}`\text{aspect}` is given by 
+{math}`\text{height} = t - (-b) = t + b`. The **aspect ratio**, denoted {math}`\text{aspect}`, is given by 
 
 ```{math}
 \text{aspect} \equiv \frac{\text{width}}{\text{height}}
@@ -2581,7 +2750,7 @@ In the symmetric case, {math}`r = l` and {math}`t = b`. The **width** of the vie
     = \frac{r}{t}
 ```
 
-which implies that {math}`r = \text{aspect} \cdot t`. Since the viewing frustum is symmetric, the tangent 
+which implies that {math}`r = \text{aspect} \cdot t`. Since the view volume is symmetric, the tangent 
 of {math}`\theta_{vfov} / 2` is {math}`\tan\left( \theta_{vfov} / 2 \right) = t / n`. From these facts we 
 see that
 
@@ -2655,10 +2824,20 @@ M^{C}_{per,vfov} =
     \end{bmatrix}
 ```
 
-which is the desired formula. This is the third major result, the canonical symmetric vertical field of 
+which is the desired formula. This is the fourth major result, the canonical symmetric vertical field of 
 view perspective projection matrix.
 
-```{admonition} Symmetric Vertical Field Of View Perspective Matrix
+:::{important} Symmetric Vertical Field Of View Perspective Matrix
+
+Let {math}`\mathcal{F}_{can} = (\tilde{O}_{can}, \mathcal{B}_{can})` be a canonical coordinate frame on 
+{math}`\mathbb{E}^{3}`, where 
+{math}`\mathcal{B}_{can} = (\mathbf{\hat{u}}_{h}, \mathbf{\hat{u}}_v, \mathbf{\hat{u}}_{d})` is the basis 
+for the frame. Let the perspective view volume be parametrized by the vertical field of view angle 
+{math}`\theta_{vfov}`, the near plane {math}`n`, the far plane {math}`f` and the aspect ratio 
+{math}`\text{aspect}` such that {math}`n > 0`, {math}`f > 0`, {math}`0 < \theta_{vfov} < \pi`, and 
+{math}`\text{aspect} > 0`. The canonical symmetric vertical field of view perspective projection matrix is 
+given by
+
 ```{math}
 M^{C}_{per, vfov} = 
     \begin{bmatrix}
@@ -2682,81 +2861,80 @@ M^{C}_{per, vfov} =
         & 1 
         & 0
         \\
-    \end{bmatrix}
+    \end{bmatrix}.
 ```
+:::
 
-## Every Other Matrix
+## How Matrices Transform Under Changes In Coordinates
 
-For any given projected view coordinate system and clip coordinate system, there exists a perspective 
+For any given view coordinate system and clip coordinate system, there exists a perspective 
 projection matrix that can be expressed as {math}`M_{per} = T^{-1}_{clip} M^{C}_{per} T_{view}` where 
-{math}`M^{C}_{per}` is the canonical perspective projection matrix. Let {math}`[\mathbf{x}]` be a homogeneous 
-point in {math}`\mathbb{RP}^3`. Let {math}`\mathbf{x}_{view}` be a representive of {math}`[\mathbf{x}]` in 
-projected view coordinates, {math}`\mathbf{x}_{clip}` be a representative of {math}`[\mathbf{x}]` in clip 
-coordinates, {math}`\mathbf{x}^{C}_{view}` be a representive of {math}`[\mathbf{x}]` in the canonically 
-chosen view space coordinate system, {math}`\mathbf{x}^{C}_{clip}` be a representive of {math}`[\mathbf{x}]` 
-in the canonically chosen clip coordinates, such that
+{math}`M^{C}_{per}` is the canonical perspective projection matrix. Let {math}`[Q]` be a homogeneous 
+point in {math}`\mathbb{RP}^3`. Let {math}`Q_{view}` be a representive of {math}`[Q]` in view coordinates, 
+{math}`Q_{clip}` be a representative of {math}`[Q]` in clip coordinates, {math}`Q^{C}_{view}` be a 
+representive of {math}`[Q]` in the canonically chosen view coordinate system, {math}`Q^{C}_{clip}` be 
+a representive of {math}`[Q]` in the canonically chosen clip coordinates, such that
 
 ```{math}
 :label: eq_view_to_clip_can1
-\mathbf{x}^{C}_{clip} = M^{C}_{per} \mathbf{x}^{C}_{view}.
+Q^{C}_{clip} = M^{C}_{per} Q^{C}_{view}.
 ```
 
-That is, {math}`\mathbf{x}^{C}_{clip}` represents the perspective projected point {math}`\mathbf{x}`. 
+That is, {math}`Q^{C}_{clip}` represents the perspective projected point {math}`Q`. 
 Let {math}`T_{view} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` denote the coordinate transformation 
-from projected view coordinates to the canonical projected view coordinates. Let 
+from view coordinates to the canonical view coordinates. Let 
 {math}`T_{clip} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` denote the coordinate transformation 
 from clip coordinates to canonical clip coordinates. The coordinate relations are given by 
-{math}`\mathbf{x}^{C}_{view} = T_{view} \mathbf{x}^{C}_{view}` and 
-{math}`\mathbf{x}^{C}_{clip} = T_{clip} \mathbf{x}^{C}_{clip}`. Applying these relationships in
-{ref}`eq_view_to_clip_can1`
+{math}`Q^{C}_{view} = T_{view} Q^{C}_{view}` and {math}`Q^{C}_{clip} = T_{clip} Q^{C}_{clip}`. Applying 
+these relationships in {ref}`eq_view_to_clip_can1`
 
 ```{math}
-T_{clip} \mathbf{x}_{clip} = M^{C}_{per} T_{view} \mathbf{x}_{view}
+T_{clip} Q_{clip} = M^{C}_{per} T_{view} Q_{view}
 ```
 
 or equivalently
 
 ```{math}
-\mathbf{x}_{clip} 
-    = T^{-1}_{clip} M^{C}_{per} T_{view} \mathbf{x}_{view} 
-    = \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) \mathbf{x}_{view}
+Q_{clip} 
+    = T^{-1}_{clip} M^{C}_{per} T_{view} Q_{view} 
+    = \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) Q_{view}
 ```
 
-therefore we can identify 
+therefore we identify 
 
 ```{math}
 :label: eq_view_to_clip_can2
-M_{per} = T^{-1}_{clip} M^{C}_{per} T_{view}.
+M_{per} \equiv T^{-1}_{clip} M^{C}_{per} T_{view}.
 ```
 
-This proves the existence of a perspective projection for any source projected view space 
+This proves the existence of a perspective projection matrix for any source view 
 coordinate system, and any target clip coordinate system. To show uniqueness, suppose that 
 {math}`M^{\prime}_{per}` is another transformation that maps view coordinates to clip 
-coordinates, such that {math}`\mathbf{x}_{clip} = M^{\prime}_{per} \mathbf{x}_{view}`. Using the 
-coordinate transformations again, we can write {math}`\mathbf{x}^{C}_{clip} = T_{clip} \mathbf{x}_{clip}`
-and {math}`\mathbf{x}^{C}_{view} = T_{view} \mathbf{x}_{view}`. Inverting these relations, we get
-{math}`\mathbf{x}^{C}_{view} = T^{-1}_{view} \mathbf{x}_{view}` and
-{math}`\mathbf{x}^{C}_{clip} = T^{-1}_{clip} \mathbf{x}_{clip}`. Using the relation for 
+coordinates, such that {math}`Q_{clip} = M^{\prime}_{per} Q_{view}`. Using the coordinate 
+transformations again, we can write {math}`Q^{C}_{clip} = T_{clip} Q_{clip}` and 
+{math}`Q^{C}_{view} = T_{view} Q_{view}`. Inverting these relations, we get 
+{math}`Q^{C}_{view} = T^{-1}_{view} Q_{view}` and
+{math}`Q^{C}_{clip} = T^{-1}_{clip} Q_{clip}`. Using the relation for 
 {math}`M^{\prime}_{per}` in equation {ref}`eq_view_to_clip_can2` implies
 
 ```{math}
-T^{-1}_{clip} \mathbf{x}^{C}_{clip} = M^{\prime}_{per} T^{-1}_{view} \mathbf{x}^{C}_{view}
+T^{-1}_{clip} Q^{C}_{clip} = M^{\prime}_{per} T^{-1}_{view} Q^{C}_{view}
 ```
 
 or equivalently
 
 ```{math}
-\mathbf{x}^{C}_{clip} 
-    = T_{clip} M^{\prime}_{per} T^{-1}_{view} \mathbf{x}^{C}_{view}
-    = \left( T_{clip} M^{\prime}_{per} T^{-1}_{view} \right) \mathbf{x}^{C}_{view}.
+Q^{C}_{clip} 
+    = T_{clip} M^{\prime}_{per} T^{-1}_{view} Q^{C}_{view}
+    = \left( T_{clip} M^{\prime}_{per} T^{-1}_{view} \right) Q^{C}_{view}.
 ```
 
 Applying the relation for the canonical perspective projection matrix
 
 ```{math}
-\mathbf{x}^{C}_{clip} 
-    = M^{C}_{per} \mathbf{x}^{C}_{view} 
-    = \left( T_{clip} M^{\prime}_{per} T^{-1}_{view} \right) \mathbf{x}^{C}_{view}
+Q^{C}_{clip} 
+    = M^{C}_{per} Q^{C}_{view} 
+    = \left( T_{clip} M^{\prime}_{per} T^{-1}_{view} \right) Q^{C}_{view}
 ```
 
 which imples that
@@ -2775,29 +2953,75 @@ M^{\prime}_{per} = T^{-1}_{clip} M^{C}_{per} T_{view} = M_{per}
 where the last equality in {ref}`eq_view_to_clip_can3` follows from {ref}`eq_view_to_clip_can2`.
 This proves uniqueness for the perspective projection matrix.
 
-To show that any perspective projection is well-defined, let {math}`[\mathbf{x}] \in \mathbb{RP}^{3}` be 
-a point and let {math}`\mathbf{x}_{1} \sim \mathbf{x_{2}}` be representatives of {math}`[\mathbf{x}]`.
-Then there exists {math}`\lambda \in \mathbb{R} - \{ 0 \}` such that {math}`\mathbf{x}_{2} = \lambda \mathbf{x_{1}}`.
+To show that any perspective projection is well-defined, let {math}`[Q] \in \mathbb{RP}^{3}` be 
+a point and let {math}`Q_{1} \sim Q_{2}` be representatives of {math}`[Q]`.
+Then there exists {math}`\lambda \in \mathbb{R} - \{ 0 \}` such that {math}`Q_{2} = \lambda Q_{1}`.
 By linearity of the canonical perspective projection, 
-{math}`\lambda M^{C}_{per} \mathbf{x}_{1} = M^{C}_{per} ( \lambda \mathbf{x}_{1} ) = M^{C}_{per} \mathbf{x}_{2}`
+{math}`\lambda M^{C}_{per} Q_{1} = M^{C}_{per} ( \lambda Q_{1} ) = M^{C}_{per} Q_{2}`
 which shows that {math}`M^{C}_{per}` is well-defined. By the linearity of homogeneous orthogonal transformations 
 
 ```{math}
-\lambda M_{per} \mathbf{x}_{1}
-    &= \lambda T^{-1}_{clip} M^{C}_{per} T_{view} \mathbf{x}_{1} \\
-    &= \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) \left( \lambda \mathbf{x}_{1} \right) \\
-    &= \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) \mathbf{x}_{2} \\
-    &= M_{per} \mathbf{x}_{2} \\
-    &= M_{per} \left( \lambda \mathbf{x}_{1} \right) \\
+\lambda M_{per} Q_{1}
+    &= \lambda T^{-1}_{clip} M^{C}_{per} T_{view} Q_{1} \\
+    &= \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) \left( \lambda Q_{1} \right) \\
+    &= \left( T^{-1}_{clip} M^{C}_{per} T_{view} \right) Q_{2} \\
+    &= M_{per} Q_{2} \\
+    &= M_{per} \left( \lambda Q_{1} \right) \\
 ```
 
-which shows that {math}`M_{per}` is well-defined.
+which shows that {math}`M_{per}` is well-defined. The same argument shows that we can ge the same
+result for any projective matrix represented in canonical coordinates, leading to our formulas for 
+constructing a perspective matrix, perspective projection matrix, or orthographic projection matrix 
+from any source coordinate system to any target coordinate system which are the formulas we will use 
+to compute the matrices for specific platforms.
+
+:::{important} Projection Matrices From View Coordinates To Clip Coordinates
+
+Let {math}`\mathcal{F}_{can} = (\tilde{O}_{can}, \mathcal{B}_{can})` be a canonical coordinate frame on 
+{math}`\mathbb{E}^{3}`. Let {math}`\mathcal{F}_{view} = (\tilde{O}_{view}, \mathcal{B}_{view})` be the 
+orthonormal frame for the view coordinate system. Let 
+{math}`\mathcal{F}_{clip} = (\tilde{O}_{clip} \mathcal{B}_{clip})` be the orthonormal frame for the clip
+coordinate system. Let {math}`T_{view} : \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}` be the coordinate 
+transformation from the view coordinate frame {math}`\mathcal{F}_{view}` to the canonical coordinate frame 
+{math}`\mathbb{F}_{can}`. Let {math}`T_{clip} : \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}` be the coordinate 
+transformation from the clip space frame {math}`\mathcal{F}_{clip}` to the canonical coordinate frame
+{math}`\mathcal{F}_{can}`. 
+
+Let {math}`M^{C}_{per}` be the canonical perspective projection matrix for {math}`\mathcal{F}_{can}`.
+The perspective projection matrix is given by
+
+```{math}
+M_{per} \equiv T^{-1}_{clip} M^{C}_{per} T_{view}.
+```
+
+Let {math}`M^{C}_{orth}` be the canonical orthographic projection matrix for {math}`\mathcal{F}_{can}`.
+The orthographic projection matrix is given by
+
+```{math}
+M_{orth} \equiv T^{-1}_{clip} M^{C}_{orth} T_{view}.
+```
+
+Let {math}`M^{C}_{proj}` be the canonical perspective matrix for {math}`\mathcal{F}_{can}`.
+The perspective matrix is given by
+
+```{math}
+M_{proj} \equiv T^{-1}_{clip} M^{C}_{proj} T_{view}.
+```
+
+:::
 
 ## Summary
 
+We develop the manifold structure of real projective space {math}`\mathbb{RP}^{3}` from scratch, then
+use that information to show how we can represent linear, affine, and projective transformations as
+matrices. We demonstrate why real projective space {math}`\mathbb{RP}^{3}` is the manifold for 
+solving computer graphics, geometric modeling, robotics, computer vision, and other spatial computing 
+domains formulated in the setting {math}`\mathbb{E}^{3}`. We use this knowledge to construct homogeneous 
+projection matrices.
+
 We construct a set of projection matrices using a canonically chosen set of coordinates which makes 
 it easy to derive any other projection matrix using coordinate transformations in conjunction with
-the relevant coordinate transformations to create the final result. We chose a view space coordinate 
+the relevant coordinate transformations to create the final result. We chose a view coordinate 
 system where the horizontal axis points to the right, the vertical axis points up, and the depth
 axis points into the view volume. This has the benefit of keeping all of the computations in the same
 orthonormal frame, which makes the behavior of the projection more obvious. Operating in real projective 
@@ -2810,13 +3034,10 @@ We show how to construct perspective and orthographic projection transformations
 from any view space orthonormal frame to any clip coordinate frame by first defining the matrix
 in a specially chosen coordinate chart, and then show that one can construct any other one by
 using the appropriate orthogonal transformations and changes of orientation to map from the 
-desired view space coordinate system to the canonical one on one side, and mapping from the canonical
+desired view coordinate system to the canonical one on one side, and mapping from the canonical
 clip coordinate system to the desired clip coordinate system using the same process. This
-result shows that perspective and orthographic projections are indeed coordinate-independent 
-transformations. In future work, it would be desirable to find a way to define the transformations
-directly in a more geometrical fashion without mentioning any coordinate systems, and then the particular
-matrices would fall out going to other direction.
-
+result shows that perspective and orthographic projections are indeed coordinate independent 
+transformations.
 
 ## Application Of The Canonical Transformations For Deriving Specific Situations
 
@@ -2827,7 +3048,7 @@ orthonormal frame and the standard right-handed coordinate frame.
 
 ### The Canonical Projection Matrices
 
-The canonical projected view space coordinate system for OpenGL is the frame 
+The canonical view coordinate system for OpenGL is the frame 
 {math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}`, where {math}`\mathbf{\hat{z}}` points into the view volume. 
@@ -2889,16 +3110,17 @@ This finishes the statement of the canonical matrices for OpenGL. We now derive 
 
 ### Right-Handed View Space
 
-The right-handed projected view space coordinate system for OpenGL is the frame 
+The right-handed view coordinate system for OpenGL is the frame 
 {math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points out of the view volume towards 
-the viewer. This is a right-handed coordinate system. The clip coordinate system for OpenGL is the canonical left-handed one. 
-The orthogonal transformations are given by
+the viewer. This is a right-handed coordinate system. The clip coordinate system for OpenGL is the canonical 
+left-handed one. The orthogonal transformations are given by
 
 ```{math}
 Q^{OpenGL}_{lh} = Q^{OpenGL}_{rh} = I
 ```
+
 where {math}`I` is the identity matrix. The change of orientation matrices are given by
 
 ```{math}
@@ -2921,11 +3143,11 @@ where {math}`I` is the identity matrix. The change of orientation matrices are g
 .
 ```
 
-To compute the projections, we need to coordinate transform from the chosen view coordinates to
-the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
-to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
-coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
-calculate the perspective projection
+To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
+coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
+target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
+Let us calculate the perspective projection
 
 ```{math}
 M^{OpenGL}_{per,rh \rightarrow lh} 
@@ -3100,15 +3322,15 @@ M^{OpenGL}_{per,vfov,rh \rightarrow lh} =
 .
 ```
 
-This completes the derivation of the matrices for the right-handed OpenGL projected view space coordinates.
+This completes the derivation of the matrices for the right-handed OpenGL view coordinates.
 
 ### Left-Handed View Space
 
-The left-handed projected view space coordinate system for OpenGL is the frame 
+The left-handed view space coordinate system for OpenGL is the frame 
 {math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points into the view volume away from 
-the viewer. This is a left-handed coordinate system. The clip coordinate system is the canonical left-handed one. 
+the viewer. This is a left-handed coordinate system. The clip coordinate system is the canonical left-handed one.
 The orthogonal transformation is given by
 
 ```{math}
@@ -3127,11 +3349,11 @@ where {math}`I` is the identity matrix. The change of orientation matrix are giv
 .
 ```
 
-To compute the projections, we need to coordinate transform from the chosen view coordinates to
-the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
-to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
-coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
-calculate the perspective projection
+To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
+coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
+target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
+Let us calculate the perspective projection
 
 ```{math}
 M^{OpenGL}_{per,lh \rightarrow lh} 
@@ -3253,7 +3475,7 @@ M^{OpenGL}_{per,vfov,lh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the left-handed OpenGL projected view space coordinates.
+This completes the derivation of the matrices for the left-handed OpenGL view coordinates.
 
 ## DirectX
 
@@ -3262,7 +3484,7 @@ orthonormal frame and the standard right-handed coordinate frame.
 
 ### The Canonical Matrices
 
-The canonical projected view space coordinate system for DirectX is the frame 
+The canonical view space coordinate system for DirectX is the frame 
 {math}`(\mathbf{0}^{T}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` in {math}`\mathbb{RP}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}`, where {math}`\mathbf{\hat{z}}` points into the view volume. 
@@ -3324,11 +3546,12 @@ This finishes the statement of the canonical matrices for DirectX. We now derive
 
 ### Right-Handed View Space
 
-The right-handed projected view space coordinate system for DirectX is the frame 
+The right-handed view coordinate system for DirectX is the frame 
 {math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points out of the view volume towards 
-the viewer. This is a right-handed coordinate system. The clip coordinate system for DirectX is the canonical left-handed one. The orthogonal transformations are given by
+the viewer. This is a right-handed coordinate system. The clip coordinate system for DirectX is the canonical 
+left-handed one. The orthogonal transformations are given by
 
 ```{math}
 Q^{DirectX}_{lh} = Q^{DirectX}_{rh} = I
@@ -3354,11 +3577,11 @@ where {math}`I` is the identity matrix. The change of orientation matrices are g
     \end{bmatrix}.
 ```
 
-To compute the projections, we need to coordinate transform from the chosen view coordinates to
-the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
-to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
-coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
-calculate the perspective projection
+To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
+coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
+target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
+Let us calculate the perspective projection
 
 ```{math}
 M^{DirectX}_{per,rh \rightarrow lh} 
@@ -3532,11 +3755,11 @@ M^{DirectX}_{per,vfov,rh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the right-handed DirectX projected view space coordinates.
+This completes the derivation of the matrices for the right-handed DirectX view coordinates.
 
 ### Left-Handed View Space
 
-The left-handed projected view space coordinate system for OpenGL is the frame 
+The left-handed view coordinate system for OpenGL is the frame 
 {math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points into the view volume away from 
@@ -3558,11 +3781,11 @@ where {math}`I` is the identity matrix. The change of orientation matrix are giv
     \end{bmatrix}.
 ```
 
-To compute the projections, we need to coordinate transform from the chosen view coordinates to
-the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
-to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
-coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
-calculate the perspective projection
+To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
+coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
+target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
+Let us calculate the perspective projection
 
 ```{math}
 M^{DirectX}_{per,lh \rightarrow lh} 
@@ -3684,7 +3907,7 @@ M^{DirectX}_{per,vfov,lh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the left-handed DirectX projected view space coordinates.
+This completes the derivation of the matrices for the left-handed DirectX view coordinates.
 
 ## Metal
 
@@ -3693,7 +3916,7 @@ orthonormal frame and the standard right-handed coordinate frame.
 
 ### The Canonical Matrices
 
-The canonical projected view space coordinate system for Metal is the frame 
+The canonical view space coordinate system for Metal is the frame 
 {math}`(\mathbf{0}^{T}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` in {math}`\mathbb{RP}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}`, where {math}`\mathbf{\hat{z}}` points into the view volume. 
@@ -3757,11 +3980,12 @@ This finishes the statement of the canonical matrices for Metal. We now derive t
 
 ### Right-Handed View Space
 
-The right-handed projected view space coordinate system for Metal is the frame 
+The right-handed view space coordinate system for Metal is the frame 
 {math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points out of the view volume towards 
-the viewer. This is a right-handed coordinate system. The clip coordinate system for Metal is the canonical left-handed one. The orthogonal transformations are given by
+the viewer. This is a right-handed coordinate system. The clip coordinate system for Metal is the canonical 
+left-handed one. The orthogonal transformations are given by
 
 ```{math}
 Q^{Metal}_{lh} = Q^{Metal}_{rh} = I
@@ -3787,11 +4011,11 @@ where {math}`I` is the identity matrix. The change of orientation matrices are g
     \end{bmatrix}.
 ```
 
-To compute the projections, we need to coordinate transform from the chosen view coordinates to
-the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
-to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
-coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
-calculate the perspective projection
+To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
+coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
+target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
+Let us calculate the perspective projection
 
 ```{math}
 M^{Metal}_{per,rh \rightarrow lh} 
@@ -3965,11 +4189,11 @@ M^{Metal}_{per,vfov,rh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the right-handed Metal projected view space coordinates.
+This completes the derivation of the matrices for the right-handed Metal view coordinates.
 
 ### Left-Handed View Space
 
-The left-handed projected view space coordinate system for Metal is the frame 
+The left-handed view space coordinate system for Metal is the frame 
 {math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points into the view volume away from 
@@ -3991,11 +4215,11 @@ where {math}`I` is the identity matrix. The change of orientation matrix are giv
     \end{bmatrix}.
 ```
 
-To compute the projections, we need to coordinate transform from the chosen view coordinates to
-the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
-to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
-coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
-calculate the perspective projection
+To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
+coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
+target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
+Let us calculate the perspective projection
 
 
 ```{math}
@@ -4116,7 +4340,7 @@ M^{Metal}_{per,vfov,lh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the left-handed Metal projected view space coordinates.
+This completes the derivation of the matrices for the left-handed Metal view coordinates.
 
 ## Vulkan (Vulkan Coordinates)
 
@@ -4125,7 +4349,7 @@ orthonormal frame and the standard right-handed coordinate frame.
 
 ### The Canonical Matrices
 
-The canonical projected view space coordinate system for Vulkan is the frame 
+The canonical view coordinate system for Vulkan is the frame 
 {math}`(\mathbf{0}^{T}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` in {math}`\mathbb{RP}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}`, where {math}`\mathbf{\hat{z}}` points into the view volume. 
@@ -4189,12 +4413,12 @@ This finishes the statement of the canonical matrices for Vulkan. We now derive 
 
 ### Right-Handed View Space
 
-The right-handed projected view space coordinate system for Vulkan is the frame 
+The right-handed view coordinate system for Vulkan is the frame 
 {math}`(\mathbf{0}, (\mathbf{\hat{x}}, -\mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points into the view volume away from
 the viewer. Notice that the vertical axis points down in this frame. This is a right-handed coordinate system. 
-The clip coordinate system for Vulkan is the same as the right-handed projected projected view space coordinate
+The clip coordinate system for Vulkan is the same as the right-handed view coordinate
 system. A homogeneous rotation about the x-axis is defined as
 
 ```{math}
@@ -4207,7 +4431,7 @@ R_{x}\left( \theta \right) =
     \end{bmatrix}.
 ```
 
-The orthogonal transformations for the right-handed Vulkan view space coordinates are given by
+The orthogonal transformations for the right-handed Vulkan view coordinates are given by
 
 ```{math}
 Q^{Vulkan}_{rh} 
@@ -4262,11 +4486,11 @@ The change of orientation matrices are given by
     \end{bmatrix}.
 ```
 
-To compute the projections, we need to coordinate transform from the chosen view coordinates to
-the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
-to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
-coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
-calculate the perspective projection
+To compute the projections, we need to transform from the chosen view coordinates to the canonical view
+coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
+target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
+Let us calculate the perspective projection
 
 ```{math}
 M^{Vulkan}_{per, rh \rightarrow rh}
@@ -4702,16 +4926,16 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh} =
     \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the right-handed Vulkan projected view space coordinates.
+This completes the derivation of the matrices for the right-handed Vulkan view coordinates.
 
 ### Left-Handed View Space
 
-The right-handed projected view space coordinate system for Vulkan is the frame 
+The right-handed view space coordinate system for Vulkan is the frame 
 {math}`(\mathbf{0}, (\mathbf{\hat{x}}, -\mathbf{\hat{y}}, -\mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`-\mathbf{\hat{z}}` points out of the view volume towards 
 the viewer. Notice that the vertical axis points down in this frame. This is a left-handed coordinate system. 
-The clip coordinate system for Vulkan is the same as the right-handed projected projected view space coordinate
+The clip coordinate system for Vulkan is the same as the right-handed view coordinate
 system. A homogeneous rotation about the x-axis is defined as
 
 ```{math}
@@ -4724,7 +4948,7 @@ R_{x}\left( \theta \right) =
     \end{bmatrix}.
 ```
 
-The orthogonal transformations for the left-handed Vulkan view space coordinates are given by
+The orthogonal transformations for the left-handed Vulkan view coordinates are given by
 
 ```{math}
 Q^{Vulkan}_{lh} 
@@ -4764,11 +4988,11 @@ The change of orientation matrices are given by
     \end{bmatrix}.
 ```
 
-To compute the projections, we need to coordinate transform from the chosen view coordinates to
-the canonical view coordinates, apply the canonical projection, and then transform from the canonical clip coordinates 
-to the target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. Each 
-coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. Let us 
-calculate the perspective projection
+To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
+coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
+target clip coordinates. We can map any view coordinates to and clip coordinates using the same process.
+Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix.
+Let us calculate the perspective projection
 
 ```{math}
 M^{Vulkan}_{per, lh \rightarrow rh}
@@ -5186,4 +5410,4 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh} =
     \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the left-handed Vulkan projected view space coordinates.
+This completes the derivation of the matrices for the left-handed Vulkan view coordinates.
