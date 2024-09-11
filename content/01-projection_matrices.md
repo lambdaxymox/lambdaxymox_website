@@ -1,8 +1,8 @@
 ---
 title: A Comprehensive Guide To Projection Matrices In Computer Graphics
 subtitle: 
-    Constructing Projection Matrices In Computer Graphics Using Matrix 
-    Representations Of Projective Transformations In Real Projective Space 
+    Constructing Projection Matrices Using Matrix Representations Of 
+    Projective Transformations In Real Projective Space 
 authors:
   - name: Lambda Xymox
   - email: lambdaxymox@gmail.com
@@ -3010,50 +3010,21 @@ M_{proj} \equiv T^{-1}_{clip} M^{C}_{proj} T_{view}.
 
 :::
 
-## Summary
+## Projection Matrices For Specific Software Platforms
 
-We develop the manifold structure of real projective space {math}`\mathbb{RP}^{3}` from scratch, then
-use that information to show how we can represent linear, affine, and projective transformations as
-matrices. We demonstrate why real projective space {math}`\mathbb{RP}^{3}` is the manifold for 
-solving computer graphics, geometric modeling, robotics, computer vision, and other spatial computing 
-domains formulated in the setting {math}`\mathbb{E}^{3}`. We use this knowledge to construct homogeneous 
-projection matrices.
 
-We construct a set of projection matrices using a canonically chosen set of coordinates which makes 
-it easy to derive any other projection matrix using coordinate transformations in conjunction with
-the relevant coordinate transformations to create the final result. We chose a view coordinate 
-system where the horizontal axis points to the right, the vertical axis points up, and the depth
-axis points into the view volume. This has the benefit of keeping all of the computations in the same
-orthonormal frame, which makes the behavior of the projection more obvious. Operating in real projective 
-space allows us to express our rendering problems in a coordinate system and scale independent way, such
-that the choice of coordinate system is a degree of freedom for the problem at hand. Moreover, the 
-coordinate system independent formulation is a low-key form of separation of concerns in software 
-engineering for spatial computing domains.
+### OpenGL
 
-We show how to construct perspective and orthographic projection transformations in {math}`\mathbb{RP}^{3}`
-from any view space orthonormal frame to any clip coordinate frame by first defining the matrix
-in a specially chosen coordinate chart, and then show that one can construct any other one by
-using the appropriate orthogonal transformations and changes of orientation to map from the 
-desired view coordinate system to the canonical one on one side, and mapping from the canonical
-clip coordinate system to the desired clip coordinate system using the same process. This
-result shows that perspective and orthographic projections are indeed coordinate independent 
-transformations.
+We compute the perspective and orthographic transformation matrices for OpenGL.
 
-## Application Of The Canonical Transformations For Deriving Specific Situations
-
-## OpenGL
-
-We derive the perspective and orthographic transformation matrices in the standard left-handed
-orthonormal frame and the standard right-handed coordinate frame.
-
-### The Canonical Projection Matrices
+#### The Canonical Projection Matrices
 
 The canonical view coordinate system for OpenGL is the frame 
-{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{R}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}`, where {math}`\mathbf{\hat{z}}` points into the view volume. 
-The canonical view volume for OpenGL in normalized device coordinates is parametrized by 
-{math}`[-1, 1] \times [-1, 1] \times [-1, 1]`. The canonical perpsective projection matrix for 
+The canonical view volume in normalized device coordinates is parametrized by 
+{math}`[-1, 1] \times [-1, 1] \times [-1, 1]`. The canonical perspective projection matrix for 
 this parametrization is given by
 
 ```{math}
@@ -3066,7 +3037,7 @@ M^{C, OpenGL}_{per} =
 \end{bmatrix}.
 ```
 
-The canonical orthographic projection matrix for OpenGL is given by
+The canonical orthographic projection matrix is given by
 
 ```{math}
 M^{C, OpenGL}_{orth} = 
@@ -3078,7 +3049,7 @@ M^{C, OpenGL}_{orth} =
 \end{bmatrix}.
 ```
 
-The canonical symmetric vertical field of view perspective projection matrix for OpenGL is given by
+The canonical symmetric vertical field of view perspective projection matrix is given by
 
 ```{math}
 M^{C,OpenGL}_{per,vfov} = 
@@ -3106,12 +3077,12 @@ M^{C,OpenGL}_{per,vfov} =
     \end{bmatrix}.
 ```
 
-This finishes the statement of the canonical matrices for OpenGL. We now derive the specific matrices for OpenGL.
+This finishes the statement of the canonical matrices for OpenGL.
 
-### Right-Handed View Space
+#### Right-Handed View Space
 
 The right-handed view coordinate system for OpenGL is the frame 
-{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{R}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points out of the view volume towards 
 the viewer. This is a right-handed coordinate system. The clip coordinate system for OpenGL is the canonical 
@@ -3139,13 +3110,12 @@ where {math}`I` is the identity matrix. The change of orientation matrices are g
         0 & 1 & 0 & 0 \\
         0 & 0 & 1 & 0 \\
         0 & 0 & 0 & 1 \\
-    \end{bmatrix}
-.
+    \end{bmatrix}.
 ```
 
 To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
 coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
-target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+target clip coordinates. We can map any view coordinates to clip coordinates using the same process. 
 Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
 Let us calculate the perspective projection
 
@@ -3318,16 +3288,15 @@ M^{OpenGL}_{per,vfov,rh \rightarrow lh} =
         & -1 
         &  0
         \\
-    \end{bmatrix}
-.
+    \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the right-handed OpenGL view coordinates.
+This completes the calculation of the matrices for the right-handed OpenGL view coordinates.
 
-### Left-Handed View Space
+#### Left-Handed View Space
 
 The left-handed view space coordinate system for OpenGL is the frame 
-{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{R}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points into the view volume away from 
 the viewer. This is a left-handed coordinate system. The clip coordinate system is the canonical left-handed one.
@@ -3345,13 +3314,12 @@ where {math}`I` is the identity matrix. The change of orientation matrix are giv
         0 & 1 & 0 & 0 \\
         0 & 0 & 1 & 0 \\
         0 & 0 & 0 & 1 \\
-    \end{bmatrix}
-.
+    \end{bmatrix}.
 ```
 
 To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
 coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
-target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+target clip coordinates. We can map any view coordinates to any clip coordinates using the same process. 
 Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
 Let us calculate the perspective projection
 
@@ -3383,7 +3351,7 @@ M^{OpenGL}_{per,lh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-Here is the calculation for calculation for the orthographic matrix
+Here is the calculation for the orthographic matrix
 
 ```{math}
 M^{OpenGL}_{orth,lh \rightarrow lh} 
@@ -3475,21 +3443,21 @@ M^{OpenGL}_{per,vfov,lh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the left-handed OpenGL view coordinates.
+This completes the computation of the matrices for the left-handed OpenGL view coordinates.
 
-## DirectX
+### DirectX
 
 We derive the perspective and orthographic transformation matrices in the standard left-handed
 orthonormal frame and the standard right-handed coordinate frame.
 
-### The Canonical Matrices
+#### The Canonical Matrices
 
 The canonical view space coordinate system for DirectX is the frame 
-{math}`(\mathbf{0}^{T}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` in {math}`\mathbb{RP}^{3}`,
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` in {math}`\mathbb{R}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}`, where {math}`\mathbf{\hat{z}}` points into the view volume. 
 The canonical view volume in normalized device coordinates is parametrized by 
-{math}`[-1, 1] \times [-1, 1] \times [0, 1]`. The canonical perpsective projection matrix for this 
+{math}`[-1, 1] \times [-1, 1] \times [0, 1]`. The canonical perspective projection matrix for this 
 parametrization is given by
 
 ```{math}
@@ -3544,10 +3512,10 @@ M^{C,DirectX}_{per,vfov} =
 
 This finishes the statement of the canonical matrices for DirectX. We now derive the specific matrices for DirectX.
 
-### Right-Handed View Space
+#### Right-Handed View Space
 
 The right-handed view coordinate system for DirectX is the frame 
-{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{R}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points out of the view volume towards 
 the viewer. This is a right-handed coordinate system. The clip coordinate system for DirectX is the canonical 
@@ -3579,7 +3547,7 @@ where {math}`I` is the identity matrix. The change of orientation matrices are g
 
 To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
 coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
-target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+target clip coordinates. We can map any view coordinates to any clip coordinates using the same process. 
 Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
 Let us calculate the perspective projection
 
@@ -3755,12 +3723,12 @@ M^{DirectX}_{per,vfov,rh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the right-handed DirectX view coordinates.
+This completes the computation of the matrices for the right-handed DirectX view coordinates.
 
-### Left-Handed View Space
+#### Left-Handed View Space
 
 The left-handed view coordinate system for OpenGL is the frame 
-{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{R}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points into the view volume away from 
 the viewer. This is a right-handed coordinate system. The clip coordinate system is the canonical left-handed one. 
@@ -3783,7 +3751,7 @@ where {math}`I` is the identity matrix. The change of orientation matrix are giv
 
 To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
 coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
-target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+target clip coordinates. We can map any view coordinates to any clip coordinates using the same process. 
 Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
 Let us calculate the perspective projection
 
@@ -3815,7 +3783,7 @@ M^{DirectX}_{per,lh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-Here is the calculation for calculation for the orthographic matrix
+Here is the calculation for the orthographic matrix
 
 ```{math}
 M^{DirectX}_{orth,lh \rightarrow lh} 
@@ -3907,21 +3875,21 @@ M^{DirectX}_{per,vfov,lh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the left-handed DirectX view coordinates.
+This completes the computation of the matrices for the left-handed DirectX view coordinates.
 
-## Metal
+### Metal
 
 We derive the perspective and orthographic transformation matrices in the standard left-handed
 orthonormal frame and the standard right-handed coordinate frame.
 
-### The Canonical Matrices
+#### The Canonical Matrices
 
 The canonical view space coordinate system for Metal is the frame 
-{math}`(\mathbf{0}^{T}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` in {math}`\mathbb{RP}^{3}`,
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` in {math}`\mathbb{R}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}`, where {math}`\mathbf{\hat{z}}` points into the view volume. 
 The canonical view volume for for Metal in normalized device coordinates is parametrized by 
-{math}`[-1, 1] \times [-1, 1] \times [0, 1]`. The canonical perpsective projection matrix for 
+{math}`[-1, 1] \times [-1, 1] \times [0, 1]`. The canonical perspective projection matrix for 
 Metal is given by
 
 ```{math}
@@ -3978,10 +3946,10 @@ M^{C,Metal}_{per,vfov} =
 
 This finishes the statement of the canonical matrices for Metal. We now derive the specific matrices for Metal.
 
-### Right-Handed View Space
+#### Right-Handed View Space
 
 The right-handed view space coordinate system for Metal is the frame 
-{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{R}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points out of the view volume towards 
 the viewer. This is a right-handed coordinate system. The clip coordinate system for Metal is the canonical 
@@ -4013,7 +3981,7 @@ where {math}`I` is the identity matrix. The change of orientation matrices are g
 
 To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
 coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
-target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+target clip coordinates. We can map any view coordinates to any clip coordinates using the same process. 
 Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
 Let us calculate the perspective projection
 
@@ -4189,12 +4157,12 @@ M^{Metal}_{per,vfov,rh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the right-handed Metal view coordinates.
+This completes the computation of the matrices for the right-handed Metal view coordinates.
 
-### Left-Handed View Space
+#### Left-Handed View Space
 
 The left-handed view space coordinate system for Metal is the frame 
-{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{R}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points into the view volume away from 
 the viewer. This is a right-handed coordinate system. The clip coordinate system is the canonical left-handed one. 
@@ -4217,7 +4185,7 @@ where {math}`I` is the identity matrix. The change of orientation matrix are giv
 
 To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
 coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
-target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+target clip coordinates. We can map any view coordinates to any clip coordinates using the same process. 
 Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
 Let us calculate the perspective projection
 
@@ -4250,7 +4218,7 @@ M^{Metal}_{per,lh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-Here is the calculation for calculation for the orthographic matrix
+Here is the calculation for the orthographic matrix
 
 ```{math}
 M^{Metal}_{orth,lh \rightarrow lh} 
@@ -4340,17 +4308,17 @@ M^{Metal}_{per,vfov,lh \rightarrow lh} =
     \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the left-handed Metal view coordinates.
+This completes the computation of the matrices for the left-handed Metal view coordinates.
 
-## Vulkan (Vulkan Coordinates)
+### Vulkan
 
-We derive the perspective and orthographic transformation matrices in the standard left-handed
-orthonormal frame and the standard right-handed coordinate frame.
+We derive the perspective and orthographic transformation matrices in the left-handed
+Vulkan clip space frame and the right-handed Vulkan clip space frame.
 
-### The Canonical Matrices
+#### The Canonical Matrices
 
 The canonical view coordinate system for Vulkan is the frame 
-{math}`(\mathbf{0}^{T}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` in {math}`\mathbb{RP}^{3}`,
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` in {math}`\mathbb{R}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}`, where {math}`\mathbf{\hat{z}}` points into the view volume. 
 The canonical view volume for for Vulkan in normalized device coordinates is parametrized by 
@@ -4411,10 +4379,10 @@ M^{C, Vulkan}_{per,vfov} =
 
 This finishes the statement of the canonical matrices for Vulkan. We now derive the specific matrices for Vulkan.
 
-### Right-Handed View Space
+#### Right-Handed View Space
 
 The right-handed view coordinate system for Vulkan is the frame 
-{math}`(\mathbf{0}, (\mathbf{\hat{x}}, -\mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, -\mathbf{\hat{y}}, \mathbf{\hat{z}}))` in {math}`\mathbb{R}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`\mathbf{\hat{z}}` points into the view volume away from
 the viewer. Notice that the vertical axis points down in this frame. This is a right-handed coordinate system. 
@@ -4488,7 +4456,7 @@ The change of orientation matrices are given by
 
 To compute the projections, we need to transform from the chosen view coordinates to the canonical view
 coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
-target clip coordinates. We can map any view coordinates to and clip coordinates using the same process. 
+target clip coordinates. We can map any view coordinates to any clip coordinates using the same process. 
 Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix. 
 Let us calculate the perspective projection
 
@@ -4926,12 +4894,12 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh} =
     \end{bmatrix}.
 ```
 
-This completes the derivation of the matrices for the right-handed Vulkan view coordinates.
+This completes the computation of the matrices for the right-handed Vulkan view coordinates.
 
-### Left-Handed View Space
+#### Left-Handed View Space
 
 The right-handed view space coordinate system for Vulkan is the frame 
-{math}`(\mathbf{0}, (\mathbf{\hat{x}}, -\mathbf{\hat{y}}, -\mathbf{\hat{z}}))` in {math}`\mathbb{RP}^{3}`,
+{math}`(\mathbf{0}, (\mathbf{\hat{x}}, -\mathbf{\hat{y}}, -\mathbf{\hat{z}}))` in {math}`\mathbb{R}^{3}`,
 where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
 {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` where {math}`-\mathbf{\hat{z}}` points out of the view volume towards 
 the viewer. Notice that the vertical axis points down in this frame. This is a left-handed coordinate system. 
@@ -4990,7 +4958,7 @@ The change of orientation matrices are given by
 
 To compute the projections, we need to transform from the chosen view coordinates to the canonical view 
 coordinates, apply the canonical projection, and then transform from the canonical clip coordinates to the 
-target clip coordinates. We can map any view coordinates to and clip coordinates using the same process.
+target clip coordinates. We can map any view coordinates to any clip coordinates using the same process.
 Each coordinate transformation is the product of an orthogonal transform and a change of orientation matrix.
 Let us calculate the perspective projection
 
@@ -5411,3 +5379,32 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh} =
 ```
 
 This completes the derivation of the matrices for the left-handed Vulkan view coordinates.
+
+## Summary
+
+We develop the manifold structure of real projective space {math}`\mathbb{RP}^{3}` from scratch, then
+use that information to show how we can represent linear, affine, and projective transformations as
+matrices. We demonstrate why real projective space {math}`\mathbb{RP}^{3}` is the manifold for 
+solving computer graphics, geometric modeling, robotics, computer vision, and other spatial computing 
+domains formulated in the setting {math}`\mathbb{E}^{3}`. We use this knowledge to construct homogeneous 
+projection matrices.
+
+We construct a set of projection matrices using a canonically chosen set of coordinates which makes 
+it easy to derive any other projection matrix using coordinate transformations in conjunction with
+the relevant coordinate transformations to create the final result. We chose a view coordinate 
+system where the horizontal axis points to the right, the vertical axis points up, and the depth
+axis points into the view volume. This has the benefit of keeping all of the computations in the same
+orthonormal frame, which makes the behavior of the projection more obvious. Operating in real projective 
+space allows us to express our rendering problems in a coordinate system and scale independent way, such
+that the choice of coordinate system is a degree of freedom for the problem at hand. Moreover, the 
+coordinate system independent formulation is a low-key form of separation of concerns in software 
+engineering for spatial computing domains.
+
+We show how to construct perspective and orthographic projection transformations in {math}`\mathbb{RP}^{3}`
+from any view space orthonormal frame to any clip coordinate frame by first defining the matrix
+in a specially chosen coordinate chart, and then show that one can construct any other one by
+using the appropriate orthogonal transformations and changes of orientation to map from the 
+desired view coordinate system to the canonical one on one side, and mapping from the canonical
+clip coordinate system to the desired clip coordinate system using the same process. This
+result shows that perspective and orthographic projections are indeed coordinate independent 
+transformations.
