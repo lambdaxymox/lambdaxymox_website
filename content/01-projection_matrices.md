@@ -3012,6 +3012,7 @@ M_{proj} \equiv T^{-1}_{clip} M^{C}_{proj} T_{view}.
 
 ## Projection Matrices For Specific Software Platforms
 
+We apply the results of the previous sections to calculate the projection matrices for specific software platforms.
 
 ### OpenGL
 
@@ -3293,6 +3294,76 @@ M^{OpenGL}_{per,vfov,rh \rightarrow lh} =
 
 This completes the calculation of the matrices for the right-handed OpenGL view coordinates.
 
+:::{important} OpenGL Right-Handed Projection Matrix Box
+
+- **View Coordinate Frame (Right-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`,
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where
+    {math}`\mathbf{\hat{x}}` points to the right,
+    {math}`\mathbf{\hat{y}}` points up,
+    {math}`\mathbf{\hat{z}}` points out of the view volume towards the viewer
+- **Clip Coordinate Frame (Left-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, 
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where 
+    {math}`\mathbf{\hat{x}}` points right,
+    {math}`\mathbf{\hat{y}}` points up,
+    {math}`\mathbf{\hat{z}}` points into the view volume away from the viewer
+- **Canonical View Volume**: {math}`[-1, 1] \times [-1, 1] \times [-1, 1]`
+
+```{math}
+M^{OpenGL}_{per,rh \rightarrow lh} &= 
+    \begin{bmatrix}
+    \frac{ 2 n }{r - \left( -l \right)} & 0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                    \\
+    0                                   & \frac{ 2 n }{t - \left( -b \right)} &  \frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                    \\
+    0                                   & 0                                   & -\frac{f + n}{f - n}                                 & -\frac{2 f n }{f - n} \\
+    0                                   & 0                                   & -1                                                   &  0                    \\
+    \end{bmatrix} \\
+
+M^{OpenGL}_{per,rh \rightarrow lh} &= 
+    \begin{bmatrix}
+    \frac{ 2 n }{r - \left( -l \right)} & 0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                    \\
+    0                                   & \frac{ 2 n }{t - \left( -b \right)} &  \frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                    \\
+    0                                   & 0                                   & -\frac{f + n}{f - n}                                 & -\frac{2 f n }{f - n} \\
+    0                                   & 0                                   & -1                                                   &  0                    \\
+    \end{bmatrix} \\
+
+M^{OpenGL}_{per,vfov,rh \rightarrow lh} &= 
+    \begin{bmatrix}
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        & 0 
+        & 0
+        & 0
+        \\
+        0 
+        & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
+        & 0
+        & 0
+        \\
+        0 
+        &  0 
+        & -\frac{f + n}{f - n}
+        & -\frac{ 2 f n }{f - n}
+        \\
+        0 
+        &  0 
+        & -1 
+        &  0
+        \\
+    \end{bmatrix} \\
+```
+
+:::
+
 #### Left-Handed View Space
 
 The left-handed view space coordinate system for OpenGL is the frame 
@@ -3445,10 +3516,116 @@ M^{OpenGL}_{per,vfov,lh \rightarrow lh} =
 
 This completes the computation of the matrices for the left-handed OpenGL view coordinates.
 
+:::{important} OpenGL Left-Handed Projection Matrix Box
+
+- **View Coordinate Frame (Left-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, 
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where 
+    {math}`\mathbf{\hat{x}}` points right,
+    {math}`\mathbf{\hat{y}}` points up,
+    {math}`\mathbf{\hat{z}}` points into the view volume away from the viewer
+- **Clip Coordinate Frame (Left-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, 
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where 
+    {math}`\mathbf{\hat{x}}` points right,
+    {math}`\mathbf{\hat{y}}` points up,
+    {math}`\mathbf{\hat{z}}` points into the view volume away from the viewer
+- **Canonical View Volume**: {math}`[-1, 1] \times [-1, 1] \times [-1, 1]`
+
+```{math}
+M^{OpenGL}_{per,lh \rightarrow lh} &=
+    \begin{bmatrix}
+        \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  &  0                    \\
+        0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)}  &  0                    \\
+        0                                   & 0                                   &  \frac{f + n}{f - n}                                  & -\frac{2 f n }{f - n} \\
+        0                                   & 0                                   &  1                                                    &  0                    \\
+    \end{bmatrix} \\
+
+M^{OpenGL}_{orth,lh \rightarrow lh} &= 
+    \begin{bmatrix}
+        \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
+        0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
+        0                               & 0                               & \frac{2}{f - n} & -\frac{f + n}{f - n}                                 \\
+        0                               & 0                               & 0               &  1                                                   \\
+    \end{bmatrix} \\
+
+M^{OpenGL}_{per,vfov,lh \rightarrow lh} &=
+    \begin{bmatrix}
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        & 0 
+        & 0
+        & 0
+        \\
+        0 
+        & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
+        & 0
+        & 0
+        \\
+        0 
+        &  0 
+        & \frac{f + n}{f - n}
+        & -\frac{ 2 f n }{f - n}
+        \\
+        0 
+        & 0 
+        & 1 
+        & 0
+        \\
+    \end{bmatrix}
+```
+
+:::
+
+#### Comparing Coordinate System Orientations
+
+Let us illustrate why the coordinate systems in this section have a left-handed orientation or right-handed orientation.
+By convention, the standard basis on {math}`\mathbb{R}^{3}` has a right-handed orientation. Recall that the standard
+basis on {math}`\mathbb{R}^{3}` is the tuple of vectors {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})`
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, and 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` are the standard basis vectors. In this basis, OpenGL's left-handed 
+view coordinates and clip coordinates have the determinant
+
+```{math}
+\det \begin{bmatrix} \mathbf{\hat{x}} & \mathbf{\hat{y}} & -\mathbf{\hat{z}} \end{bmatrix}
+    =  \det \begin{bmatrix}
+            1 & 0 &  0 \\
+            0 & 1 &  0 \\
+            0 & 0 & -1 \\
+        \end{bmatrix}
+    = 1 \cdot 1 \cdot -1
+    = -1
+```
+
+and OpenGL's right-handed view coordinates have the determinant 
+
+```{math}
+\det \begin{bmatrix} \mathbf{\hat{x}} & \mathbf{\hat{y}} & \mathbf{\hat{z}} \end{bmatrix}
+    =  \det \begin{bmatrix}
+            1 & 0 & 0 \\
+            0 & 1 & 0 \\
+            0 & 0 & 1 \\
+        \end{bmatrix}
+    = 1 \cdot 1 \cdot 1
+    = 1
+```
+
+so the right-handed OpenGL view coordinate system indeed has a right-handed orientation,
+and the left-handed view coordinate system and clip coordinate system have a left-handed orientation.
+
+
 ### DirectX
 
-We derive the perspective and orthographic transformation matrices in the standard left-handed
-orthonormal frame and the standard right-handed coordinate frame.
+We compute the perspective and orthographic transformation matrices for DirectX.
 
 #### The Canonical Matrices
 
@@ -3510,7 +3687,7 @@ M^{C,DirectX}_{per,vfov} =
     \end{bmatrix}.
 ```
 
-This finishes the statement of the canonical matrices for DirectX. We now derive the specific matrices for DirectX.
+This finishes the statement of the canonical matrices for DirectX.
 
 #### Right-Handed View Space
 
@@ -3725,6 +3902,76 @@ M^{DirectX}_{per,vfov,rh \rightarrow lh} =
 
 This completes the computation of the matrices for the right-handed DirectX view coordinates.
 
+:::{important} DirectX Right-Handed Projection Matrix Box
+
+- **View Coordinate Frame (Right-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`,
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where
+    {math}`\mathbf{\hat{x}}` points to the right,
+    {math}`\mathbf{\hat{y}}` points up,
+    {math}`\mathbf{\hat{z}}` points out of the view volume towards the viewer
+- **Clip Coordinate Frame (Left-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, 
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where 
+    {math}`\mathbf{\hat{x}}` points right,
+    {math}`\mathbf{\hat{y}}` points up,
+    {math}`\mathbf{\hat{z}}` points into the view volume away from the viewer
+- **Canonical View Volume**: {math}`[-1, 1] \times [-1, 1] \times [0, 1]`
+
+```{math}
+M^{DirectX}_{per,rh \rightarrow lh} &= 
+    \begin{bmatrix}
+    \frac{ 2 n }{r - \left( -l \right)} & 0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                   \\
+    0                                   & \frac{ 2 n }{t - \left( -b \right)} &  \frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                   \\
+    0                                   & 0                                   & -\frac{f}{f - n}                                     & -\frac{ f n }{f - n} \\
+    0                                   & 0                                   & -1                                                   &  0                   \\
+    \end{bmatrix} \\
+
+M^{DirectX}_{orth,rh \rightarrow lh} &= 
+    \begin{bmatrix}
+    \frac{2}{r - \left( -l \right)} & 0                               &  0                & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
+    0                               & \frac{2}{t - \left( -b \right)} &  0                & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
+    0                               & 0                               & -\frac{1}{f - n}  & -\frac{n}{f - n}                                     \\
+    0                               & 0                               &  0                &  1                                                   \\
+    \end{bmatrix} \\
+
+M^{DirectX}_{per,vfov,rh \rightarrow lh} &= 
+    \begin{bmatrix}
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        & 0 
+        & 0
+        & 0 
+        \\
+        0 
+        & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
+        & 0
+        & 0 
+        \\
+        0 
+        &  0 
+        & -\frac{f}{f - n}
+        & -\frac{ f n }{f - n}
+        \\
+        0 
+        &  0 
+        & -1 
+        &  0
+        \\
+    \end{bmatrix} \\
+```
+
+:::
+
 #### Left-Handed View Space
 
 The left-handed view coordinate system for OpenGL is the frame 
@@ -3877,10 +4124,116 @@ M^{DirectX}_{per,vfov,lh \rightarrow lh} =
 
 This completes the computation of the matrices for the left-handed DirectX view coordinates.
 
+:::{important} DirectX Left-Handed Projection Matrix Box
+
+- **View Coordinate Frame (Left-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, 
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where 
+    {math}`\mathbf{\hat{x}}` points right,
+    {math}`\mathbf{\hat{y}}` points up,
+    {math}`\mathbf{\hat{z}}` points into the view volume away from the viewer
+- **Clip Coordinate Frame (Left-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, 
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where 
+    {math}`\mathbf{\hat{x}}` points right,
+    {math}`\mathbf{\hat{y}}` points up,
+    {math}`\mathbf{\hat{z}}` points into the view volume away from the viewer
+- **Canonical View Volume**: {math}`[-1, 1] \times [-1, 1] \times [0, 1]`
+
+```{math}
+M^{DirectX}_{per,lh \rightarrow lh} &= 
+    \begin{bmatrix}
+        \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
+        0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
+        0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
+        0                                   & 0                                   &  1                                                   &  0                  \\
+    \end{bmatrix} \\
+
+M^{DirectX}_{orth,lh \rightarrow lh} &= 
+    \begin{bmatrix}
+        \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
+        0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
+        0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
+        0                               & 0                               & 0               &  1                                                   \\
+    \end{bmatrix} \\
+
+M^{DirectX}_{per,vfov,lh \rightarrow lh} &= 
+    \begin{bmatrix}
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        & 0 
+        & 0
+        & 0 
+        \\
+        0 
+        & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
+        & 0
+        & 0 
+        \\
+        0 
+        &  0 
+        & \frac{f}{f - n}
+        & -\frac{ f n }{f - n}
+        \\
+        0 
+        & 0 
+        & 1 
+        & 0
+        \\
+    \end{bmatrix} \\
+```
+
+:::
+
+#### Comparing Coordinate System Orientations
+
+Let us illustrate why the coordinate systems in this section have a left-handed orientation or right-handed orientation.
+By convention, the standard basis on {math}`\mathbb{R}^{3}` has a right-handed orientation. Recall that the standard
+basis on {math}`\mathbb{R}^{3}` is the tuple of vectors {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})`
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, and 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` are the standard basis vectors. In this basis, DirectX's left-handed 
+view coordinates and clip coordinates have the determinant
+
+```{math}
+\det \begin{bmatrix} \mathbf{\hat{x}} & \mathbf{\hat{y}} & -\mathbf{\hat{z}} \end{bmatrix}
+    =  \det \begin{bmatrix}
+            1 & 0 &  0 \\
+            0 & 1 &  0 \\
+            0 & 0 & -1 \\
+        \end{bmatrix}
+    = 1 \cdot 1 \cdot -1
+    = -1
+```
+
+and DirectX's right-handed view coordinates have the determinant 
+
+```{math}
+\det \begin{bmatrix} \mathbf{\hat{x}} & \mathbf{\hat{y}} & \mathbf{\hat{z}} \end{bmatrix}
+    =   \det \begin{bmatrix}
+            1 & 0 & 0 \\
+            0 & 1 & 0 \\
+            0 & 0 & 1 \\
+        \end{bmatrix}
+    = 1 \cdot 1 \cdot 1
+    = 1
+```
+
+so the right-handed DirectX view coordinate system indeed has a right-handed orientation,
+and the left-handed view coordinate system and clip coordinate system have a left-handed orientation.
+
+
 ### Metal
 
-We derive the perspective and orthographic transformation matrices in the standard left-handed
-orthonormal frame and the standard right-handed coordinate frame.
+We compute the perspective and orthographic transformation matrices for Metal.
 
 #### The Canonical Matrices
 
@@ -3944,7 +4297,7 @@ M^{C,Metal}_{per,vfov} =
     \end{bmatrix}.
 ```
 
-This finishes the statement of the canonical matrices for Metal. We now derive the specific matrices for Metal.
+This finishes the statement of the canonical matrices for Metal.
 
 #### Right-Handed View Space
 
@@ -4159,6 +4512,76 @@ M^{Metal}_{per,vfov,rh \rightarrow lh} =
 
 This completes the computation of the matrices for the right-handed Metal view coordinates.
 
+:::{important} Metal Right-Handed Projection Matrix Box
+
+- **View Coordinate Frame (Right-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`,
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where
+    {math}`\mathbf{\hat{x}}` points to the right,
+    {math}`\mathbf{\hat{y}}` points up,
+    {math}`\mathbf{\hat{z}}` points out of the view volume towards the viewer
+- **Clip Coordinate Frame (Left-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, 
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where 
+    {math}`\mathbf{\hat{x}}` points right,
+    {math}`\mathbf{\hat{y}}` points up,
+    {math}`\mathbf{\hat{z}}` points into the view volume away from the viewer
+- **Canonical View Volume**: {math}`[-1, 1] \times [-1, 1] \times [0, 1]`
+
+```{math}
+M^{Metal}_{per,rh \rightarrow lh} &= 
+    \begin{bmatrix}
+    \frac{ 2 n }{r - \left( -l \right)} & 0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                   \\
+    0                                   & \frac{ 2 n }{t - \left( -b \right)} &  \frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                   \\
+    0                                   & 0                                   & -\frac{f}{f - n}                                     & -\frac{ f n }{f - n} \\
+    0                                   & 0                                   & -1                                                   &  0
+    \end{bmatrix} \\
+
+M^{Metal}_{orth,rh \rightarrow lh} &= 
+    \begin{bmatrix}
+    \frac{2}{r - \left( -l \right)} & 0                               &  0                & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
+    0                               & \frac{2}{t - \left( -b \right)} &  0                & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
+    0                               & 0                               & -\frac{1}{f - n}  & -\frac{n}{f - n}                                     \\
+    0                               & 0                               &  0                &  1
+    \end{bmatrix} \\
+
+M^{Metal}_{per,vfov,rh \rightarrow lh} &= 
+    \begin{bmatrix}
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        & 0 
+        & 0
+        & 0
+        \\
+        0 
+        & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
+        & 0
+        & 0
+        \\
+        0 
+        &  0 
+        & -\frac{f}{f - n}
+        & -\frac{ f n }{f - n}
+        \\
+        0 
+        &  0 
+        & -1 
+        &  0
+        \\
+    \end{bmatrix} \\
+```
+
+:::
+
 #### Left-Handed View Space
 
 The left-handed view space coordinate system for Metal is the frame 
@@ -4310,10 +4733,114 @@ M^{Metal}_{per,vfov,lh \rightarrow lh} =
 
 This completes the computation of the matrices for the left-handed Metal view coordinates.
 
+:::{important} Metal Left-Handed Projection Matrix Box
+
+- **View Coordinate Frame (Left-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, 
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where 
+    {math}`\mathbf{\hat{x}}` points right,
+    {math}`\mathbf{\hat{y}}` points up,
+    {math}`\mathbf{\hat{z}}` points into the view volume away from the viewer
+- **Clip Coordinate Frame (Left-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, 
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where 
+    {math}`\mathbf{\hat{x}}` points right,
+    {math}`\mathbf{\hat{y}}` points up,
+    {math}`\mathbf{\hat{z}}` points into the view volume away from the viewer
+- **Canonical View Volume**: {math}`[-1, 1] \times [-1, 1] \times [0, 1]`
+
+```{math}
+M^{Metal}_{per,lh \rightarrow lh} &= 
+    \begin{bmatrix}
+        \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
+        0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
+        0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
+        0                                   & 0                                   &  1                                                   &  0                  \\
+    \end{bmatrix} \\
+
+M^{Metal}_{orth,lh \rightarrow lh} &= 
+    \begin{bmatrix}
+        \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)} \\
+        0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
+        0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
+        0                               & 0                               & 0               &  1                                                   \\
+    \end{bmatrix} \\
+
+M^{Metal}_{per,vfov,lh \rightarrow lh} &= 
+    \begin{bmatrix}
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        & 0 
+        & 0
+        & 0 
+        \\
+        0 
+        & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
+        & 0
+        & 0 
+        \\
+        0 
+        &  0 
+        & \frac{f}{f - n}
+        & -\frac{ f n }{f - n}
+        \\
+        0 
+        & 0 
+        & 1 
+        & 0
+        \\
+    \end{bmatrix} \\
+```
+:::
+
+#### Comparing Coordinate System Orientations
+
+Let us illustrate why the coordinate systems in this section have a left-handed orientation or right-handed orientation.
+By convention, the standard basis on {math}`\mathbb{R}^{3}` has a right-handed orientation. Recall that the standard
+basis on {math}`\mathbb{R}^{3}` is the tuple of vectors {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})`
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, and 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` are the standard basis vectors. In this basis, Metal's left-handed 
+view coordinates and clip coordinates have the determinant
+
+```{math}
+\det \begin{bmatrix} \mathbf{\hat{x}} & \mathbf{\hat{y}} & -\mathbf{\hat{z}} \end{bmatrix}
+    =  \det \begin{bmatrix}
+            1 & 0 &  0 \\
+            0 & 1 &  0 \\
+            0 & 0 & -1 \\
+        \end{bmatrix}
+    = 1 \cdot 1 \cdot -1
+    = -1
+```
+
+and Metal's right-handed view coordinates have the determinant 
+
+```{math}
+\det \begin{bmatrix} \mathbf{\hat{x}} & \mathbf{\hat{y}} & \mathbf{\hat{z}} \end{bmatrix}
+    =  \det \begin{bmatrix}
+            1 & 0 & 0 \\
+            0 & 1 & 0 \\
+            0 & 0 & 1 \\
+        \end{bmatrix}
+    = 1 \cdot 1 \cdot 1
+    = 1
+```
+
+so the right-handed Metal view coordinate system indeed has a right-handed orientation,
+and the left-handed view coordinate system and clip coordinate system have a left-handed orientation.
+
 ### Vulkan
 
-We derive the perspective and orthographic transformation matrices in the left-handed
-Vulkan clip space frame and the right-handed Vulkan clip space frame.
+We compute the perspective and orthographic transformation matrices for Vulkan.
 
 #### The Canonical Matrices
 
@@ -4332,8 +4859,7 @@ M^{C, Vulkan}_{per} =
 0                                   & \frac{ 2 n }{t - \left( -b \right)} & -\frac{t + \left( -b \right)}{t - \left( -b \right)} &  0                  \\
 0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
 0                                   & 0                                   &  1                                                   &  0                  \\
-\end{bmatrix}
-.
+\end{bmatrix}.
 ```
 
 The canonical orthographic projection matrix for Vulkan is given by
@@ -4345,8 +4871,7 @@ M^{C, Vulkan}_{orth} =
 0                               & \frac{2}{t - \left( -b \right)} & 0               & -\frac{t + \left( -b \right)}{t - \left( -b \right)} \\
 0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                     \\
 0                               & 0                               & 0               &  1                                                   \\
-\end{bmatrix}
-.
+\end{bmatrix}.
 ```
 
 The canonical symmetric vertical field of view perspective projection matrix for Vulkan is given by
@@ -4377,7 +4902,7 @@ M^{C, Vulkan}_{per,vfov} =
     \end{bmatrix}
 ```
 
-This finishes the statement of the canonical matrices for Vulkan. We now derive the specific matrices for Vulkan.
+This finishes the statement of the canonical matrices for Vulkan.
 
 #### Right-Handed View Space
 
@@ -4896,6 +5421,76 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh} =
 
 This completes the computation of the matrices for the right-handed Vulkan view coordinates.
 
+:::{important} Vulkan Right-Handed Projection Matrix Box
+
+- **View Coordinate Frame (Right-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, -\mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, 
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where 
+    {math}`\mathbf{\hat{x}}` points right,
+    {math}`-\mathbf{\hat{y}}` points down,
+    {math}`\mathbf{\hat{z}}` points into the view volume away from the viewer
+- **Clip Coordinate Frame (Right-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, -\mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, 
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where 
+    {math}`\mathbf{\hat{x}}` points right,
+    {math}`-\mathbf{\hat{y}}` points down,
+    {math}`\mathbf{\hat{z}}` points into the view volume away from the viewer
+- **Canonical View Volume**: {math}`[-1, 1] \times [-1, 1] \times [0, 1]`
+
+```{math}
+M^{Vulkan}_{per, rh \rightarrow rh} &= 
+    \begin{bmatrix}
+        \frac{ 2 n }{r - \left( -l \right)} & 0                                   & -\frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
+        0                                   & \frac{ 2 n }{b - \left( -t \right)} & -\frac{b + \left( -t \right)}{b - \left( -t \right)} &  0                  \\
+        0                                   & 0                                   &  \frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
+        0                                   & 0                                   &  1                                                   &  0                  \\
+    \end{bmatrix} \\
+
+M^{Vulkan}_{orth, rh \rightarrow rh} &= 
+    \begin{bmatrix}
+        \frac{2}{r - \left( -l \right)} & 0                               & 0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  \\
+        0                               & \frac{2}{b - \left( -t \right)} & 0               & -\frac{b + \left( -t \right)}{b - \left( -t \right)}  \\
+        0                               & 0                               & \frac{1}{f - n} & -\frac{n}{f - n}                                      \\
+        0                               & 0                               & 0               &  1                                                    \\
+    \end{bmatrix} \\
+
+M^{Vulkan}_{per,vfov,rh \rightarrow rh} &= 
+    \begin{bmatrix}
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        & 0 
+        & 0
+        & 0
+        \\
+        0 
+        & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
+        & 0
+        & 0
+        \\
+        0 
+        &  0 
+        &  \frac{f}{f - n}
+        & -\frac{ f n }{f - n}
+        \\
+        0 
+        & 0 
+        & 1 
+        & 0
+        \\
+    \end{bmatrix} \\
+```
+
+:::
+
 #### Left-Handed View Space
 
 The right-handed view space coordinate system for Vulkan is the frame 
@@ -5353,7 +5948,7 @@ M^{Vulkan}_{per,vfov,lh \rightarrow rh}
 therefore
 
 ```{math}
-M^{Vulkan}_{per,vfov,rh \rightarrow rh} = 
+M^{Vulkan}_{per,vfov,lh \rightarrow rh} = 
     \begin{bmatrix}
         \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
         & 0 
@@ -5380,14 +5975,121 @@ M^{Vulkan}_{per,vfov,rh \rightarrow rh} =
 
 This completes the derivation of the matrices for the left-handed Vulkan view coordinates.
 
+:::{important} Vulkan Left-Handed Projection Matrix Box
+
+- **View Coordinate Frame (Left-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, -\mathbf{\hat{y}}, -\mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, 
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where 
+    {math}`\mathbf{\hat{x}}` points right,
+    {math}`-\mathbf{\hat{y}}` points down,
+    {math}`-\mathbf{\hat{z}}` points out of the view volume towards the viewer
+- **Clip Coordinate Frame (Right-Handed Orientation)**
+  - **Origin**: {math}`\mathbf{0} = [0, 0, 0]^{T}`
+  - **Basis**:
+    {math}`(\mathbf{\hat{x}}, -\mathbf{\hat{y}}, \mathbf{\hat{z}})` where
+    {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, 
+    {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, 
+    {math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` 
+    where 
+    {math}`\mathbf{\hat{x}}` points right,
+    {math}`-\mathbf{\hat{y}}` points down,
+    {math}`\mathbf{\hat{z}}` points into the view volume away from the viewer
+- **Canonical View Volume**: {math}`[-1, 1] \times [-1, 1] \times [0, 1]`
+
+```{math}
+M^{Vulkan}_{per, lh \rightarrow rh} &= 
+    \begin{bmatrix}
+        \frac{ 2 n }{r - \left( -l \right)} & 0                                   &  \frac{r + \left( -l \right)}{r - \left( -l \right)} &  0                  \\
+        0                                   & \frac{ 2 n }{b - \left( -t \right)} &  \frac{b + \left( -t \right)}{b - \left( -t \right)} &  0                  \\
+        0                                   & 0                                   & -\frac{f}{f - n}                                     & -\frac{f n }{f - n} \\
+        0                                   & 0                                   & -1                                                   &  0                  \\
+    \end{bmatrix} \\
+
+M^{Vulkan}_{orth, lh \rightarrow rh} &= 
+    \begin{bmatrix}
+        \frac{2}{r - \left( -l \right)} & 0                               &  0               & -\frac{r + \left( -l \right)}{r - \left( -l \right)}  \\
+        0                               & \frac{2}{b - \left( -t \right)} &  0               & -\frac{b + \left( -t \right)}{b - \left( -t \right)}  \\
+        0                               & 0                               & -\frac{1}{f - n} & -\frac{n}{f - n}                                      \\
+        0                               & 0                               &  0               &  1                                                    \\
+    \end{bmatrix} \\
+
+M^{Vulkan}_{per,vfov,lh \rightarrow rh} &= 
+    \begin{bmatrix}
+        \frac{1}{\text{aspect} \cdot \tan\left( \frac{\theta_{vfov}}{2} \right)} 
+        & 0 
+        & 0
+        & 0 
+        \\
+        0 
+        & \frac{1}{\tan\left( \frac{\theta_{vfov}}{2} \right)}
+        & 0
+        & 0 
+        \\
+        0 
+        &  0 
+        & -\frac{f}{f - n}
+        & -\frac{ f n }{f - n} 
+        \\
+        0 
+        &  0 
+        & -1 
+        &  0
+        \\
+    \end{bmatrix} \\
+```
+
+:::
+
+#### Comparing Coordinate System Orientations
+
+Let us illustrate why the coordinate systems in this section have a left-handed orientation or right-handed orientation.
+By convention, the standard basis on {math}`\mathbb{R}^{3}` has a right-handed orientation. Recall that the standard
+basis on {math}`\mathbb{R}^{3}` is the tuple of vectors {math}`(\mathbf{\hat{x}}, \mathbf{\hat{y}}, \mathbf{\hat{z}})`
+where {math}`\mathbf{\hat{x}} = [1, 0, 0]^{T}`, {math}`\mathbf{\hat{y}} = [0, 1, 0]^{T}`, and 
+{math}`\mathbf{\hat{z}} = [0, 0, 1]^{T}` are the standard basis vectors. In this basis, Vulkans's left-handed 
+view coordinate system has the determinant
+
+```{math}
+\det \begin{bmatrix} \mathbf{\hat{x}} & -\mathbf{\hat{y}} & \mathbf{\hat{z}} \end{bmatrix}
+    =   \det \begin{bmatrix}
+            1 &  0 & 0 \\
+            0 & -1 & 0 \\
+            0 &  0 & 1 \\
+        \end{bmatrix}
+    = 1 \cdot -1 \cdot 1
+    = -1
+```
+
+and Vulkan's right-handed view coordinates and clip coordinates have the determinant 
+
+```{math}
+\det \begin{bmatrix} \mathbf{\hat{x}} & -\mathbf{\hat{y}} & -\mathbf{\hat{z}} \end{bmatrix}
+    =   \det \begin{bmatrix}
+            1 &  0 &  0 \\
+            0 & -1 &  0 \\
+            0 &  0 & -1 \\
+        \end{bmatrix}
+    = 1 \cdot -1 \cdot -1 
+    = 1
+```
+
+so the right-handed Vulkan view coordinate system and clip coordinate system indeed have a right-handed 
+orientation, and the left-handed view coordinate system has a left-handed orientation.
+
+
 ## Summary
 
 We develop the manifold structure of real projective space {math}`\mathbb{RP}^{3}` from scratch, then
 use that information to show how we can represent linear, affine, and projective transformations as
-matrices. We demonstrate why real projective space {math}`\mathbb{RP}^{3}` is the manifold for 
-solving computer graphics, geometric modeling, robotics, computer vision, and other spatial computing 
-domains formulated in the setting {math}`\mathbb{E}^{3}`. We use this knowledge to construct homogeneous 
-projection matrices.
+matrices. We demonstrate why real projective space {math}`\mathbb{RP}^{3}` is a convenient manifold for 
+solving problems in computer graphics, geometric modeling, robotics, computer vision, and other spatial 
+computing domains formulated in the setting {math}`\mathbb{E}^{3}`. We use this knowledge to construct 
+homogeneous projection matrices.
 
 We construct a set of projection matrices using a canonically chosen set of coordinates which makes 
 it easy to derive any other projection matrix using coordinate transformations in conjunction with
