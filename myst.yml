@@ -2,7 +2,7 @@
 version: 1
 project:
   id: 28b04220-e0b8-438c-96a2-905bd75d67f9
-  # title:
+  title: The House Of LambdaXymox
   # description:
   # keywords: []
   authors:
@@ -19,10 +19,11 @@ project:
       email: lambdaxymox@gmail.com
   github: https://github.com/lambdaxymox/lambdaxymox.github.io
   toc:
+    - file: content/00-index.md
     - file: content/01-projection_matrices.md
-  license: CC-BY-4.0
+  license: CC-BY-SA-4.0
 site:
   template: book-theme
   options:
     favicon: favicon.ico
-  #   logo: site_logo.png
+    logo: site_logo.svg

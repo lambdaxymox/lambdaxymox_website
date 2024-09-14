@@ -7,7 +7,8 @@ authors:
   - name: Lambda Xymox
   - email: lambdaxymox@gmail.com
   - github: https://github.com/lambdaxymox
-license: CC-BY-4.0
+license: CC-BY-SA-4.0
+date: 2024-09-11 14:30:00 +0000
 keywords: 
     computer-graphics, computer-science, linear-algebra, rendering, computer-vision, 
     geometric-modeling, projective-geometry, applied-computing
@@ -763,7 +764,7 @@ and projective transformations as linear transformations in linear projective sp
 these developments to our primary goal: constructing orthographic and perspective projection matrices 
 in homogeneous coordinates.
 
-:::{important} Matrix Representations Of Projective Transformations
+:::{important} Matrix Representations Of Projective Transformations In {math}`\mathbb{RP}^{3}`
 
 A linear transformation {math}`L : \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}` lifted over to 
 {math}`\mathbb{RP}^{3}` is a linear map {math}`\hat{L} : \mathbb{RP}^{3} \rightarrow \mathbb{RP}^{3}` with
@@ -2735,7 +2736,7 @@ P_{proj,w} &= P_{d} \\
 which completes the derivation of the unknown constants {math}`A^{\prime}` and {math}`B^{\prime}` as promised. 
 This completes the derivation of the perspective matrix.
 
-### The Canonical Symmetric Vertical Field Of View Perspective Matrix
+### The Canonical Symmetric Vertical Field Of View Perspective Projection Matrix
 
 In the symmetric case, {math}`r = l` and {math}`t = b`. The **width** of the viewport is 
 {math}`\text{width} = r - (-l) = r + l`. The **height** of the viewport is 
@@ -6110,3 +6111,12 @@ desired view coordinate system to the canonical one on one side, and mapping fro
 clip coordinate system to the desired clip coordinate system using the same process. This
 result shows that perspective and orthographic projections are indeed coordinate independent 
 transformations.
+
+## References
+
+- Lee, John M. 2011. _Introduction to Topological Manifolds_. (2nd ed.). Springer Science+Business Media, LLC.
+  https://doi.org/10.1007/978-1-4419-7940-7.
+- Marschner, Steve, et al. 2021. _Fundamentals of Computer Graphics_. 5th ed., A K Peters/CRC Press. 
+  https://doi.org/10.1201/9781003050339.
+- Munkres, James R. 2000. _Topology_. (2nd ed.). Pearson, Upper Saddle River, NJ.
+
