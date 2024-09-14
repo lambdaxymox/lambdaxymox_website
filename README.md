@@ -29,3 +29,17 @@ pip install mystmd jupyter sympy numpy
 ```
 
 and you're done.
+
+## Running The Website During Editing
+
+```bash
+myst start --execute
+```
+
+## Building The Website
+
+Build the website with the command
+
+```bash
+myst build --html
+```
