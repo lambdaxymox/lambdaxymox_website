@@ -1053,7 +1053,7 @@ use the constraints on the orthographic view volume to compute the auxiliary fun
 need to talk about some well chosen points. We need to construct the maps {math}`\xi_{h}, \xi_{v}, \xi_{d}` such that
 the parametrization of the orthographic view volume maps to the parametrization of the canonical view volume.
 That it, such that coordinates map as 
-{math}`-l \mapsto \alpha_{min}, r \mapsto \alpha_{max}, -b \mapsto beta_{min}, t \mapsto \beta_{max}, n \mapsto \gamma_{min}, f \mapsto \gamma_{max}`.
+{math}`-l \mapsto \alpha_{min}, r \mapsto \alpha_{max}, -b \mapsto \beta_{min}, t \mapsto \beta_{max}, n \mapsto \gamma_{min}, f \mapsto \gamma_{max}`.
 Consider the points in view coordinates
 
 ```{math}
@@ -1944,7 +1944,7 @@ use the constraints on the orthographic view volume to compute the functions. To
 need to talk about some well chosen points. We need to construct the maps 
 {math}`\phi_{h}, \phi_{v}, \phi_{d}` such that the parametrization of the orthographic view volume maps to 
 the parametrization of the canonical view volume. That it, such that coordinates map as 
-{math}`-l \mapsto \alpha_{min}`, {math}`r \mapsto \alpha_{max}`, {math}`-b \mapsto beta_{min}`, 
+{math}`-l \mapsto \alpha_{min}`, {math}`r \mapsto \alpha_{max}`, {math}`-b \mapsto \beta_{min}`, 
 {math}`t \mapsto \beta_{max}`, {math}`n \mapsto \gamma_{min}`, {math}`f \mapsto \gamma_{max}`. Consider the 
 points in view coordinates
 
@@ -2142,8 +2142,8 @@ Define the boundary conditions for our chosen points
 ```{math}
 \phi_{v} \left( Q_{left} \right)   &= 0 \\ 
 \phi_{v} \left( Q_{right} \right)  &= 0 \\
-\phi_{v} \left( Q_{bottom} \right) &= beta_{min} \\
-\phi_{v} \left( Q_{top} \right)    &= beta_{max} \\
+\phi_{v} \left( Q_{bottom} \right) &= \beta_{min} \\
+\phi_{v} \left( Q_{top} \right)    &= \beta_{max} \\
 \phi_{v} \left( Q_{near} \right)   &= 0 \\
 \phi_{v} \left( Q_{far} \right)    &= 0 \\
 ```

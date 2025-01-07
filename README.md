@@ -13,7 +13,7 @@ python -m venv .venv
 then activate the environment
 
 ```bash
-source ./venv/bin/activate
+source ./.venv/bin/activate
 ```
 
 then update `pip`
