@@ -21,6 +21,7 @@ project:
   toc:
     - file: content/00-index.md
     - file: content/01-projection_matrices.md
+    - file: content/02-book_review_vector_calculus.md
   license: CC-BY-SA-4.0
 site:
   template: book-theme
